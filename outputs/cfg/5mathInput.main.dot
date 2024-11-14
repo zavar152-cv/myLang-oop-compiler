@@ -1,0 +1,153 @@
+digraph CFG {
+    compound=true;
+    graph [splines=true];
+    node [shape=rectangle];
+
+    BB5 [label=<<B>BB5: Else Block</B><BR ALIGN="CENTER"/>FUNC_CALL<BR ALIGN="CENTER"/>>];
+    subgraph cluster_instruction0 {
+        label = "OT of BB5:0";
+        style=rounded;
+        color=blue;
+        entry0 [shape=point, style=invis];
+        node0 [label="return", color=blue];
+        node1 [label="call", color=blue];
+        node2 [label="func1", color=blue];
+        node1 -> node2[color=blue];
+        node0 -> node1[color=blue];
+    }
+    BB5 -> entry0 [lhead=cluster_instruction0, color=blue];
+    BB4 [label=<<B>BB4: Then Block</B><BR ALIGN="CENTER"/>FUNC_CALL<BR ALIGN="CENTER"/>>];
+    subgraph cluster_instruction1 {
+        label = "OT of BB4:0";
+        style=rounded;
+        color=blue;
+        entry1 [shape=point, style=invis];
+        node3 [label="return", color=blue];
+        node4 [label="call", color=blue];
+        node5 [label="func", color=blue];
+        node4 -> node5[color=blue];
+        node3 -> node4[color=blue];
+    }
+    BB4 -> entry1 [lhead=cluster_instruction1, color=blue];
+    BB3 [label=<<B>BB3: END</B><BR ALIGN="CENTER"/>>];
+    BB2 [label=<<B>BB2: If Condition</B><BR ALIGN="CENTER"/>EXPR<BR ALIGN="CENTER"/>>];
+    subgraph cluster_instruction2 {
+        label = "OT of BB2:0";
+        style=rounded;
+        color=blue;
+        entry2 [shape=point, style=invis];
+        node6 [label="litRead", color=blue];
+        node7 [label="BOOL", color=blue];
+        node6 -> node7[color=blue];
+        node8 [label="true", color=blue];
+        node6 -> node8[color=blue];
+    }
+    BB2 -> entry2 [lhead=cluster_instruction2, color=blue];
+    BB1 [label=<<B>BB1: Base block</B><BR ALIGN="CENTER"/>=<BR ALIGN="CENTER"/>VAR<BR ALIGN="CENTER"/>FUNC_CALL<BR ALIGN="CENTER"/>>];
+    subgraph cluster_instruction3 {
+        label = "OT of BB1:0";
+        style=rounded;
+        color=blue;
+        entry3 [shape=point, style=invis];
+        node9 [label="write", color=blue];
+        node10 [label="k", color=blue];
+        node9 -> node10[color=blue];
+        node11 [label="+", color=blue];
+        node12 [label="+", color=blue];
+        node13 [label="-", color=blue];
+        node14 [label="+", color=blue];
+        node15 [label="NOT", color=blue];
+        node16 [label="read", color=blue];
+        node17 [label="a", color=blue];
+        node16 -> node17[color=blue];
+        node15 -> node16[color=blue];
+        node14 -> node15[color=blue];
+        node18 [label="*", color=blue];
+        node19 [label="NOT", color=blue];
+        node20 [label="read", color=blue];
+        node21 [label="c", color=blue];
+        node20 -> node21[color=blue];
+        node19 -> node20[color=blue];
+        node18 -> node19[color=blue];
+        node22 [label="litRead", color=blue];
+        node23 [label="DEC", color=blue];
+        node22 -> node23[color=blue];
+        node24 [label="5", color=blue];
+        node22 -> node24[color=blue];
+        node18 -> node22[color=blue];
+        node14 -> node18[color=blue];
+        node13 -> node14[color=blue];
+        node25 [label="NEG", color=blue];
+        node26 [label="NEG", color=blue];
+        node27 [label="read", color=blue];
+        node28 [label="f", color=blue];
+        node27 -> node28[color=blue];
+        node26 -> node27[color=blue];
+        node25 -> node26[color=blue];
+        node13 -> node25[color=blue];
+        node12 -> node13[color=blue];
+        node29 [label="%", color=blue];
+        node30 [label="*", color=blue];
+        node31 [label="read", color=blue];
+        node32 [label="k", color=blue];
+        node31 -> node32[color=blue];
+        node30 -> node31[color=blue];
+        node33 [label="litRead", color=blue];
+        node34 [label="DEC", color=blue];
+        node33 -> node34[color=blue];
+        node35 [label="7", color=blue];
+        node33 -> node35[color=blue];
+        node30 -> node33[color=blue];
+        node29 -> node30[color=blue];
+        node36 [label="litRead", color=blue];
+        node37 [label="DEC", color=blue];
+        node36 -> node37[color=blue];
+        node38 [label="4", color=blue];
+        node36 -> node38[color=blue];
+        node29 -> node36[color=blue];
+        node12 -> node29[color=blue];
+        node11 -> node12[color=blue];
+        node39 [label="litRead", color=blue];
+        node40 [label="DEC", color=blue];
+        node39 -> node40[color=blue];
+        node41 [label="1", color=blue];
+        node39 -> node41[color=blue];
+        node11 -> node39[color=blue];
+        node9 -> node11[color=blue];
+    }
+    BB1 -> entry3 [lhead=cluster_instruction3, color=blue];
+    subgraph cluster_instruction4 {
+        label = "OT of BB1:1";
+        style=rounded;
+        color=blue;
+        entry4 [shape=point, style=invis];
+        node42 [label="declare", color=blue];
+        node43 [label="withType", color=blue];
+        node44 [label="int", color=blue];
+        node43 -> node44[color=blue];
+        node45 [label="builtin", color=blue];
+        node43 -> node45[color=blue];
+        node42 -> node43[color=blue];
+        node46 [label="a", color=blue];
+        node42 -> node46[color=blue];
+    }
+    BB1 -> entry4 [lhead=cluster_instruction4, color=blue];
+    subgraph cluster_instruction5 {
+        label = "OT of BB1:2";
+        style=rounded;
+        color=blue;
+        entry5 [shape=point, style=invis];
+        node47 [label="call", color=blue];
+        node48 [label="test", color=blue];
+        node47 -> node48[color=blue];
+    }
+    BB1 -> entry5 [lhead=cluster_instruction5, color=blue];
+    BB0 [label=<<B>BB0: START</B><BR ALIGN="CENTER"/>>];
+
+    BB5 -> BB3;
+    BB4 -> BB3;
+    BB2 -> BB5 [label="False", color=red];
+    BB2 -> BB4 [label="True", color=green];
+    BB1 -> BB2;
+    BB0 -> BB1;
+}

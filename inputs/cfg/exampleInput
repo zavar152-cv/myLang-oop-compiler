@@ -1,0 +1,79 @@
+int main(string[] args) {
+    int sampleInt;
+    sampleInt = 1;
+    bool sampleBool = true;
+    int[] arr;
+    a[1];
+    a;
+    a();
+    true;
+    1;
+    1+1;
+    "str";
+
+    {
+        int k = 0;
+        int c;
+        {
+            sampleInt = 1;
+            bool sampleBool = true;
+            {
+                int k = 0;
+                int c;
+                int c;
+                int c;
+                o;
+            }
+        }
+    }
+
+    {
+        int k = 0;
+    }
+
+    if (a + 4) {
+        int y;
+    } else {
+        int u;
+    }
+    
+    if (false) {
+        int y;
+    } else {
+        int u;
+    }
+
+
+
+    do {
+        int y;
+        while (a + b) {
+            int b;
+            int y;
+            if (false) {
+                int y;
+            } else {
+                int u;
+                call();
+                break;
+                call();
+            }
+            while (a + b) {
+                int f;
+                a = 8 + 9;
+                if (false) {
+                    int y;
+                    a = 9;
+                }
+                a = 9;
+            }
+        }
+        check();
+        int k;
+    } while (true);
+
+}
+
+int test(string[] args) {
+    int l;
+}

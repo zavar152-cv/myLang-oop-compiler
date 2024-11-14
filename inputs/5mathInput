@@ -1,0 +1,22 @@
+int func() {
+    if (true) {
+        j = 1;
+        while (a && b || c > 1 + 2)
+            a = 1;
+    } else {
+        while (c == h)
+            a = 1;   
+    }
+    a;
+}
+
+int main(string[] args) {
+    k = !a + !c * 5 - --f + k * 7 % 4 + 1;
+    int a;
+    test();
+    if (true) {
+        func();
+    } else {
+        func1();
+    }
+}
