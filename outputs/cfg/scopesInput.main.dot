@@ -1,0 +1,293 @@
+digraph CFG {
+    compound=true;
+    graph [splines=true];
+    node [shape=rectangle];
+
+    BB11 [label=<<B>BB11: Then Block</B><BR ALIGN="CENTER"/>=<BR ALIGN="CENTER"/>>];
+    subgraph cluster_instruction0 {
+        label = "OT of BB11:0";
+        style=rounded;
+        color=blue;
+        entry0 [shape=point, style=invis];
+        node0 [label="write", color=blue];
+        node1 [label="f", color=blue];
+        node0 -> node1[color=blue];
+        node2 [label="litRead", color=blue];
+        node3 [label="DEC", color=blue];
+        node2 -> node3[color=blue];
+        node4 [label="1", color=blue];
+        node2 -> node4[color=blue];
+        node0 -> node2[color=blue];
+    }
+    BB11 -> entry0 [lhead=cluster_instruction0, color=blue];
+    BB10 [label=<<B>BB10: END</B><BR ALIGN="CENTER"/>>];
+    BB9 [label=<<B>BB9: If Condition</B><BR ALIGN="CENTER"/>EXPR<BR ALIGN="CENTER"/>>];
+    subgraph cluster_instruction1 {
+        label = "OT of BB9:0";
+        style=rounded;
+        color=blue;
+        entry1 [shape=point, style=invis];
+        node5 [label="litRead", color=blue];
+        node6 [label="BOOL", color=blue];
+        node5 -> node6[color=blue];
+        node7 [label="true", color=blue];
+        node5 -> node7[color=blue];
+    }
+    BB9 -> entry1 [lhead=cluster_instruction1, color=blue];
+    BB8 [label=<<B>BB8: While Body</B><BR ALIGN="CENTER"/>FUNC_CALL<BR ALIGN="CENTER"/>>];
+    subgraph cluster_instruction2 {
+        label = "OT of BB8:0";
+        style=rounded;
+        color=blue;
+        entry2 [shape=point, style=invis];
+        node8 [label="call", color=blue];
+        node9 [label="func", color=blue];
+        node8 -> node9[color=blue];
+    }
+    BB8 -> entry2 [lhead=cluster_instruction2, color=blue];
+    BB7 [label=<<B>BB7: Empty block</B><BR ALIGN="CENTER"/>>];
+    BB6 [label=<<B>BB6: While Condition</B><BR ALIGN="CENTER"/>EXPR<BR ALIGN="CENTER"/>>];
+    subgraph cluster_instruction3 {
+        label = "OT of BB6:0";
+        style=rounded;
+        color=blue;
+        entry3 [shape=point, style=invis];
+        node10 [label="read", color=blue];
+        node11 [label="cond", color=blue];
+        node10 -> node11[color=blue];
+    }
+    BB6 -> entry3 [lhead=cluster_instruction3, color=blue];
+    BB5 [label=<<B>BB5: Then Block</B><BR ALIGN="CENTER"/>VAR<BR ALIGN="CENTER"/>=<BR ALIGN="CENTER"/>VAR<BR ALIGN="CENTER"/>>];
+    subgraph cluster_instruction4 {
+        label = "OT of BB5:0";
+        style=rounded;
+        color=blue;
+        entry4 [shape=point, style=invis];
+        node12 [label="declare", color=blue];
+        node13 [label="withType", color=blue];
+        node14 [label="int", color=blue];
+        node13 -> node14[color=blue];
+        node15 [label="builtin", color=blue];
+        node13 -> node15[color=blue];
+        node12 -> node13[color=blue];
+        node16 [label="a", color=blue];
+        node12 -> node16[color=blue];
+    }
+    BB5 -> entry4 [lhead=cluster_instruction4, color=blue];
+    subgraph cluster_instruction5 {
+        label = "OT of BB5:1";
+        style=rounded;
+        color=blue;
+        entry5 [shape=point, style=invis];
+        node17 [label="write", color=blue];
+        node18 [label="i", color=blue];
+        node17 -> node18[color=blue];
+        node19 [label="+", color=blue];
+        node20 [label="litRead", color=blue];
+        node21 [label="DEC", color=blue];
+        node20 -> node21[color=blue];
+        node22 [label="9", color=blue];
+        node20 -> node22[color=blue];
+        node19 -> node20[color=blue];
+        node23 [label="read", color=blue];
+        node24 [label="p", color=blue];
+        node23 -> node24[color=blue];
+        node19 -> node23[color=blue];
+        node17 -> node19[color=blue];
+    }
+    BB5 -> entry5 [lhead=cluster_instruction5, color=blue];
+    subgraph cluster_instruction6 {
+        label = "OT of BB5:2";
+        style=rounded;
+        color=blue;
+        entry6 [shape=point, style=invis];
+        node25 [label="declare", color=blue];
+        node26 [label="withType", color=blue];
+        node27 [label="int", color=blue];
+        node26 -> node27[color=blue];
+        node28 [label="builtin", color=blue];
+        node26 -> node28[color=blue];
+        node25 -> node26[color=blue];
+        node29 [label="k", color=blue];
+        node25 -> node29[color=blue];
+    }
+    BB5 -> entry6 [lhead=cluster_instruction6, color=blue];
+    BB4 [label=<<B>BB4: Base block</B><BR ALIGN="CENTER"/>=<BR ALIGN="CENTER"/>>];
+    subgraph cluster_instruction7 {
+        label = "OT of BB4:0";
+        style=rounded;
+        color=blue;
+        entry7 [shape=point, style=invis];
+        node30 [label="write", color=blue];
+        node31 [label="index", color=blue];
+        node32 [label="read", color=blue];
+        node33 [label="j", color=blue];
+        node32 -> node33[color=blue];
+        node31 -> node32[color=blue];
+        node34 [label="litRead", color=blue];
+        node35 [label="DEC", color=blue];
+        node34 -> node35[color=blue];
+        node36 [label="1", color=blue];
+        node34 -> node36[color=blue];
+        node31 -> node34[color=blue];
+        node30 -> node31[color=blue];
+        node37 [label="litRead", color=blue];
+        node38 [label="DEC", color=blue];
+        node37 -> node38[color=blue];
+        node39 [label="1", color=blue];
+        node37 -> node39[color=blue];
+        node30 -> node37[color=blue];
+    }
+    BB4 -> entry7 [lhead=cluster_instruction7, color=blue];
+    BB3 [label=<<B>BB3: If Condition</B><BR ALIGN="CENTER"/>EXPR<BR ALIGN="CENTER"/>>];
+    subgraph cluster_instruction8 {
+        label = "OT of BB3:0";
+        style=rounded;
+        color=blue;
+        entry8 [shape=point, style=invis];
+        node40 [label="litRead", color=blue];
+        node41 [label="BOOL", color=blue];
+        node40 -> node41[color=blue];
+        node42 [label="true", color=blue];
+        node40 -> node42[color=blue];
+    }
+    BB3 -> entry8 [lhead=cluster_instruction8, color=blue];
+    BB2 [label=<<B>BB2: Base block</B><BR ALIGN="CENTER"/>VAR<BR ALIGN="CENTER"/>VAR<BR ALIGN="CENTER"/>VAR<BR ALIGN="CENTER"/>>];
+    subgraph cluster_instruction9 {
+        label = "OT of BB2:0";
+        style=rounded;
+        color=blue;
+        entry9 [shape=point, style=invis];
+        node43 [label="declare", color=blue];
+        node44 [label="withType", color=blue];
+        node45 [label="Mybool", color=blue];
+        node44 -> node45[color=blue];
+        node46 [label="custom", color=blue];
+        node44 -> node46[color=blue];
+        node43 -> node44[color=blue];
+        node47 [label="b", color=blue];
+        node43 -> node47[color=blue];
+    }
+    BB2 -> entry9 [lhead=cluster_instruction9, color=blue];
+    subgraph cluster_instruction10 {
+        label = "OT of BB2:1";
+        style=rounded;
+        color=blue;
+        entry10 [shape=point, style=invis];
+        node48 [label="declare", color=blue];
+        node49 [label="withType", color=blue];
+        node50 [label="int", color=blue];
+        node49 -> node50[color=blue];
+        node51 [label="builtin", color=blue];
+        node49 -> node51[color=blue];
+        node52 [label="array", color=blue];
+        node53 [label="4", color=blue];
+        node52 -> node53[color=blue];
+        node49 -> node52[color=blue];
+        node48 -> node49[color=blue];
+        node54 [label="arr", color=blue];
+        node48 -> node54[color=blue];
+    }
+    BB2 -> entry10 [lhead=cluster_instruction10, color=blue];
+    subgraph cluster_instruction11 {
+        label = "OT of BB2:2";
+        style=rounded;
+        color=blue;
+        entry11 [shape=point, style=invis];
+        node55 [label="declare", color=blue];
+        node56 [label="withType", color=blue];
+        node57 [label="string", color=blue];
+        node56 -> node57[color=blue];
+        node58 [label="builtin", color=blue];
+        node56 -> node58[color=blue];
+        node55 -> node56[color=blue];
+        node59 [label="st", color=blue];
+        node55 -> node59[color=blue];
+        node60 [label="write", color=blue];
+        node61 [label="st", color=blue];
+        node60 -> node61[color=blue];
+        node62 [label="litRead", color=blue];
+        node63 [label="STR", color=blue];
+        node62 -> node63[color=blue];
+        node64 [label="\"lol\"", color=blue];
+        node62 -> node64[color=blue];
+        node60 -> node62[color=blue];
+        node55 -> node60[color=blue];
+    }
+    BB2 -> entry11 [lhead=cluster_instruction11, color=blue];
+    BB1 [label=<<B>BB1: Base block</B><BR ALIGN="CENTER"/>VAR<BR ALIGN="CENTER"/>>];
+    subgraph cluster_instruction12 {
+        label = "OT of BB1:0";
+        style=rounded;
+        color=blue;
+        entry12 [shape=point, style=invis];
+        node65 [label="seqDeclare", color=blue];
+        node66 [label="declare", color=blue];
+        node67 [label="withType", color=blue];
+        node68 [label="int", color=blue];
+        node67 -> node68[color=blue];
+        node69 [label="builtin", color=blue];
+        node67 -> node69[color=blue];
+        node66 -> node67[color=blue];
+        node70 [label="l", color=blue];
+        node66 -> node70[color=blue];
+        node71 [label="write", color=blue];
+        node72 [label="l", color=blue];
+        node71 -> node72[color=blue];
+        node73 [label="litRead", color=blue];
+        node74 [label="DEC", color=blue];
+        node73 -> node74[color=blue];
+        node75 [label="5", color=blue];
+        node73 -> node75[color=blue];
+        node71 -> node73[color=blue];
+        node66 -> node71[color=blue];
+        node65 -> node66[color=blue];
+        node76 [label="declare", color=blue];
+        node77 [label="withType", color=blue];
+        node78 [label="int", color=blue];
+        node77 -> node78[color=blue];
+        node79 [label="builtin", color=blue];
+        node77 -> node79[color=blue];
+        node76 -> node77[color=blue];
+        node80 [label="s", color=blue];
+        node76 -> node80[color=blue];
+        node81 [label="write", color=blue];
+        node82 [label="s", color=blue];
+        node81 -> node82[color=blue];
+        node83 [label="litRead", color=blue];
+        node84 [label="DEC", color=blue];
+        node83 -> node84[color=blue];
+        node85 [label="9", color=blue];
+        node83 -> node85[color=blue];
+        node81 -> node83[color=blue];
+        node76 -> node81[color=blue];
+        node65 -> node76[color=blue];
+        node86 [label="declare", color=blue];
+        node87 [label="withType", color=blue];
+        node88 [label="int", color=blue];
+        node87 -> node88[color=blue];
+        node89 [label="builtin", color=blue];
+        node87 -> node89[color=blue];
+        node86 -> node87[color=blue];
+        node90 [label="i", color=blue];
+        node86 -> node90[color=blue];
+        node65 -> node86[color=blue];
+    }
+    BB1 -> entry12 [lhead=cluster_instruction12, color=blue];
+    BB0 [label=<<B>BB0: START</B><BR ALIGN="CENTER"/>>];
+
+    BB11 -> BB10;
+    BB9 -> BB10 [label="False", color=red];
+    BB9 -> BB11 [label="True", color=green];
+    BB8 -> BB6;
+    BB7 -> BB4;
+    BB6 -> BB7 [label="False", color=red];
+    BB6 -> BB8 [label="True", color=green];
+    BB5 -> BB6;
+    BB4 -> BB9;
+    BB3 -> BB4 [label="False", color=red];
+    BB3 -> BB5 [label="True", color=green];
+    BB2 -> BB3;
+    BB1 -> BB2;
+    BB0 -> BB1;
+}

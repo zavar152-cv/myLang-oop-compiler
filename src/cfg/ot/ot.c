@@ -66,13 +66,13 @@ bool isLiteral(const char *label) {
           strcmp(label, DEC) == 0;
 }
 
-OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLvalue, bool isFunctionName, OperationTreeErrorContainer *container, const char* filename) {
+OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLvalue, bool isFunctionName, OperationTreeErrorContainer *container, ScopeManager *sm, const char* filename) {
   if (strcmp(root->label, ASSIGN) == 0) {
     //left - EXPR
     //right - EXPR
     OperationTreeNode *writeOpNode = newOperationTreeNode(WRITE, 2, root->line, root->pos, root->isImaginary);
-    OperationTreeNode *lValueExprNode = buildExprOperationTreeFromAstNode(root->children[0], true, false, container, filename);
-    OperationTreeNode *rValueExprNode = buildExprOperationTreeFromAstNode(root->children[1], false, false, container, filename);
+    OperationTreeNode *lValueExprNode = buildExprOperationTreeFromAstNode(root->children[0], true, false, container, sm, filename);
+    OperationTreeNode *rValueExprNode = buildExprOperationTreeFromAstNode(root->children[1], false, false, container, sm, filename);
     writeOpNode->children[0] = lValueExprNode;
     writeOpNode->children[1] = rValueExprNode;
     return writeOpNode;
@@ -84,11 +84,11 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
     //if count == 1
     //child - EXPR
     if (root->childCount == 2) {
-      OperationTreeNode *funcNameNode = buildExprOperationTreeFromAstNode(root->children[1], false, true, container, filename);
+      OperationTreeNode *funcNameNode = buildExprOperationTreeFromAstNode(root->children[1], false, true, container, sm, filename);
       OperationTreeNode *callNode = newOperationTreeNode(OT_CALL, 1 + root->children[0]->childCount, funcNameNode->line, funcNameNode->pos, funcNameNode->isImaginary);
       callNode->children[0] = funcNameNode;
       for (uint32_t i = 0; i < root->children[0]->childCount; i++) {
-        OperationTreeNode *argNode = buildExprOperationTreeFromAstNode(root->children[0]->children[i], false, false, container, filename);
+        OperationTreeNode *argNode = buildExprOperationTreeFromAstNode(root->children[0]->children[i], false, false, container, sm, filename);
         callNode->children[1 + i] = argNode;
       }
       if (isLvalue) {
@@ -105,7 +105,7 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
       }
       return callNode;
     } else if (root->childCount == 1) {
-      OperationTreeNode *funcNameNode = buildExprOperationTreeFromAstNode(root->children[0], false, true, container, filename);
+      OperationTreeNode *funcNameNode = buildExprOperationTreeFromAstNode(root->children[0], false, true, container, sm, filename);
       OperationTreeNode *callNode = newOperationTreeNode(OT_CALL, 1, funcNameNode->line, funcNameNode->pos, funcNameNode->isImaginary);
       callNode->children[0] = funcNameNode;
       if (isLvalue) {
@@ -126,7 +126,7 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
     //left - EXPR_LISR
     //right - EXPR
     if (root->childCount == 1) {
-      OperationTreeNode *indexNameNode = buildExprOperationTreeFromAstNode(root->children[0], false, true, container, filename);
+      OperationTreeNode *indexNameNode = buildExprOperationTreeFromAstNode(root->children[0], false, false, container, sm, filename);
       char buffer[1024];
       snprintf(buffer, sizeof(buffer),
                "Index error. Missing index value at %s:%d:%d\n",
@@ -139,11 +139,11 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
       }
       return indexNameNode;
     } else {
-      OperationTreeNode *indexNameNode = buildExprOperationTreeFromAstNode(root->children[1], false, true, container, filename);
+      OperationTreeNode *indexNameNode = buildExprOperationTreeFromAstNode(root->children[1], false, false, container, sm, filename);
       OperationTreeNode *indexNode = newOperationTreeNode(INDEX, 1 + root->children[0]->childCount, indexNameNode->line, indexNameNode->pos, indexNameNode->isImaginary);
       indexNode->children[0] = indexNameNode;
       for (uint32_t i = 0; i < root->children[0]->childCount; i++) {
-        OperationTreeNode *iNode = buildExprOperationTreeFromAstNode(root->children[0]->children[i], false, false, container, filename);
+        OperationTreeNode *iNode = buildExprOperationTreeFromAstNode(root->children[0]->children[i], false, false, container, sm, filename);
         indexNode->children[1 + i] = iNode;
       }
       return indexNode;
@@ -176,8 +176,8 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
       }        
     }
     OperationTreeNode *binaryOpNode = newOperationTreeNode(root->label, 2, root->line, root->pos, root->isImaginary);
-    OperationTreeNode *leftExprNode = buildExprOperationTreeFromAstNode(root->children[0], false, false, container, filename);
-    OperationTreeNode *rightExprNode = buildExprOperationTreeFromAstNode(root->children[1], false, false, container, filename);
+    OperationTreeNode *leftExprNode = buildExprOperationTreeFromAstNode(root->children[0], false, false, container, sm, filename);
+    OperationTreeNode *rightExprNode = buildExprOperationTreeFromAstNode(root->children[1], false, false, container, sm, filename);
 
     if (isCmpOp(root->label)) {
 
@@ -237,12 +237,26 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
       }        
     }
     OperationTreeNode *unaryOpNode = newOperationTreeNode(root->label, 1, root->line, root->pos, root->isImaginary);
-    OperationTreeNode *exprNode = buildExprOperationTreeFromAstNode(root->children[0], false, false, container, filename);
+    OperationTreeNode *exprNode = buildExprOperationTreeFromAstNode(root->children[0], false, false, container, sm, filename);
     unaryOpNode->children[0] = exprNode;
     return unaryOpNode;
   } else if (strcmp(root->label, IDENTIFIER) == 0) {
     //child - value, terminal
     OperationTreeNode *idValueNode = newOperationTreeNode(root->children[0]->label, 0, root->children[0]->line, root->children[0]->pos, root->children[0]->isImaginary);
+    if (!isFunctionName) {
+      Symbol *gotSymbol = findSymbol(sm, root->children[0]->label);
+      if (gotSymbol == NULL) {
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer),
+                "Var not found error. Var with name %s at %s:%d:%d is not declared\n",
+                root->children[0]->label, filename, root->children[0]->line, root->children[0]->pos + 1);
+        if (container->error == NULL) {
+          container->error = createOperationTreeErrorInfo(buffer);
+        } else {
+          addOperationTreeError(container, buffer);
+        }    
+      }
+    }
     if (isLvalue | isFunctionName) {
       return idValueNode;
     } else {
@@ -310,7 +324,7 @@ OperationTreeNode *buildTyperefHelper(OperationTreeErrorContainer *container, Ty
   return withTypeNode;
 }
 
-OperationTreeNode *buildVarDeclareHelper(MyAstNode* id, MyAstNode* init, OperationTreeErrorContainer *container, TypeInfo* varType, const char* filename) {
+OperationTreeNode *buildVarDeclareHelper(MyAstNode* id, MyAstNode* init, OperationTreeErrorContainer *container, TypeInfo* varType, ScopeManager *sm, const char* filename) {
   OperationTreeNode *declareNode;
   OperationTreeNode *withTypeNode = newOperationTreeNode(WITH_TYPE, varType->isArray ? 3 : 2, 0, 0, true);
   if (varType->isArray) {
@@ -335,7 +349,7 @@ OperationTreeNode *buildVarDeclareHelper(MyAstNode* id, MyAstNode* init, Operati
     assert(strcmp(init->children[0]->label, id->children[0]->label) == 0);
     OperationTreeNode *varInitExprNode;
     if (init->childCount == 2) {
-      varInitExprNode = buildExprOperationTreeFromAstNode(init->children[1], false, false, container, filename);
+      varInitExprNode = buildExprOperationTreeFromAstNode(init->children[1], false, false, container, sm, filename);
       OperationTreeNode *helperNode = newOperationTreeNode(WRITE, 2, id->children[0]->line, id->children[0]->pos, false);
       helperNode->children[0] = newOperationTreeNode(id->children[0]->label, 0, id->children[0]->line, id->children[0]->pos, false);
       helperNode->children[1] = varInitExprNode;
@@ -354,7 +368,7 @@ OperationTreeNode *buildVarDeclareHelper(MyAstNode* id, MyAstNode* init, Operati
     withTypeNode->children[1] = newOperationTreeNode(varType->custom ? CUSTOM : BUILTIN, 0, varType->line, varType->pos, false);
     OperationTreeNode *varInitExprNode;
     if (init->childCount == 2) {
-      varInitExprNode = buildExprOperationTreeFromAstNode(init->children[1], false, false, container, filename);
+      varInitExprNode = buildExprOperationTreeFromAstNode(init->children[1], false, false, container, sm, filename);
       OperationTreeNode *helperNode = newOperationTreeNode(WRITE, 2, id->children[0]->line, id->children[0]->pos, false);
       helperNode->children[0] = newOperationTreeNode(id->children[0]->label, 0, id->children[0]->line, id->children[0]->pos, false);
       helperNode->children[1] = varInitExprNode;
@@ -371,7 +385,7 @@ OperationTreeNode *buildVarDeclareHelper(MyAstNode* id, MyAstNode* init, Operati
   return declareNode;
 }
 
-OperationTreeNode *buildVarOperationTreeFromAstNode(MyAstNode* root, OperationTreeErrorContainer *container, TypeInfo* varType, const char* filename) {
+OperationTreeNode *buildVarOperationTreeFromAstNode(MyAstNode* root, OperationTreeErrorContainer *container, TypeInfo* varType, ScopeManager *sm, const char* filename) {
   assert(strcmp(root->children[0]->label, TYPEREF) == 0);
 
   uint32_t varCount = (root->childCount - 1) / 2;
@@ -379,12 +393,44 @@ OperationTreeNode *buildVarOperationTreeFromAstNode(MyAstNode* root, OperationTr
   OperationTreeNode *varNode;
   if (varCount == 1) {
     //use DECLARE node
-    varNode = buildVarDeclareHelper(root->children[1], root->children[2], container, varType, filename);
+    varNode = buildVarDeclareHelper(root->children[1], root->children[2], container, varType, sm, filename);
+    const char *symbolName = root->children[1]->children[0]->label;
+    Symbol *gotSymbol = findSymbol(sm, symbolName);
+    if (gotSymbol == NULL) {
+      addSymbol(sm, symbolName, varType->typeName, varType->custom, varType->isArray, varType->arrayDim, root->children[1]->children[0]->line, root->children[1]->children[0]->pos);
+    } else {
+      char buffer[1024];
+      snprintf(buffer, sizeof(buffer),
+              "Var declaration error. Var with name %s at %s:%d:%d was previously declared at %s:%d:%d\n",
+              symbolName, filename, root->children[1]->children[0]->line,
+              root->children[1]->children[0]->pos + 1, filename, gotSymbol->line, gotSymbol->pos + 1);
+      if (container->error == NULL) {
+        container->error = createOperationTreeErrorInfo(buffer);
+      } else {
+        addOperationTreeError(container, buffer);
+      }    
+    }
   } else {
     //use SEQ_DECLARE with childern type DECLARE
     varNode = newOperationTreeNode(SEQ_DECLARE, varCount, 0, 0, true);
     for (uint32_t i = 0; i < varCount; i++) {
-      varNode->children[i] = buildVarDeclareHelper(root->children[i + 1], root->children[i + 1 + varCount], container, varType, filename);
+      varNode->children[i] = buildVarDeclareHelper(root->children[i + 1], root->children[i + 1 + varCount], container, varType, sm, filename);
+      const char *symbolName = root->children[i + 1]->children[0]->label;
+      Symbol *gotSymbol = findSymbol(sm, symbolName);
+      if (gotSymbol == NULL) {
+        addSymbol(sm, symbolName, varType->typeName, varType->custom, varType->isArray, varType->arrayDim, root->children[i + 1]->children[0]->line, root->children[i + 1]->children[0]->pos);
+      } else {
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer),
+                "Var declaration error. Var with name %s at %s:%d:%d was previously declared at %s:%d:%d\n",
+                symbolName, filename, root->children[i + 1]->children[0]->line,
+                root->children[i + 1]->children[0]->pos + 1, filename, gotSymbol->line, gotSymbol->pos + 1);
+        if (container->error == NULL) {
+          container->error = createOperationTreeErrorInfo(buffer);
+        } else {
+          addOperationTreeError(container, buffer);
+        }         
+      }
     }
   }
   return varNode;

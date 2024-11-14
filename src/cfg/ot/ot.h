@@ -1,6 +1,7 @@
 #pragma once
 
 #include "grammar/ast/myAst.h"
+#include "../scope/scope.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -27,18 +28,6 @@ typedef struct OperationTreeNode {
   bool isImaginary;
 } OperationTreeNode;
 
-typedef struct TypeInfo TypeInfo;
-
-typedef struct TypeInfo {
-    char *typeName;
-    bool custom;
-    bool isArray;
-    uint32_t arrayDim;
-    uint32_t line;
-    uint32_t pos;
-    TypeInfo *next;
-} TypeInfo;
-
 typedef struct __attribute__((packed)) OperationTreeErrorInfo {
     char *message;
     struct OperationTreeErrorInfo *next;
@@ -50,13 +39,13 @@ typedef struct OperationTreeErrorContainer {
 
 OperationTreeNode *newOperationTreeNode(const char *label, uint32_t childCount, uint32_t line, uint32_t pos, bool isImaginary);
 
-OperationTreeNode *buildVarOperationTreeFromAstNode(MyAstNode* root, OperationTreeErrorContainer *container, TypeInfo* varType, const char* filename);
+OperationTreeNode *buildVarOperationTreeFromAstNode(MyAstNode* root, OperationTreeErrorContainer *container, TypeInfo* varType, ScopeManager *sm, const char* filename);
 
 TypeInfo* parseTyperef(MyAstNode* typeRef);
 
 void destroyOperationTreeNodeTree(OperationTreeNode *root);
 
-OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLvalue, bool isFunctionName, OperationTreeErrorContainer *error, const char* filename);
+OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLvalue, bool isFunctionName, OperationTreeErrorContainer *error, ScopeManager *sm, const char* filename);
 
 void printOperationTree(OperationTreeNode *root);
 

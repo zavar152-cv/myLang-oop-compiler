@@ -1,0 +1,23 @@
+int main(string[] args) {
+    int l = 5, s = 9, i;
+    {
+        Mybool b;
+        int[,,,] arr;
+        string st = "lol";
+        if (true) {
+            int a;
+            i = 9 + p;
+            int k;
+
+            while (cond) {
+                func();
+            }
+
+        }
+        j[1] = 1;
+
+        if (true)
+            f = 1;
+
+    }
+}
