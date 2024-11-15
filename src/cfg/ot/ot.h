@@ -26,6 +26,7 @@ typedef struct OperationTreeNode {
   uint32_t line;
   uint32_t pos;
   bool isImaginary;
+  TypeInfo *type;
 } OperationTreeNode;
 
 typedef struct __attribute__((packed)) OperationTreeErrorInfo {

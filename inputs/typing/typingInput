@@ -1,0 +1,21 @@
+int main(string[] args) {
+    int l;
+    long b;
+    uint a;
+    uint y;
+    bool p;
+    ulong h;
+    byte r;
+    char k = 'b';
+
+    l = r;
+    a = 879789789;
+    b = 67;
+    h = 34;
+    p = true;
+    r = 89;
+    k = 'a';
+    y = 5;
+
+    0;
+}

@@ -185,6 +185,14 @@ int main(int argc, char *argv[]) {
 
     Program* prog = buildProgram(&files, arguments.debug);
 
+    for (int i = 0; i < arguments.input_file_count; i++) {
+        if (!files.result[i]->isValid) {
+            printf("Parser errors of file %s:\n", files.fileName[i]);
+            printErrors(&files.result[i]->errorContext);
+            printf("\n");
+        } 
+    }
+
     if (prog->errors != NULL) {
         printf("Errors:\n");
         ProgramErrorInfo *error = prog->errors;
@@ -223,7 +231,7 @@ int main(int argc, char *argv[]) {
         CallGraph *graph = (CallGraph *)malloc(sizeof(CallGraph));
         graph->functions = NULL;
 
-        traverseProgramAndBuildCallGraph(prog, graph, arguments.debug);
+        traverseProgramAndBuildCallGraph(prog, graph, false);
         char* dir;
         char* path;
         if (arguments.output_dir != NULL) {
