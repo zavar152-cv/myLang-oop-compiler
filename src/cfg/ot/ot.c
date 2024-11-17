@@ -35,69 +35,69 @@ void destroyOperationTreeNodeTree(OperationTreeNode *root) {
 }
 
 bool isBinaryOp(const char *label) {
-  return strcmp(label, PLUS) == 0 |
-          strcmp(label, MINUS) == 0 |
-          strcmp(label, MUL) == 0 |
-          strcmp(label, DIV) == 0 |
-          strcmp(label, MOD) == 0 |
-          strcmp(label, LE) == 0 |
-          strcmp(label, GR) == 0 |
-          strcmp(label, LE_EQ) == 0 |
-          strcmp(label, GR_EQ) == 0 |
-          strcmp(label, EQ) == 0 |
-          strcmp(label, NEQ) == 0 |
-          strcmp(label, AND) == 0 |
+  return strcmp(label, PLUS) == 0 ||
+          strcmp(label, MINUS) == 0 ||
+          strcmp(label, MUL) == 0 ||
+          strcmp(label, DIV) == 0 ||
+          strcmp(label, MOD) == 0 ||
+          strcmp(label, LE) == 0 ||
+          strcmp(label, GR) == 0 ||
+          strcmp(label, LE_EQ) == 0 ||
+          strcmp(label, GR_EQ) == 0 ||
+          strcmp(label, EQ) == 0 ||
+          strcmp(label, NEQ) == 0 ||
+          strcmp(label, AND) == 0 ||
           strcmp(label, OR) == 0;
 }
 
 bool isArithmeticOp(const char *label) {
-  return strcmp(label, PLUS) == 0 |
-          strcmp(label, MINUS) == 0 |
-          strcmp(label, MUL) == 0 |
-          strcmp(label, DIV) == 0 |
-          strcmp(label, MOD) == 0 |
+  return strcmp(label, PLUS) == 0 ||
+          strcmp(label, MINUS) == 0 ||
+          strcmp(label, MUL) == 0 ||
+          strcmp(label, DIV) == 0 ||
+          strcmp(label, MOD) == 0 ||
           strcmp(label, NEG) == 0;
 }
 
 bool isLogicalOp(const char *label) {
-  return strcmp(label, AND) == 0 |
-          strcmp(label, OR) == 0 |
+  return strcmp(label, AND) == 0 ||
+          strcmp(label, OR) == 0 ||
           strcmp(label, NOT) == 0;
 }
 
 bool isEqOp(const char *label) {
-  return strcmp(label, EQ) == 0 |
+  return strcmp(label, EQ) == 0 ||
           strcmp(label, NEQ) == 0;
 }
 
 bool isCmpOp(const char *label) {
-  return  strcmp(label, LE) == 0 |
-          strcmp(label, GR) == 0 |
-          strcmp(label, LE_EQ) == 0 |
-          strcmp(label, GR_EQ) == 0 |
-          strcmp(label, EQ) == 0 |
+  return  strcmp(label, LE) == 0 ||
+          strcmp(label, GR) == 0 ||
+          strcmp(label, LE_EQ) == 0 ||
+          strcmp(label, GR_EQ) == 0 ||
+          strcmp(label, EQ) == 0 ||
           strcmp(label, NEQ) == 0;
 }
 
 bool isUnaryOp(const char *label) {
-  return strcmp(label, NEG) == 0 |
+  return strcmp(label, NEG) == 0 ||
           strcmp(label, NOT) == 0;
 }
 
 bool isLiteral(const char *label) {
-  return strcmp(label, BOOL) == 0 |
-          strcmp(label, STR) == 0 |
-          strcmp(label, SYMB) == 0 |
-          strcmp(label, HEX) == 0 |
-          strcmp(label, BITS) == 0 |
+  return strcmp(label, BOOL) == 0 ||
+          strcmp(label, STR) == 0 ||
+          strcmp(label, SYMB) == 0 ||
+          strcmp(label, HEX) == 0 ||
+          strcmp(label, BITS) == 0 ||
           strcmp(label, DEC) == 0;
 }
 
 bool isNumericType(const char *type) {
-  return strcmp(type, "byte") == 0 |
-          strcmp(type, "int") == 0 |
-          strcmp(type, "uint") == 0 |
-          strcmp(type, "long") == 0 |
+  return strcmp(type, "byte") == 0 ||
+          strcmp(type, "int") == 0 ||
+          strcmp(type, "uint") == 0 ||
+          strcmp(type, "long") == 0 ||
           strcmp(type, "ulong") == 0;
 }
 
@@ -177,6 +177,10 @@ bool isBinaryOperationAllowed(const char *op, const char *lType, const char *rTy
   } else {
     return false;
   }
+}
+
+bool isUnaryOperationAllowed(const char *op, const char *type) {
+  return isNumericType(type) && (isArithmeticOp(op) || isLogicalOp(op));
 }
 
 void checkTypeCompatibility(OperationTreeNode *lValueExprNode, OperationTreeNode *rValueExprNode, OperationTreeErrorContainer *container, const char* filename) {
@@ -374,51 +378,75 @@ void checkTypeCompatibility(OperationTreeNode *lValueExprNode, OperationTreeNode
       addOperationTreeError(container, buffer);
     }
   }
-}
 
-OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLvalue, bool isFunctionName, OperationTreeErrorContainer *container, ScopeManager *sm, const char* filename) {
-  if (strcmp(root->label, ASSIGN) == 0) {
-    //left - EXPR
-    //right - EXPR
-    OperationTreeNode *writeOpNode = newOperationTreeNode(WRITE, 2, root->line, root->pos, root->isImaginary);
-    OperationTreeNode *lValueExprNode = buildExprOperationTreeFromAstNode(root->children[0], true, false, container, sm, filename);
-    OperationTreeNode *rValueExprNode = buildExprOperationTreeFromAstNode(root->children[1], false, false, container, sm, filename);
-    
-    checkTypeCompatibility(lValueExprNode, rValueExprNode, container, filename);
-
-    if (lValueExprNode->type->isArray) {
-      if (strcmp(lValueExprNode->label, INDEX) == 0) {
-        OperationTreeNode *indexNode = lValueExprNode;
-        int dimI = 0;
-        while (strcmp(indexNode->label, INDEX) == 0) {
-          indexNode = indexNode->children[0];
-          dimI++;
-        }
-        if (dimI != lValueExprNode->type->arrayDim) {
-          char buffer[1024];
-          snprintf(buffer, sizeof(buffer),
-                  "Index error. Check indexing and array dimension match %s:%d:%d\n",
-                  filename, lValueExprNode->line,
-                  lValueExprNode->pos + 1);
-          if (container->error == NULL) {
-            container->error = createOperationTreeErrorInfo(buffer);
-          } else {
-            addOperationTreeError(container, buffer);
-          }   
-        }
-      } else {
+  if (lValueExprNode->type->isArray) {
+    if (strcmp(lValueExprNode->label, INDEX) == 0) {
+      OperationTreeNode *indexNode = lValueExprNode;
+      int dimI = 0;
+      while (strcmp(indexNode->label, INDEX) == 0) {
+        indexNode = indexNode->children[0];
+        dimI++;
+      }
+      if (dimI != lValueExprNode->type->arrayDim) {
         char buffer[1024];
         snprintf(buffer, sizeof(buffer),
-                "Assign error. Can't assign to array %s:%d:%d\n",
+                "Index error. Check indexing and array dimension match %s:%d:%d\n",
                 filename, lValueExprNode->line,
                 lValueExprNode->pos + 1);
         if (container->error == NULL) {
           container->error = createOperationTreeErrorInfo(buffer);
         } else {
           addOperationTreeError(container, buffer);
-        }        
+        }   
+      }
+    } else {
+      char buffer[1024];
+      snprintf(buffer, sizeof(buffer),
+              "Assign error. Can't assign to array %s:%d:%d\n",
+              filename, lValueExprNode->line,
+              lValueExprNode->pos + 1);
+      if (container->error == NULL) {
+        container->error = createOperationTreeErrorInfo(buffer);
+      } else {
+        addOperationTreeError(container, buffer);
+      }        
+    }
+  }
+
+  if (rValueExprNode->type->isArray) {
+    if (strcmp(rValueExprNode->label, INDEX) == 0) {
+      OperationTreeNode *indexNode = rValueExprNode;
+      int dimI = 0;
+      while (strcmp(indexNode->label, INDEX) == 0) {
+        indexNode = indexNode->children[0];
+        dimI++;
+      }
+
+      if (dimI != indexNode->type->arrayDim) {
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer),
+                "Index error. Check indexing and array dimension match %s:%d:%d\n",
+                filename, rValueExprNode->line,
+                rValueExprNode->pos + 1);
+        if (container->error == NULL) {
+          container->error = createOperationTreeErrorInfo(buffer);
+        } else {
+          addOperationTreeError(container, buffer);
+        }   
       }
     }
+  }
+}
+
+OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLvalue, bool isFunctionName, OperationTreeErrorContainer *container, ScopeManager *sm, FunctionTable *functionTable, const char* filename) {
+  if (strcmp(root->label, ASSIGN) == 0) {
+    //left - EXPR
+    //right - EXPR
+    OperationTreeNode *writeOpNode = newOperationTreeNode(WRITE, 2, root->line, root->pos, root->isImaginary);
+    OperationTreeNode *lValueExprNode = buildExprOperationTreeFromAstNode(root->children[0], true, false, container, sm, functionTable, filename);
+    OperationTreeNode *rValueExprNode = buildExprOperationTreeFromAstNode(root->children[1], false, false, container, sm, functionTable, filename);
+    
+    checkTypeCompatibility(lValueExprNode, rValueExprNode, container, filename);
 
     writeOpNode->children[0] = lValueExprNode;
     writeOpNode->children[1] = rValueExprNode;
@@ -432,14 +460,45 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
     //if count == 1
     //child - EXPR
     if (root->childCount == 2) {
-      OperationTreeNode *funcNameNode = buildExprOperationTreeFromAstNode(root->children[1], false, true, container, sm, filename);
+      OperationTreeNode *funcNameNode = buildExprOperationTreeFromAstNode(root->children[1], false, true, container, sm, functionTable, filename);
       OperationTreeNode *callNode = newOperationTreeNode(OT_CALL, 1 + root->children[0]->childCount, funcNameNode->line, funcNameNode->pos, funcNameNode->isImaginary);
       callNode->children[0] = funcNameNode;
       callNode->type = copyTypeInfo(funcNameNode->type);
+      FunctionEntry *func = findFunctionEntry(functionTable, funcNameNode->label);
       for (uint32_t i = 0; i < root->children[0]->childCount; i++) {
-        OperationTreeNode *argNode = buildExprOperationTreeFromAstNode(root->children[0]->children[i], false, false, container, sm, filename);
+        OperationTreeNode *argNode = buildExprOperationTreeFromAstNode(root->children[0]->children[i], false, false, container, sm, functionTable, filename);
         callNode->children[1 + i] = argNode;
       }
+
+      if (func != NULL && callNode->childCount - 1 == func->argumentsCount) {
+        for (uint32_t i = callNode->childCount - 1; i > 0; i--) {
+          if (func != NULL) {
+            ArgumentInfo *arg = func->arguments;
+            uint32_t j = callNode->childCount - 1;
+            while (j != i) {
+              arg = arg->next;
+              j--;
+            }
+            OperationTreeNode *fakeArgNode = newOperationTreeNode(arg->name, 0, arg->line, arg->pos, false);
+            fakeArgNode->type = copyTypeInfo(arg->type);
+            checkTypeCompatibility(fakeArgNode, callNode->children[i], container, filename);
+            destroyOperationTreeNodeTree(fakeArgNode);
+          } 
+        }
+        //don't show error, it was shown before
+      } else {
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer),
+                "Call error. Different count of parameters and arguments in calling function %s at %s:%d:%d\n",
+                func->functionName, filename, callNode->line,
+                callNode->pos + 1);
+        if (container->error == NULL) {
+          container->error = createOperationTreeErrorInfo(buffer);
+        } else {
+          addOperationTreeError(container, buffer);
+        }
+      }
+
       if (isLvalue) {
         char buffer[1024];
         snprintf(buffer, sizeof(buffer),
@@ -454,7 +513,7 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
       }
       return callNode;
     } else if (root->childCount == 1) {
-      OperationTreeNode *funcNameNode = buildExprOperationTreeFromAstNode(root->children[0], false, true, container, sm, filename);
+      OperationTreeNode *funcNameNode = buildExprOperationTreeFromAstNode(root->children[0], false, true, container, sm, functionTable, filename);
       OperationTreeNode *callNode = newOperationTreeNode(OT_CALL, 1, funcNameNode->line, funcNameNode->pos, funcNameNode->isImaginary);
       callNode->children[0] = funcNameNode;
       callNode->type = copyTypeInfo(funcNameNode->type);
@@ -476,7 +535,7 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
     //left - EXPR_LISR
     //right - EXPR
     if (root->childCount == 1) {
-      OperationTreeNode *indexNameNode = buildExprOperationTreeFromAstNode(root->children[0], true, false, container, sm, filename);
+      OperationTreeNode *indexNameNode = buildExprOperationTreeFromAstNode(root->children[0], true, false, container, sm, functionTable, filename);
       char buffer[1024];
       snprintf(buffer, sizeof(buffer),
                "Index error. Missing index value at %s:%d:%d\n",
@@ -489,7 +548,7 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
       }
       return indexNameNode;
     } else {
-      OperationTreeNode *indexNameNode = buildExprOperationTreeFromAstNode(root->children[1], true, false, container, sm, filename);
+      OperationTreeNode *indexNameNode = buildExprOperationTreeFromAstNode(root->children[1], true, false, container, sm, functionTable, filename);
       OperationTreeNode *indexNode = newOperationTreeNode(INDEX, 1 + root->children[0]->childCount, indexNameNode->line, indexNameNode->pos, indexNameNode->isImaginary);
       indexNode->children[0] = indexNameNode;
       indexNode->type = copyTypeInfo(indexNameNode->type);
@@ -506,7 +565,7 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
         }        
       }
       for (uint32_t i = 0; i < root->children[0]->childCount; i++) {
-        OperationTreeNode *iNode = buildExprOperationTreeFromAstNode(root->children[0]->children[i], false, false, container, sm, filename);
+        OperationTreeNode *iNode = buildExprOperationTreeFromAstNode(root->children[0]->children[i], false, false, container, sm, functionTable, filename);
         indexNode->children[1 + i] = iNode;
         if (strcmp(iNode->type->typeName, "int") != 0) {
           char buffer[1024];
@@ -552,8 +611,8 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
       }        
     }
     OperationTreeNode *binaryOpNode = newOperationTreeNode(root->label, 2, root->line, root->pos, root->isImaginary);
-    OperationTreeNode *leftExprNode = buildExprOperationTreeFromAstNode(root->children[0], false, false, container, sm, filename);
-    OperationTreeNode *rightExprNode = buildExprOperationTreeFromAstNode(root->children[1], false, false, container, sm, filename);
+    OperationTreeNode *leftExprNode = buildExprOperationTreeFromAstNode(root->children[0], false, false, container, sm, functionTable, filename);
+    OperationTreeNode *rightExprNode = buildExprOperationTreeFromAstNode(root->children[1], false, false, container, sm, functionTable, filename);
 
     if (isCmpOp(root->label)) {
 
@@ -659,10 +718,25 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
         addOperationTreeError(container, buffer);
       }        
     }
-    OperationTreeNode *unaryOpNode = newOperationTreeNode(root->label, 1, root->line, root->pos, root->isImaginary);
-    OperationTreeNode *exprNode = buildExprOperationTreeFromAstNode(root->children[0], false, false, container, sm, filename);
+    OperationTreeNode *exprNode = buildExprOperationTreeFromAstNode(root->children[0], false, false, container, sm, functionTable, filename);
+    OperationTreeNode *unaryOpNode = newOperationTreeNode(root->label, 1, exprNode->line, exprNode->pos, root->isImaginary);
     unaryOpNode->children[0] = exprNode;
-    //TODO
+    if (isUnaryOperationAllowed(unaryOpNode->label, exprNode->type->typeName)) {
+      unaryOpNode->type = copyTypeInfo(exprNode->type);
+    } else {
+      unaryOpNode->type = copyTypeInfo(exprNode->type);
+      char buffer[1024];
+      snprintf(buffer, sizeof(buffer),
+              "Operation error. Can't apply unary operation '%s' for type %s at %s:%d:%d\n",
+              unaryOpNode->label, exprNode->type->typeName,
+              filename, exprNode->line,
+              exprNode->pos + 1);
+      if (container->error == NULL) {
+        container->error = createOperationTreeErrorInfo(buffer);
+      } else {
+        addOperationTreeError(container, buffer);
+      }
+    }
     return unaryOpNode;
   } else if (strcmp(root->label, IDENTIFIER) == 0) {
     //child - value, terminal
@@ -684,8 +758,21 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
         idValueNode->type = createTypeInfo(gotSymbol->typeName, gotSymbol->custom, gotSymbol->isArray, gotSymbol->arrayDim, gotSymbol->line, gotSymbol->pos);
       }
     } else {
-      //TODO
-      //idValueNode->type = createTypeInfo("int", false, true, 0, root->children[0]->line, root->children[0]->pos);
+      FunctionEntry *entry = findFunctionEntry(functionTable, root->children[0]->label);
+      if (entry == NULL) {
+        idValueNode->type = createTypeInfo("_", false, false, 0, root->children[0]->line, root->children[0]->pos);
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer),
+                "Function not found error. Function with name %s at %s:%d:%d is not declared\n",
+                root->children[0]->label, filename, root->children[0]->line, root->children[0]->pos + 1);
+        if (container->error == NULL) {
+          container->error = createOperationTreeErrorInfo(buffer);
+        } else {
+          addOperationTreeError(container, buffer);
+        }    
+      } else {
+        idValueNode->type = copyTypeInfo(entry->returnType);
+      }
     }
 
     if (isLvalue | isFunctionName) {
@@ -801,7 +888,7 @@ OperationTreeNode *buildTyperefHelper(OperationTreeErrorContainer *container, Ty
   return withTypeNode;
 }
 
-OperationTreeNode *buildVarDeclareHelper(MyAstNode* id, MyAstNode* init, OperationTreeErrorContainer *container, TypeInfo* varType, ScopeManager *sm, const char* filename) {
+OperationTreeNode *buildVarDeclareHelper(MyAstNode* id, MyAstNode* init, OperationTreeErrorContainer *container, TypeInfo* varType, ScopeManager *sm, FunctionTable *functionTable, const char* filename) {
   OperationTreeNode *declareNode;
   OperationTreeNode *withTypeNode = newOperationTreeNode(WITH_TYPE, varType->isArray ? 3 : 2, 0, 0, true);
   if (varType->isArray) {
@@ -826,7 +913,7 @@ OperationTreeNode *buildVarDeclareHelper(MyAstNode* id, MyAstNode* init, Operati
     assert(strcmp(init->children[0]->label, id->children[0]->label) == 0);
     OperationTreeNode *varInitExprNode;
     if (init->childCount == 2) {
-      varInitExprNode = buildExprOperationTreeFromAstNode(init->children[1], false, false, container, sm, filename);
+      varInitExprNode = buildExprOperationTreeFromAstNode(init->children[1], false, false, container, sm, functionTable, filename);
       OperationTreeNode *helperNode = newOperationTreeNode(WRITE, 2, id->children[0]->line, id->children[0]->pos, false);
       helperNode->children[0] = newOperationTreeNode(id->children[0]->label, 0, id->children[0]->line, id->children[0]->pos, false);
       helperNode->children[0]->type = copyTypeInfo(varType);
@@ -850,7 +937,7 @@ OperationTreeNode *buildVarDeclareHelper(MyAstNode* id, MyAstNode* init, Operati
     withTypeNode->children[1] = newOperationTreeNode(varType->custom ? CUSTOM : BUILTIN, 0, varType->line, varType->pos, false);
     OperationTreeNode *varInitExprNode;
     if (init->childCount == 2) {
-      varInitExprNode = buildExprOperationTreeFromAstNode(init->children[1], false, false, container, sm, filename);
+      varInitExprNode = buildExprOperationTreeFromAstNode(init->children[1], false, false, container, sm, functionTable, filename);
       OperationTreeNode *helperNode = newOperationTreeNode(WRITE, 2, id->children[0]->line, id->children[0]->pos, false);
       helperNode->children[0] = newOperationTreeNode(id->children[0]->label, 0, id->children[0]->line, id->children[0]->pos, false);
       helperNode->children[0]->type = copyTypeInfo(varType);
@@ -872,7 +959,7 @@ OperationTreeNode *buildVarDeclareHelper(MyAstNode* id, MyAstNode* init, Operati
   return declareNode;
 }
 
-OperationTreeNode *buildVarOperationTreeFromAstNode(MyAstNode* root, OperationTreeErrorContainer *container, TypeInfo* varType, ScopeManager *sm, const char* filename) {
+OperationTreeNode *buildVarOperationTreeFromAstNode(MyAstNode* root, OperationTreeErrorContainer *container, TypeInfo* varType, ScopeManager *sm, FunctionTable *functionTable, const char* filename) {
   assert(strcmp(root->children[0]->label, TYPEREF) == 0);
 
   uint32_t varCount = (root->childCount - 1) / 2;
@@ -880,7 +967,7 @@ OperationTreeNode *buildVarOperationTreeFromAstNode(MyAstNode* root, OperationTr
   OperationTreeNode *varNode;
   if (varCount == 1) {
     //use DECLARE node
-    varNode = buildVarDeclareHelper(root->children[1], root->children[2], container, varType, sm, filename);
+    varNode = buildVarDeclareHelper(root->children[1], root->children[2], container, varType, sm, functionTable, filename);
     const char *symbolName = root->children[1]->children[0]->label;
     Symbol *gotSymbol = findSymbol(sm, symbolName);
     if (gotSymbol == NULL) {
@@ -904,7 +991,7 @@ OperationTreeNode *buildVarOperationTreeFromAstNode(MyAstNode* root, OperationTr
     uint32_t i = 1;
     uint32_t varI = 0;
     while (i + 1 < root->childCount) {
-      varNode->children[varI] = buildVarDeclareHelper(root->children[i], root->children[i + 1], container, varType, sm, filename);
+      varNode->children[varI] = buildVarDeclareHelper(root->children[i], root->children[i + 1], container, varType, sm, functionTable, filename);
       const char *symbolName = root->children[i]->children[0]->label;
       Symbol *gotSymbol = findSymbol(sm, symbolName);
       if (gotSymbol == NULL) {
@@ -925,6 +1012,7 @@ OperationTreeNode *buildVarOperationTreeFromAstNode(MyAstNode* root, OperationTr
       i += 2;
       varI++;
     }
+    varNode->type = copyTypeInfo(varNode->children[0]->type);
   }
   return varNode;
 }
@@ -1036,7 +1124,7 @@ ArgumentInfo *copyArgumentInfo(ArgumentInfo *argInfo) {
     return copy;
 }
 
-FunctionEntry *createFunctionEntry(const char *fileName, const char *functionName, TypeInfo *returnType, ArgumentInfo *arguments, uint32_t line, uint32_t pos) {
+FunctionEntry *createFunctionEntry(const char *fileName, const char *functionName, TypeInfo *returnType, ArgumentInfo *arguments, uint32_t argumentsCount, uint32_t line, uint32_t pos) {
     FunctionEntry *entry = (FunctionEntry *)malloc(sizeof(FunctionEntry));
     if (!entry) {
         return NULL;
@@ -1048,6 +1136,7 @@ FunctionEntry *createFunctionEntry(const char *fileName, const char *functionNam
     entry->next = NULL;
     entry->line = line;
     entry->pos = pos;
+    entry->argumentsCount = argumentsCount;
     return entry;
 }
 
@@ -1091,4 +1180,19 @@ void addFunctionTable(FunctionTable *table, FunctionEntry *entry) {
 
     entry->next = table->entry;
     table->entry = entry;
+}
+
+FunctionEntry *findFunctionEntry(FunctionTable *table, const char *functionName) {
+    if (!table || !functionName) {
+        return NULL;
+    }
+
+    FunctionEntry *current = table->entry;
+    while (current != NULL) {
+        if (strcmp(current->functionName, functionName) == 0) {
+            return current;
+        }
+        current = current->next;
+    }
+    return NULL;
 }

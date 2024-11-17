@@ -52,6 +52,7 @@ typedef struct FunctionEntry {
     TypeInfo *returnType;
     ArgumentInfo *arguments;
     struct FunctionEntry *next;
+    uint32_t argumentsCount;
     uint32_t line;
     uint32_t pos;
 } FunctionEntry;
@@ -62,13 +63,13 @@ typedef struct FunctionTable {
 
 OperationTreeNode *newOperationTreeNode(const char *label, uint32_t childCount, uint32_t line, uint32_t pos, bool isImaginary);
 
-OperationTreeNode *buildVarOperationTreeFromAstNode(MyAstNode* root, OperationTreeErrorContainer *container, TypeInfo* varType, ScopeManager *sm, const char* filename);
+OperationTreeNode *buildVarOperationTreeFromAstNode(MyAstNode* root, OperationTreeErrorContainer *container, TypeInfo* varType, ScopeManager *sm, FunctionTable *functionTable, const char* filename);
 
 TypeInfo* parseTyperef(MyAstNode* typeRef);
 
 void destroyOperationTreeNodeTree(OperationTreeNode *root);
 
-OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLvalue, bool isFunctionName, OperationTreeErrorContainer *error, ScopeManager *sm, const char* filename);
+OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLvalue, bool isFunctionName, OperationTreeErrorContainer *error, ScopeManager *sm, FunctionTable *functionTable, const char* filename);
 
 void printOperationTree(OperationTreeNode *root);
 
@@ -88,7 +89,7 @@ ArgumentInfo *copyArgumentInfo(ArgumentInfo *argInfo);
 
 TypeInfo *copyTypeInfo(TypeInfo *typeInfo);
 
-FunctionEntry *createFunctionEntry(const char *fileName, const char *functionName, TypeInfo *returnType, ArgumentInfo *arguments, uint32_t line, uint32_t pos);
+FunctionEntry *createFunctionEntry(const char *fileName, const char *functionName, TypeInfo *returnType, ArgumentInfo *arguments, uint32_t argumentsCount, uint32_t line, uint32_t pos);
 
 void freeFunctionEntry(FunctionEntry *entry);
 
@@ -97,3 +98,7 @@ FunctionTable *createFunctionTable();
 void freeFunctionTable(FunctionTable *table);
 
 void addFunctionTable(FunctionTable *table, FunctionEntry *entry);
+
+FunctionEntry *findFunctionEntry(FunctionTable *table, const char *functionName);
+
+void checkTypeCompatibility(OperationTreeNode *lValueExprNode, OperationTreeNode *rValueExprNode, OperationTreeErrorContainer *container, const char* filename);

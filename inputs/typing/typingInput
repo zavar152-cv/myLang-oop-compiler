@@ -2,9 +2,37 @@ int main(string[] args) {
 
     bool[] arr;
     bool[][] arr2;
-    long a = 1;
+    int a = test(), b = 1;
 
-    arr2[1][1] = arr[1];
+    bool p = arr2[0][1];
+
+    arr2[1][1] = arr[test()];
+
+    arr[0] = true == false;
+
+    a = test();
+
+    a = 1;
+
+    test2(1, "lol");
+
+    test3(arr2[0]);
+
 
     0;
+}
+
+int test() {
+    1;
+}
+
+int test2(int y, string s) {
+    1;
+}
+
+int test3(bool b) {
+
+    int[] a;
+
+    a[1];
 }
