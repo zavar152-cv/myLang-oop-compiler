@@ -1,5 +1,5 @@
 #include "cfg.h"
-#include "grammar/ast/myAst.h"
+#include "../grammar/ast/myAst.h"
 #include "ot/ot.h"
 #include <assert.h>
 #include <stdbool.h>
@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "grammar/myLang.h"
+#include "../grammar/myLang.h"
 #include "scope/scope.h"
 
 BasicBlock *parseBlock(MyAstNode* block, Program *program, const char* filename, bool isLoop, BasicBlock* prevBlock, BasicBlock* existingBlock, BasicBlock* loopBlock, CFG *cfg, ScopeManager *sm, uint32_t *uid);
@@ -459,6 +459,7 @@ Program *buildProgram(FilesToAnalyze *files, bool debug) {
   program->functions = NULL;
   program->errors = NULL;
   program->warnings = NULL;
+  FunctionTable *functionTable = createFunctionTable();
 
   bool redef = false;
   for (uint32_t i = 0; i < files->filesCount; i++) {
@@ -517,6 +518,9 @@ Program *buildProgram(FilesToAnalyze *files, bool debug) {
       }
 
       addFunctionToProgram(program, info);
+      TypeInfo *returnTypeCopy = createTypeInfo(info->returnType->typeName, info->returnType->custom, info->returnType->isArray, info->returnType->arrayDim, info->returnType->line, info->returnType->pos);
+      FunctionEntry *entry = createFunctionEntry(info->fileName, info->functionName, returnTypeCopy, copyArgumentInfo(info->arguments), info->line, info->pos);
+      addFunctionTable(functionTable, entry);
     }
   }
   
@@ -590,7 +594,18 @@ Program *buildProgram(FilesToAnalyze *files, bool debug) {
                   strcmp(lastOperation->label, INDEX) == 0)) {
                   OperationTreeNode *returnNode = newOperationTreeNode(RETURN, 1, lastOperation->line, lastOperation->pos, false);
                   returnNode->children[0] = lastOperation;
+                  returnNode->type = copyTypeInfo(lastOperation->type);
                   incomingBlock->instructions[incomingBlock->instructionCount - 1].otRoot = returnNode;
+                  if (!(strcmp(returnNode->type->typeName, func->returnType->typeName) == 0 && (returnNode->type->isArray == func->returnType->isArray))) {
+                     char buffer[1024];
+                     
+                     snprintf(buffer, sizeof(buffer), 
+                    "Type error. Return type doesn't match function signature (%s and %s) at %s:%d:%d",
+                            returnNode->type->typeName, func->returnType->typeName,
+                            files->fileName[i], lastOperation->line, lastOperation->pos + 1);
+                    ProgramErrorInfo* error = createProgramErrorInfo(buffer);
+                    addProgramError(program, error);
+                  }
               } else {
                 char buffer[1024];
                 
@@ -625,6 +640,7 @@ Program *buildProgram(FilesToAnalyze *files, bool debug) {
     }
   }
 
+  freeFunctionTable(functionTable);
   return program;
 }
 

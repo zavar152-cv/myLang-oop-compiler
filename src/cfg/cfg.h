@@ -1,6 +1,6 @@
 #pragma once
 
-#include "grammar/myLang.h"
+#include "../grammar/myLang.h"
 #include "tokens.h"
 #include "ot/ot.h"
 #include "cg/cg.h"
@@ -54,14 +54,6 @@ typedef struct {
     BasicBlock *entryBlock;
     BasicBlock *blocks;
 } CFG;
-
-typedef struct ArgumentInfo {
-    TypeInfo *type;
-    char *name;
-    struct ArgumentInfo *next;
-    uint32_t line;
-    uint32_t pos;
-} ArgumentInfo;
 
 typedef struct FunctionInfo {
     char *fileName;

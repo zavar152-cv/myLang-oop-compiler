@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ast/myAst.h"
-#include "errorsUtils/errorUtils.h"
+#include "../errorsUtils/errorUtils.h"
 #include <stdbool.h>
 
 typedef struct MyLangResult {

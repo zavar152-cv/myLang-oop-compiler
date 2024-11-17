@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <antlr3.h>
 #include <stdbool.h>
-#include "grammar/ast/myAst.h"
+#include "../grammar/ast/myAst.h"
 
 #define FILE_ERROR -1
 

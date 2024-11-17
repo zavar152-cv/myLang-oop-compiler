@@ -14,6 +14,7 @@ typedef struct TypeInfo {
     TypeInfo *next;
 } TypeInfo;
 
+//TypeInfo for arrays? NULL for non-arrays?
 typedef struct Symbol {
     char *name;
     char *typeName;
@@ -43,6 +44,6 @@ void exitScope(ScopeManager *sm);
 
 void addSymbol(ScopeManager *sm, const char *name, const char *typeName, bool custom, bool isArray, uint32_t arrayDim, uint32_t line, uint32_t pos);
 
-Symbol* findSymbol(ScopeManager *sm, const char *name);
+Symbol *findSymbol(ScopeManager *sm, const char *name);
 
 void printScopes(ScopeManager *sm);

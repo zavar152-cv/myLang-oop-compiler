@@ -127,7 +127,11 @@ array
     ;
 
 var
-    : typeRef ((identifier ('=' expr)?) (',' (identifier ('=' expr)?))*) -> ^(VAR ^(typeRef) ^(IDENTIFIER identifier)* ^(INIT identifier expr)*)
+    : typeRef varDecl (',' varDecl)* -> ^(VAR typeRef varDecl+)
+    ;
+
+varDecl
+    : identifier ('=' expr)? -> ^(IDENTIFIER identifier) ^(INIT identifier expr?)
     ;
 
 baseType

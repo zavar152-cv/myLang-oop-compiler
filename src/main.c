@@ -6,7 +6,7 @@
 #include <string.h>
 
 #include "grammar/myLang.h"
-#include "dotUtils/dotUtils.h"
+#include "./dotUtils/dotUtils.h"
 #include "cfg/cfg.h"
 #include "cfg/cg/cg.h"
 

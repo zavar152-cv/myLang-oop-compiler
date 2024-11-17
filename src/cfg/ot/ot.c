@@ -1,6 +1,6 @@
 #include "ot.h"
 #include "../tokens.h"
-#include "cfg/cfg.h"
+#include "../cfg.h"
 #include <errno.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -50,6 +50,26 @@ bool isBinaryOp(const char *label) {
           strcmp(label, OR) == 0;
 }
 
+bool isArithmeticOp(const char *label) {
+  return strcmp(label, PLUS) == 0 |
+          strcmp(label, MINUS) == 0 |
+          strcmp(label, MUL) == 0 |
+          strcmp(label, DIV) == 0 |
+          strcmp(label, MOD) == 0 |
+          strcmp(label, NEG) == 0;
+}
+
+bool isLogicalOp(const char *label) {
+  return strcmp(label, AND) == 0 |
+          strcmp(label, OR) == 0 |
+          strcmp(label, NOT) == 0;
+}
+
+bool isEqOp(const char *label) {
+  return strcmp(label, EQ) == 0 |
+          strcmp(label, NEQ) == 0;
+}
+
 bool isCmpOp(const char *label) {
   return  strcmp(label, LE) == 0 |
           strcmp(label, GR) == 0 |
@@ -71,6 +91,26 @@ bool isLiteral(const char *label) {
           strcmp(label, HEX) == 0 |
           strcmp(label, BITS) == 0 |
           strcmp(label, DEC) == 0;
+}
+
+bool isNumericType(const char *type) {
+  return strcmp(type, "byte") == 0 |
+          strcmp(type, "int") == 0 |
+          strcmp(type, "uint") == 0 |
+          strcmp(type, "long") == 0 |
+          strcmp(type, "ulong") == 0;
+}
+
+bool isLogicalType(const char *type) {
+  return strcmp(type, "bool") == 0;
+}
+
+bool isSymbType(const char *type) {
+  return strcmp(type, "char") == 0;
+}
+
+bool isTextType(const char *type) {
+  return strcmp(type, "string") == 0;
 }
 
 bool isCanBeByte(const char *str) {
@@ -127,6 +167,215 @@ bool isCanBeUnsignedLong(const char *str) {
   return false;
 }
 
+bool isBinaryOperationAllowed(const char *op, const char *lType, const char *rType) {
+  if (isArithmeticOp(op)) {
+    return (isNumericType(lType) && isNumericType(rType));
+  } else if (isEqOp(op)) {
+    return true;
+  } else if (isLogicalOp(op)) {
+    return (isNumericType(lType) && isNumericType(rType)) || (isLogicalType(lType) && isLogicalType(rType));
+  } else {
+    return false;
+  }
+}
+
+void checkTypeCompatibility(OperationTreeNode *lValueExprNode, OperationTreeNode *rValueExprNode, OperationTreeErrorContainer *container, const char* filename) {
+  if (!lValueExprNode->type->custom && !lValueExprNode->type->isArray) {
+    if (strcmp(lValueExprNode->type->typeName, "byte") == 0) {
+      if (strcmp(rValueExprNode->label, LIT_READ) == 0 &&
+          isCanBeByte(rValueExprNode->children[1]->label)) {
+        TypeInfo *newTypeParent =
+            createTypeInfo("byte", false, false, 0, rValueExprNode->type->line,
+                           rValueExprNode->type->pos);
+        TypeInfo *newTypeChild = createTypeInfo(
+            "byte", false, false, 0, rValueExprNode->children[1]->type->line,
+            rValueExprNode->children[1]->type->pos);
+        freeTypeInfo(rValueExprNode->type);
+        freeTypeInfo(rValueExprNode->children[1]->type);
+        rValueExprNode->type = newTypeParent;
+        rValueExprNode->children[1]->type = newTypeChild;
+      } else if (strcmp(rValueExprNode->type->typeName, "byte") != 0) {
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer),
+                 "Type error. Can't cast value at %s:%d:%d to byte\n", filename,
+                 rValueExprNode->line, rValueExprNode->pos + 1);
+        if (container->error == NULL) {
+          container->error = createOperationTreeErrorInfo(buffer);
+        } else {
+          addOperationTreeError(container, buffer);
+        }
+      }
+    } else if (strcmp(lValueExprNode->type->typeName, "int") == 0) {
+      if (strcmp(rValueExprNode->type->typeName, "byte") != 0 &&
+          strcmp(rValueExprNode->type->typeName, "int") != 0) {
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer),
+                 "Type error. Can't cast value at %s:%d:%d to int\n", filename,
+                 rValueExprNode->line, rValueExprNode->pos + 1);
+        if (container->error == NULL) {
+          container->error = createOperationTreeErrorInfo(buffer);
+        } else {
+          addOperationTreeError(container, buffer);
+        }
+      }
+    } else if (strcmp(lValueExprNode->type->typeName, "uint") == 0) {
+      if (strcmp(rValueExprNode->label, LIT_READ) == 0 &&
+          isCanBeUnsignedInt(rValueExprNode->children[1]->label)) {
+        TypeInfo *newTypeParent =
+            createTypeInfo("uint", false, false, 0, rValueExprNode->type->line,
+                           rValueExprNode->type->pos);
+        TypeInfo *newTypeChild = createTypeInfo(
+            "uint", false, false, 0, rValueExprNode->children[1]->type->line,
+            rValueExprNode->children[1]->type->pos);
+        freeTypeInfo(rValueExprNode->type);
+        freeTypeInfo(rValueExprNode->children[1]->type);
+        rValueExprNode->type = newTypeParent;
+        rValueExprNode->children[1]->type = newTypeChild;
+      } else if (strcmp(rValueExprNode->type->typeName, "uint") != 0) {
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer),
+                 "Type error. Can't cast value at %s:%d:%d to uint\n", filename,
+                 rValueExprNode->line, rValueExprNode->pos + 1);
+        if (container->error == NULL) {
+          container->error = createOperationTreeErrorInfo(buffer);
+        } else {
+          addOperationTreeError(container, buffer);
+        }
+      }
+    } else if (strcmp(lValueExprNode->type->typeName, "long") == 0) {
+      if (strcmp(rValueExprNode->label, LIT_READ) == 0 &&
+          isCanBeLong(rValueExprNode->children[1]->label)) {
+        TypeInfo *newTypeParent =
+            createTypeInfo("long", false, false, 0, rValueExprNode->type->line,
+                           rValueExprNode->type->pos);
+        TypeInfo *newTypeChild = createTypeInfo(
+            "long", false, false, 0, rValueExprNode->children[1]->type->line,
+            rValueExprNode->children[1]->type->pos);
+        freeTypeInfo(rValueExprNode->type);
+        freeTypeInfo(rValueExprNode->children[1]->type);
+        rValueExprNode->type = newTypeParent;
+        rValueExprNode->children[1]->type = newTypeChild;
+      } else if (strcmp(rValueExprNode->type->typeName, "byte") != 0 &&
+                 strcmp(rValueExprNode->type->typeName, "int") != 0 &&
+                 strcmp(rValueExprNode->type->typeName, "uint") != 0 &&
+                 strcmp(rValueExprNode->type->typeName, "long") != 0) {
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer),
+                 "Type error. Can't cast value at %s:%d:%d to long\n", filename,
+                 rValueExprNode->line, rValueExprNode->pos + 1);
+        if (container->error == NULL) {
+          container->error = createOperationTreeErrorInfo(buffer);
+        } else {
+          addOperationTreeError(container, buffer);
+        }
+      }
+    } else if (strcmp(lValueExprNode->type->typeName, "ulong") == 0) {
+      if (strcmp(rValueExprNode->label, LIT_READ) == 0 &&
+          isCanBeUnsignedLong(rValueExprNode->children[1]->label)) {
+        TypeInfo *newTypeParent =
+            createTypeInfo("ulong", false, false, 0, rValueExprNode->type->line,
+                           rValueExprNode->type->pos);
+        TypeInfo *newTypeChild = createTypeInfo(
+            "ulong", false, false, 0, rValueExprNode->children[1]->type->line,
+            rValueExprNode->children[1]->type->pos);
+        freeTypeInfo(rValueExprNode->type);
+        freeTypeInfo(rValueExprNode->children[1]->type);
+        rValueExprNode->type = newTypeParent;
+        rValueExprNode->children[1]->type = newTypeChild;
+      } else if (strcmp(rValueExprNode->type->typeName, "uint") != 0 &&
+                 strcmp(rValueExprNode->type->typeName, "ulong") != 0) {
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer),
+                 "Type error. Can't cast value at %s:%d:%d to ulong\n",
+                 filename, rValueExprNode->line, rValueExprNode->pos + 1);
+        if (container->error == NULL) {
+          container->error = createOperationTreeErrorInfo(buffer);
+        } else {
+          addOperationTreeError(container, buffer);
+        }
+      }
+    } else if (strcmp(lValueExprNode->type->typeName, "bool") == 0) {
+      if (strcmp(rValueExprNode->type->typeName, "bool") != 0) {
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer),
+                 "Type error. Can't cast value at %s:%d:%d to bool\n", filename,
+                 rValueExprNode->line, rValueExprNode->pos + 1);
+        if (container->error == NULL) {
+          container->error = createOperationTreeErrorInfo(buffer);
+        } else {
+          addOperationTreeError(container, buffer);
+        }
+      }
+    } else if (strcmp(lValueExprNode->type->typeName, "char") == 0) {
+      if (strcmp(rValueExprNode->type->typeName, "char") != 0) {
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer),
+                 "Type error. Can't cast value at %s:%d:%d to char\n", filename,
+                 rValueExprNode->line, rValueExprNode->pos + 1);
+        if (container->error == NULL) {
+          container->error = createOperationTreeErrorInfo(buffer);
+        } else {
+          addOperationTreeError(container, buffer);
+        }
+      }
+    } else if (strcmp(lValueExprNode->type->typeName, "string") == 0) {
+      if (strcmp(rValueExprNode->type->typeName, "string") != 0) {
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer),
+                 "Type error. Can't cast value at %s:%d:%d to string\n",
+                 filename, rValueExprNode->line, rValueExprNode->pos + 1);
+        if (container->error == NULL) {
+          container->error = createOperationTreeErrorInfo(buffer);
+        } else {
+          addOperationTreeError(container, buffer);
+        }
+      }
+    }
+  } else if (lValueExprNode->type->isArray) {
+    if (rValueExprNode->type->isArray) {
+      if (strcmp(lValueExprNode->type->typeName,
+                 rValueExprNode->type->typeName) != 0) {
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer),
+                 "Type error. Can't cast array at %s:%d:%d to array at "
+                 "%s:%d:%d. Array casting is't allowed\n",
+                 filename, rValueExprNode->line, rValueExprNode->pos + 1,
+                 filename, lValueExprNode->line, lValueExprNode->pos + 1);
+        if (container->error == NULL) {
+          container->error = createOperationTreeErrorInfo(buffer);
+        } else {
+          addOperationTreeError(container, buffer);
+        }
+      }
+    } else {
+      if (strcmp(lValueExprNode->type->typeName,
+                 rValueExprNode->type->typeName) != 0) {
+        char buffer[1024];
+        snprintf(
+            buffer, sizeof(buffer),
+            "Type error. Can't cast value at %s:%d:%d to array at %s:%d:%d.\n",
+            filename, rValueExprNode->line, rValueExprNode->pos + 1, filename,
+            lValueExprNode->line, lValueExprNode->pos + 1);
+        if (container->error == NULL) {
+          container->error = createOperationTreeErrorInfo(buffer);
+        } else {
+          addOperationTreeError(container, buffer);
+        }
+      }
+    }
+  } else if (lValueExprNode->type->custom) {
+    char buffer[1024];
+    snprintf(buffer, sizeof(buffer),
+             "Type error. Custom types are not allowed at %s:%d:%d\n", filename,
+             rValueExprNode->line, rValueExprNode->pos + 1);
+    if (container->error == NULL) {
+      container->error = createOperationTreeErrorInfo(buffer);
+    } else {
+      addOperationTreeError(container, buffer);
+    }
+  }
+}
+
 OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLvalue, bool isFunctionName, OperationTreeErrorContainer *container, ScopeManager *sm, const char* filename) {
   if (strcmp(root->label, ASSIGN) == 0) {
     //left - EXPR
@@ -135,106 +384,45 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
     OperationTreeNode *lValueExprNode = buildExprOperationTreeFromAstNode(root->children[0], true, false, container, sm, filename);
     OperationTreeNode *rValueExprNode = buildExprOperationTreeFromAstNode(root->children[1], false, false, container, sm, filename);
     
-    if (strcmp(lValueExprNode->type->typeName, "byte") == 0) {
-      if (strcmp(rValueExprNode->label, LIT_READ) == 0 && isCanBeByte(rValueExprNode->children[1]->label)) {
-        TypeInfo* newTypeParent = createTypeInfo("byte", false, false, 0, rValueExprNode->type->line, rValueExprNode->type->pos);
-        TypeInfo* newTypeChild = createTypeInfo("byte", false, false, 0, rValueExprNode->children[1]->type->line, rValueExprNode->children[1]->type->pos);
-        freeTypeInfo(rValueExprNode->type);
-        freeTypeInfo(rValueExprNode->children[1]->type);
-        rValueExprNode->type = newTypeParent;
-        rValueExprNode->children[1]->type = newTypeChild;
-      } else if (strcmp(rValueExprNode->type->typeName, "byte") != 0) {
+    checkTypeCompatibility(lValueExprNode, rValueExprNode, container, filename);
+
+    if (lValueExprNode->type->isArray) {
+      if (strcmp(lValueExprNode->label, INDEX) == 0) {
+        OperationTreeNode *indexNode = lValueExprNode;
+        int dimI = 0;
+        while (strcmp(indexNode->label, INDEX) == 0) {
+          indexNode = indexNode->children[0];
+          dimI++;
+        }
+        if (dimI != lValueExprNode->type->arrayDim) {
+          char buffer[1024];
+          snprintf(buffer, sizeof(buffer),
+                  "Index error. Check indexing and array dimension match %s:%d:%d\n",
+                  filename, lValueExprNode->line,
+                  lValueExprNode->pos + 1);
+          if (container->error == NULL) {
+            container->error = createOperationTreeErrorInfo(buffer);
+          } else {
+            addOperationTreeError(container, buffer);
+          }   
+        }
+      } else {
         char buffer[1024];
         snprintf(buffer, sizeof(buffer),
-                "Type error. Can't cast value at %s:%d:%d to byte\n",
-                filename, rValueExprNode->line,
-                rValueExprNode->pos + 1);
+                "Assign error. Can't assign to array %s:%d:%d\n",
+                filename, lValueExprNode->line,
+                lValueExprNode->pos + 1);
         if (container->error == NULL) {
           container->error = createOperationTreeErrorInfo(buffer);
         } else {
           addOperationTreeError(container, buffer);
         }        
       }
-    } else if (strcmp(lValueExprNode->type->typeName, "int") == 0) {
-      if (strcmp(rValueExprNode->type->typeName, "byte") != 0 && strcmp(rValueExprNode->type->typeName, "int") != 0) {
-        char buffer[1024];
-        snprintf(buffer, sizeof(buffer),
-                "Type error. Can't cast value at %s:%d:%d to int\n",
-                filename, rValueExprNode->line,
-                rValueExprNode->pos + 1);
-        if (container->error == NULL) {
-          container->error = createOperationTreeErrorInfo(buffer);
-        } else {
-          addOperationTreeError(container, buffer);
-        }        
-      }
-    } else if (strcmp(lValueExprNode->type->typeName, "uint") == 0) {
-      if (strcmp(rValueExprNode->label, LIT_READ) == 0 && isCanBeUnsignedInt(rValueExprNode->children[1]->label)) {
-        TypeInfo* newTypeParent = createTypeInfo("uint", false, false, 0, rValueExprNode->type->line, rValueExprNode->type->pos);
-        TypeInfo* newTypeChild = createTypeInfo("uint", false, false, 0, rValueExprNode->children[1]->type->line, rValueExprNode->children[1]->type->pos);
-        freeTypeInfo(rValueExprNode->type);
-        freeTypeInfo(rValueExprNode->children[1]->type);
-        rValueExprNode->type = newTypeParent;
-        rValueExprNode->children[1]->type = newTypeChild;        
-      } else if (strcmp(rValueExprNode->type->typeName, "uint") != 0) {
-        char buffer[1024];
-        snprintf(buffer, sizeof(buffer),
-                "Type error. Can't cast value at %s:%d:%d to uint\n",
-                filename, rValueExprNode->line,
-                rValueExprNode->pos + 1);
-        if (container->error == NULL) {
-          container->error = createOperationTreeErrorInfo(buffer);
-        } else {
-          addOperationTreeError(container, buffer);
-        }        
-      }      
-    } else if (strcmp(lValueExprNode->type->typeName, "long") == 0) {
-      if (strcmp(rValueExprNode->label, LIT_READ) == 0 && isCanBeLong(rValueExprNode->children[1]->label)) {
-        TypeInfo* newTypeParent = createTypeInfo("long", false, false, 0, rValueExprNode->type->line, rValueExprNode->type->pos);
-        TypeInfo* newTypeChild = createTypeInfo("long", false, false, 0, rValueExprNode->children[1]->type->line, rValueExprNode->children[1]->type->pos);
-        freeTypeInfo(rValueExprNode->type);
-        freeTypeInfo(rValueExprNode->children[1]->type);
-        rValueExprNode->type = newTypeParent;
-        rValueExprNode->children[1]->type = newTypeChild;   
-      } else if (strcmp(rValueExprNode->type->typeName, "byte") != 0 && strcmp(rValueExprNode->type->typeName, "int") != 0
-          && strcmp(rValueExprNode->type->typeName, "uint") != 0 && strcmp(rValueExprNode->type->typeName, "long") != 0) {
-        char buffer[1024];
-        snprintf(buffer, sizeof(buffer),
-                "Type error. Can't cast value at %s:%d:%d to long\n",
-                filename, rValueExprNode->line,
-                rValueExprNode->pos + 1);
-        if (container->error == NULL) {
-          container->error = createOperationTreeErrorInfo(buffer);
-        } else {
-          addOperationTreeError(container, buffer);
-        }        
-      }       
-    } else if (strcmp(lValueExprNode->type->typeName, "ulong") == 0) {
-      if (strcmp(rValueExprNode->label, LIT_READ) == 0 && isCanBeUnsignedLong(rValueExprNode->children[1]->label)) {
-        TypeInfo* newTypeParent = createTypeInfo("ulong", false, false, 0, rValueExprNode->type->line, rValueExprNode->type->pos);
-        TypeInfo* newTypeChild = createTypeInfo("ulong", false, false, 0, rValueExprNode->children[1]->type->line, rValueExprNode->children[1]->type->pos);
-        freeTypeInfo(rValueExprNode->type);
-        freeTypeInfo(rValueExprNode->children[1]->type);
-        rValueExprNode->type = newTypeParent;
-        rValueExprNode->children[1]->type = newTypeChild;   
-      } else if (strcmp(rValueExprNode->type->typeName, "uint") != 0 && strcmp(rValueExprNode->type->typeName, "ulong") != 0) {
-        char buffer[1024];
-        snprintf(buffer, sizeof(buffer),
-                "Type error. Can't cast value at %s:%d:%d to ulong\n",
-                filename, rValueExprNode->line,
-                rValueExprNode->pos + 1);
-        if (container->error == NULL) {
-          container->error = createOperationTreeErrorInfo(buffer);
-        } else {
-          addOperationTreeError(container, buffer);
-        }        
-      }     
     }
-    //TODO for bool, char, string?
-    
+
     writeOpNode->children[0] = lValueExprNode;
     writeOpNode->children[1] = rValueExprNode;
-    writeOpNode->type = createTypeInfo(lValueExprNode->type->typeName, lValueExprNode->type->custom, lValueExprNode->type->isArray, lValueExprNode->type->arrayDim, lValueExprNode->type->line, lValueExprNode->type->pos);
+    writeOpNode->type = copyTypeInfo(lValueExprNode->type);
     return writeOpNode;
   } else if (strcmp(root->label, FUNC_CALL) == 0) {
     //if count == 2
@@ -247,6 +435,7 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
       OperationTreeNode *funcNameNode = buildExprOperationTreeFromAstNode(root->children[1], false, true, container, sm, filename);
       OperationTreeNode *callNode = newOperationTreeNode(OT_CALL, 1 + root->children[0]->childCount, funcNameNode->line, funcNameNode->pos, funcNameNode->isImaginary);
       callNode->children[0] = funcNameNode;
+      callNode->type = copyTypeInfo(funcNameNode->type);
       for (uint32_t i = 0; i < root->children[0]->childCount; i++) {
         OperationTreeNode *argNode = buildExprOperationTreeFromAstNode(root->children[0]->children[i], false, false, container, sm, filename);
         callNode->children[1 + i] = argNode;
@@ -268,6 +457,7 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
       OperationTreeNode *funcNameNode = buildExprOperationTreeFromAstNode(root->children[0], false, true, container, sm, filename);
       OperationTreeNode *callNode = newOperationTreeNode(OT_CALL, 1, funcNameNode->line, funcNameNode->pos, funcNameNode->isImaginary);
       callNode->children[0] = funcNameNode;
+      callNode->type = copyTypeInfo(funcNameNode->type);
       if (isLvalue) {
         char buffer[1024];
         snprintf(buffer, sizeof(buffer),
@@ -286,7 +476,7 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
     //left - EXPR_LISR
     //right - EXPR
     if (root->childCount == 1) {
-      OperationTreeNode *indexNameNode = buildExprOperationTreeFromAstNode(root->children[0], false, false, container, sm, filename);
+      OperationTreeNode *indexNameNode = buildExprOperationTreeFromAstNode(root->children[0], true, false, container, sm, filename);
       char buffer[1024];
       snprintf(buffer, sizeof(buffer),
                "Index error. Missing index value at %s:%d:%d\n",
@@ -299,13 +489,39 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
       }
       return indexNameNode;
     } else {
-      OperationTreeNode *indexNameNode = buildExprOperationTreeFromAstNode(root->children[1], false, false, container, sm, filename);
+      OperationTreeNode *indexNameNode = buildExprOperationTreeFromAstNode(root->children[1], true, false, container, sm, filename);
       OperationTreeNode *indexNode = newOperationTreeNode(INDEX, 1 + root->children[0]->childCount, indexNameNode->line, indexNameNode->pos, indexNameNode->isImaginary);
       indexNode->children[0] = indexNameNode;
+      indexNode->type = copyTypeInfo(indexNameNode->type);
+      if (!indexNameNode->type->isArray) {
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer),
+                "Index error. Index can be applied only for arrays at %s:%d:%d\n",
+                filename, indexNameNode->line,
+                indexNameNode->pos + 1);
+        if (container->error == NULL) {
+          container->error = createOperationTreeErrorInfo(buffer);
+        } else {
+          addOperationTreeError(container, buffer);
+        }        
+      }
       for (uint32_t i = 0; i < root->children[0]->childCount; i++) {
         OperationTreeNode *iNode = buildExprOperationTreeFromAstNode(root->children[0]->children[i], false, false, container, sm, filename);
         indexNode->children[1 + i] = iNode;
+        if (strcmp(iNode->type->typeName, "int") != 0) {
+          char buffer[1024];
+          snprintf(buffer, sizeof(buffer),
+                  "Index error. Only int type can be used for indexing at %s:%d:%d\n",
+                  filename, iNode->line,
+                  iNode->pos + 1);
+          if (container->error == NULL) {
+            container->error = createOperationTreeErrorInfo(buffer);
+          } else {
+            addOperationTreeError(container, buffer);
+          }
+        }
       }
+
       return indexNode;
     }
   } else if (isBinaryOp(root->label)) {
@@ -369,6 +585,53 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
 
     binaryOpNode->children[0] = leftExprNode;
     binaryOpNode->children[1] = rightExprNode;
+
+    if (leftExprNode->type->isArray || rightExprNode->type->isArray || leftExprNode->type->custom || rightExprNode->type->isArray) {
+      binaryOpNode->type = createTypeInfo("_", false, false, 0, binaryOpNode->line, binaryOpNode->pos);
+      char buffer[1024];
+      snprintf(buffer, sizeof(buffer),
+               "Operation error. Can't apply binary operation '%s' for custom type or array %s at %s:%d:%d\n",
+               binaryOpNode->label, leftExprNode->type->typeName, filename,
+               binaryOpNode->line, binaryOpNode->pos + 1);
+      if (container->error == NULL) {
+        container->error = createOperationTreeErrorInfo(buffer);
+      } else {
+        addOperationTreeError(container, buffer);
+      }
+    } else {
+      if (strcmp(leftExprNode->type->typeName, rightExprNode->type->typeName) == 0) {
+        if (isBinaryOperationAllowed(binaryOpNode->label, leftExprNode->type->typeName, rightExprNode->type->typeName)) {
+          binaryOpNode->type = copyTypeInfo(leftExprNode->type);
+        } else {
+          binaryOpNode->type = createTypeInfo("_", false, false, 0, binaryOpNode->line, binaryOpNode->pos);
+          char buffer[1024];
+          snprintf(buffer, sizeof(buffer),
+                  "Operation error. Can't apply binary operation '%s' for type %s at %s:%d:%d\n",
+                  binaryOpNode->label, leftExprNode->type->typeName,
+                  filename, binaryOpNode->line,
+                  binaryOpNode->pos + 1);
+          if (container->error == NULL) {
+            container->error = createOperationTreeErrorInfo(buffer);
+          } else {
+            addOperationTreeError(container, buffer);
+          }
+        }
+      } else {
+        binaryOpNode->type = createTypeInfo("_", false, false, 0, binaryOpNode->line, binaryOpNode->pos);
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer),
+                "Type error. Can't perform binary operation '%s' with different types (%s and %s) at %s:%d:%d\n",
+                binaryOpNode->label, leftExprNode->type->typeName, rightExprNode->type->typeName,
+                filename, binaryOpNode->line,
+                binaryOpNode->pos + 1);
+        if (container->error == NULL) {
+          container->error = createOperationTreeErrorInfo(buffer);
+        } else {
+          addOperationTreeError(container, buffer);
+        }
+      }
+    }
+
     return binaryOpNode;
   } else if (isUnaryOp(root->label)) {
     //child - EXPR 
@@ -399,6 +662,7 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
     OperationTreeNode *unaryOpNode = newOperationTreeNode(root->label, 1, root->line, root->pos, root->isImaginary);
     OperationTreeNode *exprNode = buildExprOperationTreeFromAstNode(root->children[0], false, false, container, sm, filename);
     unaryOpNode->children[0] = exprNode;
+    //TODO
     return unaryOpNode;
   } else if (strcmp(root->label, IDENTIFIER) == 0) {
     //child - value, terminal
@@ -406,6 +670,7 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
     Symbol *gotSymbol = findSymbol(sm, root->children[0]->label);
     if (!isFunctionName) {
       if (gotSymbol == NULL) {
+        idValueNode->type = createTypeInfo("_", false, false, 0, root->children[0]->line, root->children[0]->pos);
         char buffer[1024];
         snprintf(buffer, sizeof(buffer),
                 "Var not found error. Var with name %s at %s:%d:%d is not declared\n",
@@ -415,19 +680,32 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
         } else {
           addOperationTreeError(container, buffer);
         }    
+      } else {
+        idValueNode->type = createTypeInfo(gotSymbol->typeName, gotSymbol->custom, gotSymbol->isArray, gotSymbol->arrayDim, gotSymbol->line, gotSymbol->pos);
       }
+    } else {
+      //TODO
+      //idValueNode->type = createTypeInfo("int", false, true, 0, root->children[0]->line, root->children[0]->pos);
     }
-    if (gotSymbol != NULL) {
-      idValueNode->type = createTypeInfo(gotSymbol->typeName, gotSymbol->custom, gotSymbol->isArray, gotSymbol->arrayDim, gotSymbol->line, gotSymbol->pos);
-    }
+
     if (isLvalue | isFunctionName) {
       return idValueNode;
     } else {
       OperationTreeNode *readNode = newOperationTreeNode(READ, 1, root->children[0]->line, root->children[0]->pos, true);
-      if (gotSymbol != NULL) {
-        readNode->type = createTypeInfo(gotSymbol->typeName, gotSymbol->custom, gotSymbol->isArray, gotSymbol->arrayDim, gotSymbol->line, gotSymbol->pos);
-      }
+      readNode->type = copyTypeInfo(idValueNode->type);
       readNode->children[0] = idValueNode;
+      if (idValueNode->type->isArray) {
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer),
+                "Read error. Can't read array without indexing %s:%d:%d\n",
+                filename, idValueNode->line,
+                idValueNode->pos + 1);
+        if (container->error == NULL) {
+          container->error = createOperationTreeErrorInfo(buffer);
+        } else {
+          addOperationTreeError(container, buffer);
+        }   
+      }
       return readNode;
     }
   } else if (isLiteral(root->label)) {
@@ -551,9 +829,12 @@ OperationTreeNode *buildVarDeclareHelper(MyAstNode* id, MyAstNode* init, Operati
       varInitExprNode = buildExprOperationTreeFromAstNode(init->children[1], false, false, container, sm, filename);
       OperationTreeNode *helperNode = newOperationTreeNode(WRITE, 2, id->children[0]->line, id->children[0]->pos, false);
       helperNode->children[0] = newOperationTreeNode(id->children[0]->label, 0, id->children[0]->line, id->children[0]->pos, false);
-      helperNode->children[0]->type = createTypeInfo(varType->typeName, varType->custom, varType->isArray, varType->arrayDim, varType->line, varType->pos);
+      helperNode->children[0]->type = copyTypeInfo(varType);
       helperNode->children[1] = varInitExprNode;
-      helperNode->type = createTypeInfo(varType->typeName, varType->custom, varType->isArray, varType->arrayDim, varType->line, varType->pos);
+
+      checkTypeCompatibility(helperNode->children[0], varInitExprNode, container, filename);
+  
+      helperNode->type = copyTypeInfo(varType);
       declareNode = newOperationTreeNode(DECLARE, 3, 0, 0, true);
       declareNode->children[0] = withTypeNode;
       declareNode->children[1] = varNameNode;
@@ -572,9 +853,12 @@ OperationTreeNode *buildVarDeclareHelper(MyAstNode* id, MyAstNode* init, Operati
       varInitExprNode = buildExprOperationTreeFromAstNode(init->children[1], false, false, container, sm, filename);
       OperationTreeNode *helperNode = newOperationTreeNode(WRITE, 2, id->children[0]->line, id->children[0]->pos, false);
       helperNode->children[0] = newOperationTreeNode(id->children[0]->label, 0, id->children[0]->line, id->children[0]->pos, false);
-      helperNode->children[0]->type = createTypeInfo(varType->typeName, varType->custom, varType->isArray, varType->arrayDim, varType->line, varType->pos);
+      helperNode->children[0]->type = copyTypeInfo(varType);
       helperNode->children[1] = varInitExprNode;
-      helperNode->type = createTypeInfo(varType->typeName, varType->custom, varType->isArray, varType->arrayDim, varType->line, varType->pos);
+
+      checkTypeCompatibility(helperNode->children[0], varInitExprNode, container, filename);
+
+      helperNode->type = copyTypeInfo(varType);
       declareNode = newOperationTreeNode(DECLARE, 3, id->children[0]->line, id->children[0]->pos, true);
       declareNode->children[0] = withTypeNode;
       declareNode->children[1] = varNameNode;
@@ -601,7 +885,7 @@ OperationTreeNode *buildVarOperationTreeFromAstNode(MyAstNode* root, OperationTr
     Symbol *gotSymbol = findSymbol(sm, symbolName);
     if (gotSymbol == NULL) {
       addSymbol(sm, symbolName, varType->typeName, varType->custom, varType->isArray, varType->arrayDim, root->children[1]->children[0]->line, root->children[1]->children[0]->pos);
-      varNode->children[1]->type = createTypeInfo(varType->typeName, varType->custom, varType->isArray, varType->arrayDim, varType->line, varType->pos);
+      varNode->children[1]->type = copyTypeInfo(varType);
     } else {
       char buffer[1024];
       snprintf(buffer, sizeof(buffer),
@@ -617,24 +901,29 @@ OperationTreeNode *buildVarOperationTreeFromAstNode(MyAstNode* root, OperationTr
   } else {
     //use SEQ_DECLARE with childern type DECLARE
     varNode = newOperationTreeNode(SEQ_DECLARE, varCount, 0, 0, true);
-    for (uint32_t i = 0; i < varCount; i++) {
-      varNode->children[i] = buildVarDeclareHelper(root->children[i + 1], root->children[i + 1 + varCount], container, varType, sm, filename);
-      const char *symbolName = root->children[i + 1]->children[0]->label;
+    uint32_t i = 1;
+    uint32_t varI = 0;
+    while (i + 1 < root->childCount) {
+      varNode->children[varI] = buildVarDeclareHelper(root->children[i], root->children[i + 1], container, varType, sm, filename);
+      const char *symbolName = root->children[i]->children[0]->label;
       Symbol *gotSymbol = findSymbol(sm, symbolName);
       if (gotSymbol == NULL) {
-        addSymbol(sm, symbolName, varType->typeName, varType->custom, varType->isArray, varType->arrayDim, root->children[i + 1]->children[0]->line, root->children[i + 1]->children[0]->pos);
+        addSymbol(sm, symbolName, varType->typeName, varType->custom, varType->isArray, varType->arrayDim, root->children[i]->children[0]->line, root->children[i]->children[0]->pos);
+        varNode->children[varI]->type = copyTypeInfo(varType);
       } else {
         char buffer[1024];
         snprintf(buffer, sizeof(buffer),
                 "Var declaration error. Var with name %s at %s:%d:%d was previously declared at %s:%d:%d\n",
-                symbolName, filename, root->children[i + 1]->children[0]->line,
-                root->children[i + 1]->children[0]->pos + 1, filename, gotSymbol->line, gotSymbol->pos + 1);
+                symbolName, filename, root->children[i]->children[0]->line,
+                root->children[i]->children[0]->pos + 1, filename, gotSymbol->line, gotSymbol->pos + 1);
         if (container->error == NULL) {
           container->error = createOperationTreeErrorInfo(buffer);
         } else {
           addOperationTreeError(container, buffer);
         }         
       }
+      i += 2;
+      varI++;
     }
   }
   return varNode;
@@ -647,8 +936,8 @@ void printOperationTreeHelper(OperationTreeNode* node, int level) {
     for (int i = 0; i < level; i++) {
         printf("    ");
     }
-    printf("%s (Line: %u, Pos: %u, Imaginary: %s, Type: %s)\n", node->label, node->line, node->pos,
-           node->isImaginary ? "Yes" : "No", node->type != NULL ? node->type->typeName : "_");
+    printf("%s (Line: %u, Pos: %u, Imaginary: %s, Type: %s, Array: %d)\n", node->label, node->line, node->pos,
+           node->isImaginary ? "Yes" : "No", node->type != NULL ? node->type->typeName : "_", node->type != NULL ? node->type->arrayDim : -1);
     for (uint32_t i = 0; i < node->childCount; i++) {
         printOperationTreeHelper(node->children[i], level + 1);
     }
@@ -685,4 +974,121 @@ void freeOperationTreeErrors(OperationTreeErrorInfo *error) {
     free(error);
     error = nextError;
   }
+}
+
+TypeInfo *copyTypeInfo(TypeInfo *typeInfo) {
+    if (!typeInfo) {
+        return NULL;
+    }
+
+    TypeInfo *copy = createTypeInfo(
+        typeInfo->typeName,
+        typeInfo->custom,
+        typeInfo->isArray,
+        typeInfo->arrayDim,
+        typeInfo->line,
+        typeInfo->pos
+    );
+
+    if (!copy) {
+        return NULL;
+    }
+
+    copy->next = copyTypeInfo(typeInfo->next);
+
+    return copy;
+}
+
+ArgumentInfo *copyArgumentInfo(ArgumentInfo *argInfo) {
+    if (!argInfo) {
+        return NULL;
+    }
+
+    ArgumentInfo *copy = (ArgumentInfo *)malloc(sizeof(ArgumentInfo));
+    if (!copy) {
+        return NULL;
+    }
+
+    copy->type = copyTypeInfo(argInfo->type);
+    if (argInfo->type && !copy->type) {
+        free(copy);
+        return NULL;
+    }
+
+    if (argInfo->name) {
+        copy->name = strdup(argInfo->name);
+        if (!copy->name) {
+            if (copy->type) {
+                freeTypeInfo(copy->type);
+            }
+            free(copy);
+            return NULL;
+        }
+    } else {
+        copy->name = NULL;
+    }
+
+    copy->line = argInfo->line;
+    copy->pos = argInfo->pos;
+
+    copy->next = copyArgumentInfo(argInfo->next);
+
+    return copy;
+}
+
+FunctionEntry *createFunctionEntry(const char *fileName, const char *functionName, TypeInfo *returnType, ArgumentInfo *arguments, uint32_t line, uint32_t pos) {
+    FunctionEntry *entry = (FunctionEntry *)malloc(sizeof(FunctionEntry));
+    if (!entry) {
+        return NULL;
+    }
+    entry->fileName = strdup(fileName);
+    entry->functionName = strdup(functionName);
+    entry->returnType = returnType;
+    entry->arguments = arguments;
+    entry->next = NULL;
+    entry->line = line;
+    entry->pos = pos;
+    return entry;
+}
+
+void freeFunctionEntry(FunctionEntry *entry) {
+    if (!entry) {
+        return;
+    }
+    freeTypeInfo(entry->returnType);
+    freeArguments(entry->arguments);
+    free(entry->fileName);
+    free(entry->functionName);
+    free(entry);
+}
+
+FunctionTable *createFunctionTable(void) {
+    FunctionTable *table = (FunctionTable *)malloc(sizeof(FunctionTable));
+    if (!table) {
+        return NULL;
+    }
+    table->entry = NULL;
+    return table;
+}
+
+void freeFunctionTable(FunctionTable *table) {
+    if (!table) {
+        return;
+    }
+    FunctionEntry *current = table->entry;
+    while (current) {
+        FunctionEntry *next = current->next;
+        freeFunctionEntry(current);
+        current = next;
+    }
+    free(table);
+}
+
+void addFunctionTable(FunctionTable *table, FunctionEntry *entry) {
+    if (!table || !entry) {
+        return;
+    }
+
+    entry->next = table->entry;
+    table->entry = entry;
 }

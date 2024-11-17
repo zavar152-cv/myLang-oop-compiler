@@ -1,6 +1,6 @@
 #pragma once
 
-#include "grammar/ast/myAst.h"
+#include "../../grammar/ast/myAst.h"
 #include "../scope/scope.h"
 #include <stdbool.h>
 #include <stdint.h>
@@ -38,6 +38,28 @@ typedef struct OperationTreeErrorContainer {
     struct OperationTreeErrorInfo *error;
 } OperationTreeErrorContainer;
 
+typedef struct ArgumentInfo {
+    TypeInfo *type;
+    char *name;
+    struct ArgumentInfo *next;
+    uint32_t line;
+    uint32_t pos;
+} ArgumentInfo;
+
+typedef struct FunctionEntry {
+    char *fileName;
+    char *functionName;
+    TypeInfo *returnType;
+    ArgumentInfo *arguments;
+    struct FunctionEntry *next;
+    uint32_t line;
+    uint32_t pos;
+} FunctionEntry;
+
+typedef struct FunctionTable {
+    FunctionEntry *entry;
+} FunctionTable;
+
 OperationTreeNode *newOperationTreeNode(const char *label, uint32_t childCount, uint32_t line, uint32_t pos, bool isImaginary);
 
 OperationTreeNode *buildVarOperationTreeFromAstNode(MyAstNode* root, OperationTreeErrorContainer *container, TypeInfo* varType, ScopeManager *sm, const char* filename);
@@ -61,3 +83,17 @@ bool isBinaryOp(const char *label);
 bool isUnaryOp(const char *label);
 
 bool isLiteral(const char *label);
+
+ArgumentInfo *copyArgumentInfo(ArgumentInfo *argInfo);
+
+TypeInfo *copyTypeInfo(TypeInfo *typeInfo);
+
+FunctionEntry *createFunctionEntry(const char *fileName, const char *functionName, TypeInfo *returnType, ArgumentInfo *arguments, uint32_t line, uint32_t pos);
+
+void freeFunctionEntry(FunctionEntry *entry);
+
+FunctionTable *createFunctionTable();
+
+void freeFunctionTable(FunctionTable *table);
+
+void addFunctionTable(FunctionTable *table, FunctionEntry *entry);
