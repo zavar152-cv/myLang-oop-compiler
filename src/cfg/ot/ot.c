@@ -365,6 +365,17 @@ void checkTypeCompatibility(OperationTreeNode *lValueExprNode, OperationTreeNode
         } else {
           addOperationTreeError(container, buffer);
         }
+      } else {
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer),
+                "Assign error. Can't assign %s to array %s:%d:%d\n",
+                rValueExprNode->type->typeName, filename, lValueExprNode->line,
+                lValueExprNode->pos + 1);
+        if (container->error == NULL) {
+          container->error = createOperationTreeErrorInfo(buffer);
+        } else {
+          addOperationTreeError(container, buffer);
+        }           
       }
     }
   } else if (lValueExprNode->type->custom) {
@@ -399,11 +410,11 @@ void checkTypeCompatibility(OperationTreeNode *lValueExprNode, OperationTreeNode
           addOperationTreeError(container, buffer);
         }   
       }
-    } else {
+    } else if (rValueExprNode->type->isArray && (lValueExprNode->type->arrayDim != rValueExprNode->type->arrayDim)) {
       char buffer[1024];
       snprintf(buffer, sizeof(buffer),
-              "Assign error. Can't assign to array %s:%d:%d\n",
-              filename, lValueExprNode->line,
+              "Assign error. Can't assign %s to array %s:%d:%d\n",
+              rValueExprNode->type->typeName, filename, lValueExprNode->line,
               lValueExprNode->pos + 1);
       if (container->error == NULL) {
         container->error = createOperationTreeErrorInfo(buffer);
@@ -414,25 +425,36 @@ void checkTypeCompatibility(OperationTreeNode *lValueExprNode, OperationTreeNode
   }
 
   if (rValueExprNode->type->isArray) {
-    if (strcmp(rValueExprNode->label, INDEX) == 0) {
-      OperationTreeNode *indexNode = rValueExprNode;
-      int dimI = 0;
-      while (strcmp(indexNode->label, INDEX) == 0) {
-        indexNode = indexNode->children[0];
-        dimI++;
-      }
+    // if (strcmp(rValueExprNode->label, INDEX) == 0) {
+    //   OperationTreeNode *indexNode = rValueExprNode;
+    //   int dimI = 0;
+    //   while (strcmp(indexNode->label, INDEX) == 0) {
+    //     indexNode = indexNode->children[0];
+    //     dimI++;
+    //   }
 
-      if (dimI != indexNode->type->arrayDim) {
-        char buffer[1024];
-        snprintf(buffer, sizeof(buffer),
-                "Index error. Check indexing and array dimension match %s:%d:%d\n",
-                filename, rValueExprNode->line,
-                rValueExprNode->pos + 1);
-        if (container->error == NULL) {
-          container->error = createOperationTreeErrorInfo(buffer);
-        } else {
-          addOperationTreeError(container, buffer);
-        }   
+    //   if (dimI != indexNode->type->arrayDim) {
+    //     char buffer[1024];
+    //     snprintf(buffer, sizeof(buffer),
+    //             "Index error. Check indexing and array dimension match %s:%d:%d\n",
+    //             filename, rValueExprNode->line,
+    //             rValueExprNode->pos + 1);
+    //     if (container->error == NULL) {
+    //       container->error = createOperationTreeErrorInfo(buffer);
+    //     } else {
+    //       addOperationTreeError(container, buffer);
+    //     }   
+    //   }
+    // } else 
+    if (!lValueExprNode->type->isArray) {
+      char buffer[1024];
+      snprintf(buffer, sizeof(buffer),
+               "Read error. Can't assign array to %s %s:%d:%d\n",
+               lValueExprNode->type->typeName, filename, rValueExprNode->line, rValueExprNode->pos + 1);
+      if (container->error == NULL) {
+        container->error = createOperationTreeErrorInfo(buffer);
+      } else {
+        addOperationTreeError(container, buffer);
       }
     }
   }
@@ -499,18 +521,18 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
         }
       }
 
-      if (isLvalue) {
-        char buffer[1024];
-        snprintf(buffer, sizeof(buffer),
-                "Assign error. Can't use function calling to assign at %s:%d:%d\n",
-                filename, callNode->line,
-                callNode->pos + 1);
-        if (container->error == NULL) {
-          container->error = createOperationTreeErrorInfo(buffer);
-        } else {
-          addOperationTreeError(container, buffer);
-        }
-      }
+      // if (isLvalue) {
+      //   char buffer[1024];
+      //   snprintf(buffer, sizeof(buffer),
+      //           "Assign error. Can't use function calling to assign at %s:%d:%d\n",
+      //           filename, callNode->line,
+      //           callNode->pos + 1);
+      //   if (container->error == NULL) {
+      //     container->error = createOperationTreeErrorInfo(buffer);
+      //   } else {
+      //     addOperationTreeError(container, buffer);
+      //   }
+      // }
       return callNode;
     } else if (root->childCount == 1) {
       OperationTreeNode *funcNameNode = buildExprOperationTreeFromAstNode(root->children[0], false, true, container, sm, functionTable, filename);
@@ -552,6 +574,12 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
       OperationTreeNode *indexNode = newOperationTreeNode(INDEX, 1 + root->children[0]->childCount, indexNameNode->line, indexNameNode->pos, indexNameNode->isImaginary);
       indexNode->children[0] = indexNameNode;
       indexNode->type = copyTypeInfo(indexNameNode->type);
+      if (indexNode->type->isArray) {
+        indexNode->type->arrayDim = indexNode->type->arrayDim - 1;
+        if (indexNode->type->arrayDim == 0) {
+          indexNode->type->isArray = false;
+        }
+      }
       if (!indexNameNode->type->isArray) {
         char buffer[1024];
         snprintf(buffer, sizeof(buffer),
@@ -781,18 +809,18 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
       OperationTreeNode *readNode = newOperationTreeNode(READ, 1, root->children[0]->line, root->children[0]->pos, true);
       readNode->type = copyTypeInfo(idValueNode->type);
       readNode->children[0] = idValueNode;
-      if (idValueNode->type->isArray) {
-        char buffer[1024];
-        snprintf(buffer, sizeof(buffer),
-                "Read error. Can't read array without indexing %s:%d:%d\n",
-                filename, idValueNode->line,
-                idValueNode->pos + 1);
-        if (container->error == NULL) {
-          container->error = createOperationTreeErrorInfo(buffer);
-        } else {
-          addOperationTreeError(container, buffer);
-        }   
-      }
+      // if (idValueNode->type->isArray) {
+      //   char buffer[1024];
+      //   snprintf(buffer, sizeof(buffer),
+      //           "Read error. Can't read array without indexing %s:%d:%d\n",
+      //           filename, idValueNode->line,
+      //           idValueNode->pos + 1);
+      //   if (container->error == NULL) {
+      //     container->error = createOperationTreeErrorInfo(buffer);
+      //   } else {
+      //     addOperationTreeError(container, buffer);
+      //   }   
+      // }
       return readNode;
     }
   } else if (isLiteral(root->label)) {

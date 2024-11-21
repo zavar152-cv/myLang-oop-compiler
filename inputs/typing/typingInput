@@ -1,6 +1,7 @@
 int main(string[] args) {
 
     bool[] arr;
+    bool[] arrCheck = arr;
     bool[][] arr2;
     int a = test(), b = 1;
 
@@ -14,10 +15,15 @@ int main(string[] args) {
 
     a = 1;
 
-    test2(1, "lol");
+    test2(14, "lol");
 
-    test3(arr2[0]);
+    int[] j = test3(arr2[0][0])[1];
 
+    p = arr;
+
+    arrCheck = arr2[1];
+
+    int n = test();
 
     0;
 }
@@ -26,13 +32,13 @@ int test() {
     1;
 }
 
-int test2(int y, string s) {
+int test2(long y, string s) {
     1;
 }
 
-int test3(bool b) {
+int[] test3(bool b) {
 
-    int[] a;
+    int[][] a;
 
-    a[1];
+    a;
 }
