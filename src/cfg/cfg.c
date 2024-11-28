@@ -252,11 +252,8 @@ BasicBlock* parseDoWhile(MyAstNode* doWhileBlock, Program *program, const char* 
 
   BasicBlock *bodyExitBlock = parseBlock(doWhileBlock->children[0], program, filename, true, conditionBlock, bodyBlock, conditionBlock, cfg, sm, functionTable, uid);
 
-  if (bodyExitBlock->isEmpty) {
-    mergeBasicBlocks(cfg, conditionBlock, bodyExitBlock);
-  } else {
-    addEdge(bodyExitBlock, conditionBlock, UNCONDITIONAL_JUMP, NULL);
-  }
+  addEdge(bodyExitBlock, conditionBlock, UNCONDITIONAL_JUMP, NULL);
+  
   return emptyBlock;
 }
 
@@ -300,11 +297,8 @@ BasicBlock* parseWhile(MyAstNode* whileBlock, Program *program, const char* file
 
     BasicBlock *bodyExitBlock = parseBlock(whileBlock->children[1], program, filename, true, conditionBlock, bodyBlock, emptyBlock, cfg, sm, functionTable, uid);
 
-    if (bodyExitBlock->isEmpty) {
-      mergeBasicBlocks(cfg, conditionBlock, bodyExitBlock);
-    } else {
-      addEdge(bodyExitBlock, conditionBlock, UNCONDITIONAL_JUMP, NULL);
-    }
+    addEdge(bodyExitBlock, conditionBlock, UNCONDITIONAL_JUMP, NULL);
+
     return emptyBlock;
 }
 
@@ -599,7 +593,7 @@ Program *buildProgram(FilesToAnalyze *files, bool debug) {
 
                   OperationTreeErrorContainer *errorContainer = (OperationTreeErrorContainer*)malloc(sizeof(OperationTreeErrorContainer));
                   errorContainer->error = NULL;
-                  //TODO fix array check
+
                   checkTypeCompatibility(returnNode, lastOperation, errorContainer, files->fileName[i]);
                   OperationTreeErrorInfo *errorInfo = errorContainer->error;
                   while (errorInfo != NULL) {

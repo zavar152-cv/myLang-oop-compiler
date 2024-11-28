@@ -25,6 +25,11 @@ int main(string[] args) {
 
     int n = test();
 
+    if(arr[1]) 
+        int y;
+    else 
+        a = 1;
+
     0;
 }
 

@@ -24,6 +24,7 @@ digraph CFG {
         node2 -> node3[color=blue];
     }
     BB9 -> entry1 [lhead=cluster_instruction1, color=blue];
+    BB8 [label=<<B>BB8: Empty block</B><BR ALIGN="CENTER"/>>];
     BB7 [label=<<B>BB7: Do While Condition</B><BR ALIGN="CENTER"/>EXPR<BR ALIGN="CENTER"/>>];
     subgraph cluster_instruction2 {
         label = "OT of BB7:0";
@@ -131,7 +132,7 @@ digraph CFG {
         node30 [label="builtin", color=blue];
         node28 -> node30[color=blue];
         node31 [label="array", color=blue];
-        node32 [label="4", color=blue];
+        node32 [label="5", color=blue];
         node31 -> node32[color=blue];
         node33 [label="withType", color=blue];
         node34 [label="bool", color=blue];
@@ -139,7 +140,7 @@ digraph CFG {
         node35 [label="builtin", color=blue];
         node33 -> node35[color=blue];
         node36 [label="array", color=blue];
-        node37 [label="2", color=blue];
+        node37 [label="3", color=blue];
         node36 -> node37[color=blue];
         node33 -> node36[color=blue];
         node31 -> node33[color=blue];
@@ -151,10 +152,11 @@ digraph CFG {
     BB1 -> entry9 [lhead=cluster_instruction9, color=blue];
     BB0 [label=<<B>BB0: START</B><BR ALIGN="CENTER"/>>];
 
-    BB9 -> BB4;
+    BB9 -> BB8;
+    BB8 -> BB4;
     BB7 -> BB6 [label="False", color=red];
     BB7 -> BB5 [label="True", color=green];
-    BB6 -> BB4 [label="False", color=red];
+    BB6 -> BB8 [label="False", color=red];
     BB6 -> BB9 [label="True", color=green];
     BB5 -> BB7;
     BB4 -> BB3 [label="False", color=red];
