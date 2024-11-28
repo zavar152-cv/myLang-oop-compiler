@@ -17,18 +17,15 @@ int main(string[] args) {
 
     test2(14, "lol");
 
-    int[] j = test3(arr2[0][0])[1];
+    int j = test3(arr2[0][0])[1];
 
-    p = arr;
+    //p = arr;
 
     arrCheck = arr2[1];
 
     int n = test();
 
-    if(arr[1]) 
-        int y;
-    else 
-        a = 1;
+    
 
     0;
 }
@@ -45,5 +42,5 @@ int[] test3(bool b) {
 
     int[][] a;
 
-    a;
+    a[1];
 }
