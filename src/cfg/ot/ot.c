@@ -492,32 +492,34 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
         callNode->children[1 + i] = argNode;
       }
 
-      if (func != NULL && callNode->childCount - 1 == func->argumentsCount) {
-        for (uint32_t i = callNode->childCount - 1; i > 0; i--) {
-          if (func != NULL) {
-            ArgumentInfo *arg = func->arguments;
-            uint32_t j = callNode->childCount - 1;
-            while (j != i) {
-              arg = arg->next;
-              j--;
-            }
-            OperationTreeNode *fakeArgNode = newOperationTreeNode(arg->name, 0, arg->line, arg->pos, false);
-            fakeArgNode->type = copyTypeInfo(arg->type);
-            checkTypeCompatibility(fakeArgNode, callNode->children[i], container, filename);
-            destroyOperationTreeNodeTree(fakeArgNode);
-          } 
-        }
-        //don't show error, it was shown before
-      } else {
-        char buffer[1024];
-        snprintf(buffer, sizeof(buffer),
-                "Call error. Different count of parameters and arguments in calling function %s at %s:%d:%d\n",
-                func->functionName, filename, callNode->line,
-                callNode->pos + 1);
-        if (container->error == NULL) {
-          container->error = createOperationTreeErrorInfo(buffer);
+      if (func != NULL) {
+        if (callNode->childCount - 1 == func->argumentsCount) {
+          for (uint32_t i = callNode->childCount - 1; i > 0; i--) {
+            if (func != NULL) {
+              ArgumentInfo *arg = func->arguments;
+              uint32_t j = callNode->childCount - 1;
+              while (j != i) {
+                arg = arg->next;
+                j--;
+              }
+              OperationTreeNode *fakeArgNode = newOperationTreeNode(arg->name, 0, arg->line, arg->pos, false);
+              fakeArgNode->type = copyTypeInfo(arg->type);
+              checkTypeCompatibility(fakeArgNode, callNode->children[i], container, filename);
+              destroyOperationTreeNodeTree(fakeArgNode);
+            } 
+          }
+          //don't show error, it was shown before
         } else {
-          addOperationTreeError(container, buffer);
+          char buffer[1024];
+          snprintf(buffer, sizeof(buffer),
+                  "Call error. Different count of parameters and arguments in calling function %s at %s:%d:%d\n",
+                  func->functionName, filename, callNode->line,
+                  callNode->pos + 1);
+          if (container->error == NULL) {
+            container->error = createOperationTreeErrorInfo(buffer);
+          } else {
+            addOperationTreeError(container, buffer);
+          }
         }
       }
 

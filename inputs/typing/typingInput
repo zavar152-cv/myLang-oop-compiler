@@ -25,7 +25,9 @@ int main(string[] args) {
 
     int n = test();
 
-    
+    uint bForCast = 1;
+
+    ulong intToCast = bForCast;
 
     0;
 }
@@ -44,3 +46,7 @@ int[] test3(bool b) {
 
     a[1];
 }
+
+// int __castToInt(byte b) {
+//     0;
+// }

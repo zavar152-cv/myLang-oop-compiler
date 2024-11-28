@@ -253,7 +253,7 @@ BasicBlock* parseDoWhile(MyAstNode* doWhileBlock, Program *program, const char* 
   BasicBlock *bodyExitBlock = parseBlock(doWhileBlock->children[0], program, filename, true, conditionBlock, bodyBlock, conditionBlock, cfg, sm, functionTable, uid);
 
   addEdge(bodyExitBlock, conditionBlock, UNCONDITIONAL_JUMP, NULL);
-  
+
   return emptyBlock;
 }
 
@@ -442,7 +442,6 @@ BasicBlock *parseBlock(MyAstNode* block, Program *program, const char* filename,
     free(fakeNode);
   }
 
-  printScopes(sm);
   exitScope(sm);
 
   return currentBlock;
@@ -503,7 +502,7 @@ Program *buildProgram(FilesToAnalyze *files, bool debug) {
           snprintf(buffer, sizeof(buffer),
             "Redeclaration error. Function %s at %s:%d:%d was previously declared at %s:%d:%d\n",
             info->functionName, info->fileName, info->line, info->pos + 1,
-            func->fileName, func->line, func->pos);
+            func->fileName, func->line, func->pos + 1);
           ProgramErrorInfo* error = createProgramErrorInfo(buffer);
           addProgramError(program, error);
           break;
@@ -517,13 +516,13 @@ Program *buildProgram(FilesToAnalyze *files, bool debug) {
       addFunctionTable(functionTable, entry);
     }
   }
-  
+
   if (!redef) {
     for (uint32_t i = 0; i < files->filesCount; i++) {
       MyLangResult *result = files->result[i];
       MyAstNode **funcDefs = result->tree->children;
       uint32_t childCount = result->tree->childCount;
-      for (uint32_t j = 0; j < childCount; j++) {
+      for (uint32_t j = 0; j < childCount && funcDefs[j]->childCount != 1; j++) {
         MyAstNode *block = funcDefs[j]->children[1];
         assert(strcmp(block->label, BLOCK) == 0);
         MyAstNode* funcSignature = funcDefs[j]->children[0];
@@ -560,7 +559,6 @@ Program *buildProgram(FilesToAnalyze *files, bool debug) {
           funcArg = funcArg->next;
         }
         BasicBlock *lastBlock = parseBlock(block, program, files->fileName[i], false, startBlock, NULL, NULL, cfg, &sm, functionTable, &uid);
-        printScopes(&sm);
         exitScope(&sm);
         BasicBlock *retCheckBlock;
         if (lastBlock->isEmpty) {

@@ -4,6 +4,7 @@
 #include <argp.h>
 #include <libgen.h>
 #include <string.h>
+#include <time.h>
 
 #include "grammar/myLang.h"
 #include "./dotUtils/dotUtils.h"
@@ -218,7 +219,8 @@ int main(int argc, char *argv[]) {
         mainFileName = func->fileName;
       }
       char *outputFilePath = getOutputFileName(func->fileName, func->functionName, "dot", arguments.output_dir);
-      writeCFGToDotFile(func->cfg, outputFilePath, arguments.ot);
+      if (func->cfg != NULL)
+        writeCFGToDotFile(func->cfg, outputFilePath, arguments.ot);
       func = func->next;
       free(outputFilePath);
     }

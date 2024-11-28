@@ -107,6 +107,7 @@ digraph CFG {
         node23 -> node25[color=blue];
     }
     BB23 -> entry5 [lhead=cluster_instruction5, color=blue];
+    BB22 [label=<<B>BB22: Empty block</B><BR ALIGN="CENTER"/>>];
     BB21 [label=<<B>BB21: Else Block</B><BR ALIGN="CENTER"/>VAR<BR ALIGN="CENTER"/>FUNC_CALL<BR ALIGN="CENTER"/>break<BR ALIGN="CENTER"/>>];
     subgraph cluster_instruction6 {
         label = "OT of BB21:0";
@@ -773,9 +774,10 @@ digraph CFG {
     BB24 -> BB25 [label="False", color=red];
     BB24 -> BB26 [label="True", color=green];
     BB23 -> BB24;
+    BB22 -> BB15;
     BB21 -> BB16;
     BB20 -> BB19;
-    BB19 -> BB15 [label="False", color=red];
+    BB19 -> BB22 [label="False", color=red];
     BB19 -> BB23 [label="True", color=green];
     BB18 -> BB21 [label="False", color=red];
     BB18 -> BB20 [label="True", color=green];

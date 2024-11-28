@@ -1,0 +1,23 @@
+//register __castToByte
+byte __castToByteFromUint(uint ui);
+byte __castToByteFromLong(long l);
+byte __castToByteFromUlong(ulong ul);
+
+//register __castToInt
+int __castToIntFromUint(uint ui);
+int __castToIntFromLong(long l);
+int __castToIntFromUlong(ulong ul);
+
+//register __castToUint
+uint __castToUintFromByte(byte b);
+uint __castToUintFromInt(uint i);
+uint __castToUintFromLong(long l);
+uint __castToUintFromUlong(ulong ul);
+
+//register __castToLong
+long __castToLongFromUlong(ulong ul);
+
+//register __castToUlong
+ulong __castToUlongFromByte(byte b);
+ulong __castToUlongFromInt(int i);
+ulong __castToUlongFromLong(long l);
