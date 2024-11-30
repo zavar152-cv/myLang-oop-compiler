@@ -8,6 +8,7 @@ typedef struct TypeInfo {
     char *typeName;
     bool custom;
     bool isArray;
+    bool isVarargs;
     uint32_t arrayDim;
     uint32_t line;
     uint32_t pos;

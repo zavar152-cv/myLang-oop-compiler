@@ -61,6 +61,7 @@ typedef struct FunctionInfo {
     TypeInfo *returnType;
     ArgumentInfo *arguments;
     CFG *cfg;
+    bool isVarargs;
     struct FunctionInfo *next;
     uint32_t line;
     uint32_t pos;

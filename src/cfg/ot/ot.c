@@ -493,33 +493,37 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
       }
 
       if (func != NULL) {
-        if (callNode->childCount - 1 == func->argumentsCount) {
-          for (uint32_t i = callNode->childCount - 1; i > 0; i--) {
-            if (func != NULL) {
-              ArgumentInfo *arg = func->arguments;
-              uint32_t j = callNode->childCount - 1;
-              while (j != i) {
-                arg = arg->next;
-                j--;
-              }
-              OperationTreeNode *fakeArgNode = newOperationTreeNode(arg->name, 0, arg->line, arg->pos, false);
-              fakeArgNode->type = copyTypeInfo(arg->type);
-              checkTypeCompatibility(fakeArgNode, callNode->children[i], container, filename);
-              destroyOperationTreeNodeTree(fakeArgNode);
-            } 
-          }
-          //don't show error, it was shown before
-        } else {
-          char buffer[1024];
-          snprintf(buffer, sizeof(buffer),
-                  "Call error. Different count of parameters and arguments in calling function %s at %s:%d:%d\n",
-                  func->functionName, filename, callNode->line,
-                  callNode->pos + 1);
-          if (container->error == NULL) {
-            container->error = createOperationTreeErrorInfo(buffer);
+        if (!func->isVarargs) {
+          if (callNode->childCount - 1 == func->argumentsCount) {
+            for (uint32_t i = callNode->childCount - 1; i > 0; i--) {
+              if (func != NULL) {
+                ArgumentInfo *arg = func->arguments;
+                uint32_t j = callNode->childCount - 1;
+                while (j != i) {
+                  arg = arg->next;
+                  j--;
+                }
+                OperationTreeNode *fakeArgNode = newOperationTreeNode(arg->name, 0, arg->line, arg->pos, false);
+                fakeArgNode->type = copyTypeInfo(arg->type);
+                checkTypeCompatibility(fakeArgNode, callNode->children[i], container, filename);
+                destroyOperationTreeNodeTree(fakeArgNode);
+              } 
+            }
+            //don't show error, it was shown before
           } else {
-            addOperationTreeError(container, buffer);
+            char buffer[1024];
+            snprintf(buffer, sizeof(buffer),
+                    "Call error. Different count of parameters and arguments in calling function %s at %s:%d:%d\n",
+                    func->functionName, filename, callNode->line,
+                    callNode->pos + 1);
+            if (container->error == NULL) {
+              container->error = createOperationTreeErrorInfo(buffer);
+            } else {
+              addOperationTreeError(container, buffer);
+            }
           }
+        } else {
+          //TODO
         }
       }
 
@@ -649,7 +653,7 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
       if (isCmpOp(leftExprNode->label)) {
         char buffer[1024];
         snprintf(buffer, sizeof(buffer),
-                 "Compare error. Can't use result of comapre operation as "
+                 "Compare error. Can't use result of compare operation as "
                  "operands at %s:%d:%d\n",
                  filename, leftExprNode->line, leftExprNode->pos + 1);
         if (container->error == NULL) {
@@ -661,7 +665,7 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
       if (isCmpOp(rightExprNode->label)) {
         char buffer[1024];
         snprintf(buffer, sizeof(buffer),
-                 "Compare error. Can't use result of comapre operation as "
+                 "Compare error. Can't use result of compare operation as "
                  "operands at %s:%d:%d\n",
                  filename, rightExprNode->line, rightExprNode->pos + 1);
         if (container->error == NULL) {
@@ -1154,7 +1158,7 @@ ArgumentInfo *copyArgumentInfo(ArgumentInfo *argInfo) {
     return copy;
 }
 
-FunctionEntry *createFunctionEntry(const char *fileName, const char *functionName, TypeInfo *returnType, ArgumentInfo *arguments, uint32_t argumentsCount, uint32_t line, uint32_t pos) {
+FunctionEntry *createFunctionEntry(const char *fileName, const char *functionName, TypeInfo *returnType, ArgumentInfo *arguments, bool isVarargs, uint32_t argumentsCount, uint32_t line, uint32_t pos) {
     FunctionEntry *entry = (FunctionEntry *)malloc(sizeof(FunctionEntry));
     if (!entry) {
         return NULL;
@@ -1167,6 +1171,7 @@ FunctionEntry *createFunctionEntry(const char *fileName, const char *functionNam
     entry->line = line;
     entry->pos = pos;
     entry->argumentsCount = argumentsCount;
+    entry->isVarargs = isVarargs;
     return entry;
 }
 

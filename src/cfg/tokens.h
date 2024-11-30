@@ -56,3 +56,4 @@
 #define     DO_WHILE "DO_WHILE"
 #define     IF "IF"
 #define     ELSE "ELSE"
+#define     VARARGS "VARARGS"

@@ -112,17 +112,29 @@ TypeInfo* parseTyperef(MyAstNode* typeRef) {
   }
 }
 
-void parseArgdefList(MyAstNode* argdefList, FunctionInfo* info) {
+void parseArgdefList(MyAstNode* argdefList, FunctionInfo* info, Program *program, const char* filename) {
   if (argdefList->childCount == 0) {
     return;
   } else {
-    for (uint32_t i = 0; i < argdefList->childCount; i++) {
+    bool isVarargs = false;
+    if (strcmp(argdefList->children[argdefList->childCount - 1]->label, VARARGS) == 0) {
+      isVarargs = true;
+    }
+    ArgumentInfo* arg;
+    for (uint32_t i = 0; i < argdefList->childCount - (isVarargs ? 1 : 0); i++) {
       assert(strcmp(argdefList->children[i]->children[0]->label, TYPEREF) == 0);
       assert(strcmp(argdefList->children[i]->children[1]->label, IDENTIFIER) == 0);
       TypeInfo* argType = parseTyperef(argdefList->children[i]->children[0]);
-      ArgumentInfo* arg = createArgumentInfo(argType, argdefList->children[i]->children[1]->children[0]->label, 
+      arg = createArgumentInfo(argType, argdefList->children[i]->children[1]->children[0]->label, 
       argdefList->children[i]->children[1]->children[0]->line, argdefList->children[i]->children[1]->children[0]->pos);
       addArgument(info, arg);
+    }
+    if (isVarargs) {
+      arg->isVarargs = true;
+      arg->type->isVarargs = true;
+      arg->type->isArray = true;
+      arg->type->arrayDim = 1;
+      info->isVarargs = true;
     }
   }
 }
@@ -491,7 +503,7 @@ Program *buildProgram(FilesToAnalyze *files, bool debug) {
       }
 
       FunctionInfo* info = createFunctionInfo(files->fileName[i], name->children[0]->label, returnType, name->children[0]->line, name->children[0]->pos);
-      parseArgdefList(argdefList, info);
+      parseArgdefList(argdefList, info, program, files->fileName[i]);
 
       FunctionInfo *func = program->functions;
       while (func != NULL) {
@@ -512,7 +524,7 @@ Program *buildProgram(FilesToAnalyze *files, bool debug) {
 
       addFunctionToProgram(program, info);
       TypeInfo *returnTypeCopy = createTypeInfo(info->returnType->typeName, info->returnType->custom, info->returnType->isArray, info->returnType->arrayDim, info->returnType->line, info->returnType->pos);
-      FunctionEntry *entry = createFunctionEntry(info->fileName, info->functionName, returnTypeCopy, copyArgumentInfo(info->arguments), argdefList->childCount, info->line, info->pos);
+      FunctionEntry *entry = createFunctionEntry(info->fileName, info->functionName, returnTypeCopy, copyArgumentInfo(info->arguments), info->isVarargs, argdefList->childCount, info->line, info->pos);
       addFunctionTable(functionTable, entry);
     }
   }
@@ -739,6 +751,7 @@ TypeInfo *createTypeInfo(const char *typeName, bool custom, bool isArray, uint32
   typeInfo->line = line;
   typeInfo->pos = pos;
   typeInfo->next = NULL;
+  typeInfo->isVarargs = false;
   return typeInfo;
 }
 
@@ -764,6 +777,7 @@ ArgumentInfo *createArgumentInfo(TypeInfo *type, const char *name, uint32_t line
   argInfo->next = NULL;
   argInfo->line = line;
   argInfo->pos = pos;
+  argInfo->isVarargs = false;
   return argInfo;
 }
 
@@ -797,6 +811,7 @@ FunctionInfo *createFunctionInfo(const char *fileName, const char *functionName,
   funcInfo->next = NULL;
   funcInfo->line = line;
   funcInfo->pos = pos;
+  funcInfo->isVarargs = false;
   return funcInfo;
 }
 
@@ -892,7 +907,7 @@ void printFunctionInfo(FunctionInfo *funcInfo) {
   printf("Arguments:\n");
   ArgumentInfo *arg = funcInfo->arguments;
   while (arg != NULL) {
-    printf("  %s %s", arg->type->typeName, arg->name);
+    printf("  %s %s, varargs: %b", arg->type->typeName, arg->name, arg->isVarargs);
     if (arg->type->custom)
       printf(", custom type");
     if (arg->type->isArray)

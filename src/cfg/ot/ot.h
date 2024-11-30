@@ -41,6 +41,7 @@ typedef struct OperationTreeErrorContainer {
 typedef struct ArgumentInfo {
     TypeInfo *type;
     char *name;
+    bool isVarargs;
     struct ArgumentInfo *next;
     uint32_t line;
     uint32_t pos;
@@ -51,6 +52,7 @@ typedef struct FunctionEntry {
     char *functionName;
     TypeInfo *returnType;
     ArgumentInfo *arguments;
+    bool isVarargs;
     struct FunctionEntry *next;
     uint32_t argumentsCount;
     uint32_t line;
@@ -89,7 +91,7 @@ ArgumentInfo *copyArgumentInfo(ArgumentInfo *argInfo);
 
 TypeInfo *copyTypeInfo(TypeInfo *typeInfo);
 
-FunctionEntry *createFunctionEntry(const char *fileName, const char *functionName, TypeInfo *returnType, ArgumentInfo *arguments, uint32_t argumentsCount, uint32_t line, uint32_t pos);
+FunctionEntry *createFunctionEntry(const char *fileName, const char *functionName, TypeInfo *returnType, ArgumentInfo *arguments, bool isVarargs, uint32_t argumentsCount, uint32_t line, uint32_t pos);
 
 void freeFunctionEntry(FunctionEntry *entry);
 

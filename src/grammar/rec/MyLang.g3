@@ -55,6 +55,7 @@ tokens {
     DO_WHILE;
     IF;
     ELSE;
+    VARARGS;
 }
 
 @header {
@@ -75,7 +76,7 @@ funcSignature
     ;
 
 argDefList
-    : (argDef (',' argDef)*)? -> ^(ARGDEF_LIST argDef*)
+    : (argDef (',' argDef)*)? (VARARGS_TOKEN)? -> ^(ARGDEF_LIST (argDef)* ^(VARARGS VARARGS_TOKEN)?)
     ;
 
 argDef
@@ -83,7 +84,7 @@ argDef
     ;
 
 statement
-    : var ';' -> var
+    : (var ';') => var ';' -> var
     | statementBlock -> statementBlock
     | ifStatement -> ifStatement
     | whileStatement -> whileStatement
@@ -321,6 +322,7 @@ HEX_TOKEN: '0'('x'|'X') ('0'..'9' | 'a'..'f' | 'A'..'F')+ ;
 DEC_TOKEN: ('-')?('0'..'9')+ ;
 CHAR_TOKEN: '\'' ~('\'' | '\\') '\'' ;
 STR_TOKEN: ('"') ('\\' . | ~('\\'|'"'))* ('"');
+VARARGS_TOKEN: '...';
 
 LINE_COMMENT
     :   '//' ~('\n'|'\r')* { SKIP(); };
