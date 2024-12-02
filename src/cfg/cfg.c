@@ -503,6 +503,10 @@ Program *buildProgram(FilesToAnalyze *files, bool debug) {
       FunctionInfo* info = createFunctionInfo(files->fileName[i], name->children[0]->label, returnType, name->children[0]->line, name->children[0]->pos);
       parseArgdefList(argdefList, info, program, files->fileName[i]);
 
+      if ((info->functionName[0] == '_') && (info->functionName[1] == '_')) {
+        info->isBuiltin = true;
+      }
+
       FunctionInfo *func = program->functions;
       while (func != NULL) {
         FunctionInfo *nextFunc = func->next;
@@ -522,7 +526,7 @@ Program *buildProgram(FilesToAnalyze *files, bool debug) {
 
       addFunctionToProgram(program, info);
       TypeInfo *returnTypeCopy = createTypeInfo(info->returnType->typeName, info->returnType->custom, info->returnType->isArray, info->returnType->arrayDim, info->returnType->line, info->returnType->pos);
-      FunctionEntry *entry = createFunctionEntry(info->fileName, info->functionName, returnTypeCopy, copyArgumentInfo(info->arguments), info->isVarargs, argdefList->childCount - (info->isVarargs ? 1 : 0), info->line, info->pos);
+      FunctionEntry *entry = createFunctionEntry(info->fileName, info->functionName, returnTypeCopy, copyArgumentInfo(info->arguments), info->isVarargs, info->isBuiltin, argdefList->childCount - (info->isVarargs ? 1 : 0), info->line, info->pos);
       addFunctionTable(functionTable, entry);
     }
   }
@@ -810,6 +814,7 @@ FunctionInfo *createFunctionInfo(const char *fileName, const char *functionName,
   funcInfo->line = line;
   funcInfo->pos = pos;
   funcInfo->isVarargs = false;
+  funcInfo->isBuiltin = false;
   return funcInfo;
 }
 
@@ -896,6 +901,7 @@ void freeProgramWarnings(ProgramWarningInfo *warning) {
 void printFunctionInfo(FunctionInfo *funcInfo) {
   printf("File: %s\n", funcInfo->fileName);
   printf("Function: %s\n", funcInfo->functionName);
+  printf("Builtin: %b\n", funcInfo->isBuiltin);
   printf("Return type: %s", funcInfo->returnType->typeName);
   if (funcInfo->returnType->custom)
     printf(", custom type");

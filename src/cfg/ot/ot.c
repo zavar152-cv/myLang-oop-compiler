@@ -1206,7 +1206,7 @@ ArgumentInfo *copyArgumentInfo(ArgumentInfo *argInfo) {
     return copy;
 }
 
-FunctionEntry *createFunctionEntry(const char *fileName, const char *functionName, TypeInfo *returnType, ArgumentInfo *arguments, bool isVarargs, uint32_t argumentsCount, uint32_t line, uint32_t pos) {
+FunctionEntry *createFunctionEntry(const char *fileName, const char *functionName, TypeInfo *returnType, ArgumentInfo *arguments, bool isVarargs, bool isBuiltin, uint32_t argumentsCount, uint32_t line, uint32_t pos) {
     FunctionEntry *entry = (FunctionEntry *)malloc(sizeof(FunctionEntry));
     if (!entry) {
         return NULL;
@@ -1220,6 +1220,7 @@ FunctionEntry *createFunctionEntry(const char *fileName, const char *functionNam
     entry->pos = pos;
     entry->argumentsCount = argumentsCount;
     entry->isVarargs = isVarargs;
+    entry->isBuiltin = isBuiltin;
     return entry;
 }
 
