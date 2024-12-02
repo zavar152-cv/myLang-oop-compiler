@@ -1,6 +1,7 @@
 digraph CallGraph {
     node [shape=ellipse, style=filled, color=lightblue];
 
+<<<<<<< HEAD
     "test3";
     "test2";
     "test";
@@ -9,4 +10,10 @@ digraph CallGraph {
     "main" -> "test3" [color=blue];
     "main" -> "test2" [color=blue];
     "main" -> "test" [color=blue];
+=======
+    "__initArray";
+    "main";
+
+    "main" -> "__initArray" [color=blue];
+>>>>>>> 840ece1649018a78b4e963fce2f21606f471e973
 }
