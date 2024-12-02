@@ -132,8 +132,6 @@ void parseArgdefList(MyAstNode* argdefList, FunctionInfo* info, Program *program
     if (isVarargs) {
       arg->isVarargs = true;
       arg->type->isVarargs = true;
-      arg->type->isArray = true;
-      arg->type->arrayDim = 1;
       info->isVarargs = true;
     }
   }
@@ -524,7 +522,7 @@ Program *buildProgram(FilesToAnalyze *files, bool debug) {
 
       addFunctionToProgram(program, info);
       TypeInfo *returnTypeCopy = createTypeInfo(info->returnType->typeName, info->returnType->custom, info->returnType->isArray, info->returnType->arrayDim, info->returnType->line, info->returnType->pos);
-      FunctionEntry *entry = createFunctionEntry(info->fileName, info->functionName, returnTypeCopy, copyArgumentInfo(info->arguments), info->isVarargs, argdefList->childCount, info->line, info->pos);
+      FunctionEntry *entry = createFunctionEntry(info->fileName, info->functionName, returnTypeCopy, copyArgumentInfo(info->arguments), info->isVarargs, argdefList->childCount - (info->isVarargs ? 1 : 0), info->line, info->pos);
       addFunctionTable(functionTable, entry);
     }
   }
