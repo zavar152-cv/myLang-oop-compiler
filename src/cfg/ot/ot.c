@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <assert.h>
+#include <stdio.h>
 #include <string.h>
 
 OperationTreeNode *newOperationTreeNode(const char *label, uint32_t childCount, uint32_t line, uint32_t pos, bool isImaginary) {
@@ -369,8 +370,8 @@ void checkTypeCompatibility(OperationTreeNode *lValueExprNode, OperationTreeNode
         char buffer[1024];
         snprintf(buffer, sizeof(buffer),
                 "Assign error. Can't assign %s to array %s:%d:%d\n",
-                rValueExprNode->type->typeName, filename, lValueExprNode->line,
-                lValueExprNode->pos + 1);
+                rValueExprNode->type->typeName, filename, rValueExprNode->line,
+                rValueExprNode->pos + 1);
         if (container->error == NULL) {
           container->error = createOperationTreeErrorInfo(buffer);
         } else {
@@ -414,8 +415,8 @@ void checkTypeCompatibility(OperationTreeNode *lValueExprNode, OperationTreeNode
       char buffer[1024];
       snprintf(buffer, sizeof(buffer),
               "Assign error. Can't assign %s to array %s:%d:%d\n",
-              rValueExprNode->type->typeName, filename, lValueExprNode->line,
-              lValueExprNode->pos + 1);
+              rValueExprNode->type->typeName, filename, rValueExprNode->line,
+              rValueExprNode->pos + 1);
       if (container->error == NULL) {
         container->error = createOperationTreeErrorInfo(buffer);
       } else {
@@ -458,6 +459,24 @@ void checkTypeCompatibility(OperationTreeNode *lValueExprNode, OperationTreeNode
       }
     }
   }
+}
+
+ArgumentInfo **listToArray(ArgumentInfo *head, uint32_t argumentsCount) {
+    uint32_t size = argumentsCount;
+    ArgumentInfo *current;
+    if (size == 0) {
+        return NULL;
+    }
+    ArgumentInfo **array = (ArgumentInfo **)malloc(size * sizeof(ArgumentInfo *));
+    if (array == NULL) {
+        return NULL;
+    }
+    current = head;
+    for (int32_t i = size - 1; i >= 0; i--) {
+        array[i] = current;
+        current = current->next;
+    }
+    return array;
 }
 
 OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLvalue, bool isFunctionName, OperationTreeErrorContainer *container, ScopeManager *sm, FunctionTable *functionTable, const char* filename) {
@@ -523,22 +542,49 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
             }
           }
         } else {
-          //TODO
+          if (callNode->childCount - 1 >= func->argumentsCount) {
+            ArgumentInfo **argArray = listToArray(func->arguments, func->argumentsCount);
+            for (uint32_t i = 0; i < func->argumentsCount; i++) {
+              OperationTreeNode *fakeArgNode = newOperationTreeNode(argArray[i]->name, 0, argArray[i]->line, argArray[i]->pos, false);
+              fakeArgNode->type = copyTypeInfo(argArray[i]->type);
+              checkTypeCompatibility(fakeArgNode, callNode->children[i + 1], container, filename);
+              destroyOperationTreeNodeTree(fakeArgNode);
+            }
+            ArgumentInfo *lastArg = argArray[func->argumentsCount - 1];
+            for (uint32_t i = func->argumentsCount; i < callNode->childCount; i++) {
+              OperationTreeNode *fakeArgNode = newOperationTreeNode(lastArg->name, 0, lastArg->line, lastArg->pos, false);
+              fakeArgNode->type = copyTypeInfo(lastArg->type);
+              checkTypeCompatibility(fakeArgNode, callNode->children[i], container, filename);
+              destroyOperationTreeNodeTree(fakeArgNode);
+            }
+            free(argArray);
+          } else {
+            char buffer[1024];
+            snprintf(buffer, sizeof(buffer),
+                    "Call error. Different count of parameters and arguments in calling function %s at %s:%d:%d\n",
+                    func->functionName, filename, callNode->line,
+                    callNode->pos + 1);
+            if (container->error == NULL) {
+              container->error = createOperationTreeErrorInfo(buffer);
+            } else {
+              addOperationTreeError(container, buffer);
+            }            
+          }            
         }
       }
 
-      // if (isLvalue) {
-      //   char buffer[1024];
-      //   snprintf(buffer, sizeof(buffer),
-      //           "Assign error. Can't use function calling to assign at %s:%d:%d\n",
-      //           filename, callNode->line,
-      //           callNode->pos + 1);
-      //   if (container->error == NULL) {
-      //     container->error = createOperationTreeErrorInfo(buffer);
-      //   } else {
-      //     addOperationTreeError(container, buffer);
-      //   }
-      // }
+      if (isLvalue) {
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer),
+                "Assign error. Can't use function calling to assign at %s:%d:%d\n",
+                filename, callNode->line,
+                callNode->pos + 1);
+        if (container->error == NULL) {
+          container->error = createOperationTreeErrorInfo(buffer);
+        } else {
+          addOperationTreeError(container, buffer);
+        }
+      }
       return callNode;
     } else if (root->childCount == 1) {
       OperationTreeNode *funcNameNode = buildExprOperationTreeFromAstNode(root->children[0], false, true, container, sm, functionTable, filename);
@@ -563,7 +609,7 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
     //left - EXPR_LISR
     //right - EXPR
     if (root->childCount == 1) {
-      OperationTreeNode *indexNameNode = buildExprOperationTreeFromAstNode(root->children[0], true, false, container, sm, functionTable, filename);
+      OperationTreeNode *indexNameNode = buildExprOperationTreeFromAstNode(root->children[0], isLvalue, isFunctionName, container, sm, functionTable, filename);
       char buffer[1024];
       snprintf(buffer, sizeof(buffer),
                "Index error. Missing index value at %s:%d:%d\n",
@@ -576,7 +622,7 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
       }
       return indexNameNode;
     } else {
-      OperationTreeNode *indexNameNode = buildExprOperationTreeFromAstNode(root->children[1], true, false, container, sm, functionTable, filename);
+      OperationTreeNode *indexNameNode = buildExprOperationTreeFromAstNode(root->children[1], isLvalue, isFunctionName, container, sm, functionTable, filename);
       OperationTreeNode *indexNode = newOperationTreeNode(INDEX, 1 + root->children[0]->childCount, indexNameNode->line, indexNameNode->pos, indexNameNode->isImaginary);
       indexNode->children[0] = indexNameNode;
       indexNode->type = copyTypeInfo(indexNameNode->type);
@@ -1111,6 +1157,8 @@ TypeInfo *copyTypeInfo(TypeInfo *typeInfo) {
         typeInfo->line,
         typeInfo->pos
     );
+
+    copy->isVarargs = typeInfo->isVarargs;
 
     if (!copy) {
         return NULL;
