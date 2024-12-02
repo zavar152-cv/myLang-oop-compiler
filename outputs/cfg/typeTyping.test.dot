@@ -4,16 +4,24 @@ digraph CFG {
     node [shape=rectangle];
 
     BB2 [label=<<B>BB2: END</B><BR ALIGN="CENTER"/>>];
-    BB1 [label=<<B>BB1: Base block</B><BR ALIGN="CENTER"/>IDENTIFIER<BR ALIGN="CENTER"/>>];
+    BB1 [label=<<B>BB1: Base block</B><BR ALIGN="CENTER"/>INDEXING<BR ALIGN="CENTER"/>>];
     subgraph cluster_instruction0 {
         label = "OT of BB1:0";
         style=rounded;
         color=blue;
         entry0 [shape=point, style=invis];
         node0 [label="return", color=blue];
-        node1 [label="read", color=blue];
-        node2 [label="t", color=blue];
+        node1 [label="index", color=blue];
+        node2 [label="read", color=blue];
+        node3 [label="t", color=blue];
+        node2 -> node3[color=blue];
         node1 -> node2[color=blue];
+        node4 [label="litRead", color=blue];
+        node5 [label="DEC", color=blue];
+        node4 -> node5[color=blue];
+        node6 [label="1", color=blue];
+        node4 -> node6[color=blue];
+        node1 -> node4[color=blue];
         node0 -> node1[color=blue];
     }
     BB1 -> entry0 [lhead=cluster_instruction0, color=blue];

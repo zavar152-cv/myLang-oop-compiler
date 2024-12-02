@@ -569,6 +569,10 @@ Program *buildProgram(FilesToAnalyze *files, bool debug) {
         enterScope(&sm);
         ArgumentInfo *funcArg = func->arguments;
         while (funcArg != NULL) {
+          if (func->isVarargs) {
+            funcArg->type->isArray = true;
+            funcArg->type->arrayDim = 1;
+          }
           addSymbol(&sm, funcArg->name, funcArg->type->typeName, funcArg->type->custom, funcArg->type->isArray, funcArg->type->arrayDim, funcArg->line, funcArg->pos);
           funcArg = funcArg->next;
         }
