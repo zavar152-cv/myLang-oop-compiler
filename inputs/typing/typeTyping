@@ -1,7 +1,18 @@
 int main(string[] args) {
     int[] b;
     int a = __initArray("", "", 3, 5, b[1]);
+    test(1, 4, 5);
+    int[][] c;
+    c[1][1];
+    string s1 = "test1";
+    string s2 = s1 + "test2";
+    test2("lol");
     0;
+}
+
+int test2(string s) {
+    char at = s[1];
+    0;  
 }
 
 int test(int t ...) {

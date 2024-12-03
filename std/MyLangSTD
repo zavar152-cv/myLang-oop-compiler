@@ -24,6 +24,6 @@ ulong __castToUlongFromLong(long l);
 
 long __sizeof(string type);
 
-int __lengthof(string varName);
+int __lengthof(string var);
 
-int __initArray(string type, string varName, int sizes ...);
+int __initArray(string type, string varName, int dim, int sizes ...);

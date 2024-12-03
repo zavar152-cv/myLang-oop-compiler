@@ -169,7 +169,9 @@ bool isCanBeUnsignedLong(const char *str) {
 }
 
 bool isBinaryOperationAllowed(const char *op, const char *lType, const char *rType) {
-  if (isArithmeticOp(op)) {
+  if ((strcmp(op, PLUS) == 0) && (strcmp(lType, "string") == 0) && (strcmp(rType, "string") == 0)) {
+    return true;
+  } if (isArithmeticOp(op)) {
     return (isNumericType(lType) && isNumericType(rType));
   } else if (isEqOp(op)) {
     return true;
@@ -426,27 +428,6 @@ void checkTypeCompatibility(OperationTreeNode *lValueExprNode, OperationTreeNode
   }
 
   if (rValueExprNode->type->isArray) {
-    // if (strcmp(rValueExprNode->label, INDEX) == 0) {
-    //   OperationTreeNode *indexNode = rValueExprNode;
-    //   int dimI = 0;
-    //   while (strcmp(indexNode->label, INDEX) == 0) {
-    //     indexNode = indexNode->children[0];
-    //     dimI++;
-    //   }
-
-    //   if (dimI != indexNode->type->arrayDim) {
-    //     char buffer[1024];
-    //     snprintf(buffer, sizeof(buffer),
-    //             "Index error. Check indexing and array dimension match %s:%d:%d\n",
-    //             filename, rValueExprNode->line,
-    //             rValueExprNode->pos + 1);
-    //     if (container->error == NULL) {
-    //       container->error = createOperationTreeErrorInfo(buffer);
-    //     } else {
-    //       addOperationTreeError(container, buffer);
-    //     }   
-    //   }
-    // } else 
     if (!lValueExprNode->type->isArray) {
       char buffer[1024];
       snprintf(buffer, sizeof(buffer),
@@ -631,11 +612,16 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
         if (indexNode->type->arrayDim == 0) {
           indexNode->type->isArray = false;
         }
+      } else if (strcmp(indexNode->type->typeName, "string") == 0) {
+        freeTypeInfo(indexNode->type);
+        freeTypeInfo(indexNameNode->type);
+        indexNode->type = createTypeInfo("char", false, false, 0, indexNode->line, indexNode->pos);
+        indexNameNode->type = createTypeInfo("char", false, true, 1, indexNode->line, indexNode->pos);
       }
       if (!indexNameNode->type->isArray) {
         char buffer[1024];
         snprintf(buffer, sizeof(buffer),
-                "Index error. Index can be applied only for arrays at %s:%d:%d\n",
+                "Index error. Index can be applied only for arrays or strings at %s:%d:%d\n",
                 filename, indexNameNode->line,
                 indexNameNode->pos + 1);
         if (container->error == NULL) {
@@ -647,6 +633,18 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
       for (uint32_t i = 0; i < root->children[0]->childCount; i++) {
         OperationTreeNode *iNode = buildExprOperationTreeFromAstNode(root->children[0]->children[i], false, false, container, sm, functionTable, filename);
         indexNode->children[1 + i] = iNode;
+        if (strcmp(iNode->label, WRITE) == 0) {
+          char buffer[1024];
+          snprintf(buffer, sizeof(buffer),
+                  "Index error. Can't use write operations as indexes at %s:%d:%d\n",
+                  filename, iNode->line,
+                  iNode->pos + 1);
+          if (container->error == NULL) {
+            container->error = createOperationTreeErrorInfo(buffer);
+          } else {
+            addOperationTreeError(container, buffer);
+          }          
+        }
         if (strcmp(iNode->type->typeName, "int") != 0) {
           char buffer[1024];
           snprintf(buffer, sizeof(buffer),
@@ -861,18 +859,6 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
       OperationTreeNode *readNode = newOperationTreeNode(READ, 1, root->children[0]->line, root->children[0]->pos, true);
       readNode->type = copyTypeInfo(idValueNode->type);
       readNode->children[0] = idValueNode;
-      // if (idValueNode->type->isArray) {
-      //   char buffer[1024];
-      //   snprintf(buffer, sizeof(buffer),
-      //           "Read error. Can't read array without indexing %s:%d:%d\n",
-      //           filename, idValueNode->line,
-      //           idValueNode->pos + 1);
-      //   if (container->error == NULL) {
-      //     container->error = createOperationTreeErrorInfo(buffer);
-      //   } else {
-      //     addOperationTreeError(container, buffer);
-      //   }   
-      // }
       return readNode;
     }
   } else if (isLiteral(root->label)) {
@@ -931,6 +917,10 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
       } else {
         litReadNode->children[1]->type = createTypeInfo("int", false, false, 0, root->children[0]->line, root->children[0]->pos);
       }
+    } else if (strcmp(literalTypeNode->label, HEX) == 0) {
+      //TODO
+    } else if (strcmp(literalTypeNode->label, BITS) == 0) {
+      //TODO
     } else if (strcmp(literalTypeNode->label, STR) == 0) {
       litReadNode->children[1]->type = createTypeInfo("string", false, false, 0, root->children[0]->line, root->children[0]->pos);
     }

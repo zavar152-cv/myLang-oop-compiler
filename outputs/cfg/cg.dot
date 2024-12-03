@@ -1,8 +1,12 @@
 digraph CallGraph {
     node [shape=ellipse, style=filled, color=lightblue];
 
+    "test2";
+    "test";
     "__initArray";
     "main";
 
+    "main" -> "test2" [color=blue];
+    "main" -> "test" [color=blue];
     "main" -> "__initArray" [color=blue];
 }
