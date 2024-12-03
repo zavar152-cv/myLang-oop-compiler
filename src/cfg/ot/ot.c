@@ -460,6 +460,75 @@ ArgumentInfo **listToArray(ArgumentInfo *head, uint32_t argumentsCount) {
     return array;
 }
 
+typedef enum {
+    CONV_TYPE_BYTE,
+    CONV_TYPE_INT,
+    CONV_TYPE_UINT,
+    CONV_TYPE_LONG,
+    CONV_TYPE_ULONG
+} NumberType;
+
+char* convertHexOrBitToDecimalString(const char* input, NumberType type, char* output, size_t output_size)
+{
+    int base = 0;
+    const char* s = input;
+
+    if (s[0] == '0') {
+        if (s[1] == 'x' || s[1] == 'X') {
+            base = 16;
+            s += 2;
+        } else if (s[1] == 'b' || s[1] == 'B') {
+            base = 2;
+            s += 2;
+        } else {
+            return NULL;
+        }
+    } else {
+        return NULL;
+    }
+
+    errno = 0;
+    char* endptr;
+    uint64_t value = strtoull(s, &endptr, base);
+    if (errno != 0 || *endptr != '\0') {
+        return NULL;
+    }
+
+    switch (type) {
+        case CONV_TYPE_BYTE:
+            if (value > UINT8_MAX) {
+                return NULL;
+            }
+            snprintf(output, output_size, "%u", (unsigned int)(uint8_t)value);
+            break;
+        case CONV_TYPE_INT:
+            if (value > INT32_MAX) {
+                return NULL;
+            }
+            snprintf(output, output_size, "%d", (int32_t)value);
+            break;
+        case CONV_TYPE_UINT:
+            if (value > UINT32_MAX) {
+                return NULL;
+            }
+            snprintf(output, output_size, "%u", (uint32_t)value);
+            break;
+        case CONV_TYPE_LONG:
+            if (value > INT64_MAX) {
+                return NULL;
+            }
+            snprintf(output, output_size, "%ld", (int64_t)value);
+            break;
+        case CONV_TYPE_ULONG:
+            snprintf(output, output_size, "%lu", value);
+            break;
+        default:
+            return NULL;
+    }
+    return output;
+}
+
+
 OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLvalue, bool isFunctionName, OperationTreeErrorContainer *container, ScopeManager *sm, FunctionTable *functionTable, const char* filename) {
   if (strcmp(root->label, ASSIGN) == 0) {
     //left - EXPR
@@ -918,9 +987,89 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
         litReadNode->children[1]->type = createTypeInfo("int", false, false, 0, root->children[0]->line, root->children[0]->pos);
       }
     } else if (strcmp(literalTypeNode->label, HEX) == 0) {
-      //TODO
+      char *output = (char*)malloc(100);
+      char *converted = convertHexOrBitToDecimalString(literalValueNode->label, CONV_TYPE_INT, output, sizeof(output));
+      if (converted == NULL) {
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer),
+                "Represantation error. Can't represent a hex value %s as int, uint, long or ulong at %s:%d:%d\n",
+                literalValueNode->label, filename, root->children[0]->line,
+                root->children[0]->pos + 1);
+        if (container->error == NULL) {
+          container->error = createOperationTreeErrorInfo(buffer);
+        } else {
+          addOperationTreeError(container, buffer);
+        }           
+      } else {
+        free((void *)literalValueNode->label);
+        literalValueNode->label = strdup(converted);
+        if (!isCanBeInt(converted)) {
+          if (isCanBeUnsignedInt(converted)) {
+            litReadNode->children[1]->type = createTypeInfo("uint", false, false, 0, root->children[0]->line, root->children[0]->pos);
+          } else if (isCanBeLong(converted)) {
+            litReadNode->children[1]->type = createTypeInfo("long", false, false, 0, root->children[0]->line, root->children[0]->pos);
+          } else if (isCanBeUnsignedLong(converted)) {
+            litReadNode->children[1]->type = createTypeInfo("ulong", false, false, 0, root->children[0]->line, root->children[0]->pos);
+          } else {
+            litReadNode->children[1]->type = createTypeInfo("_", false, false, 0, root->children[0]->line, root->children[0]->pos);
+            char buffer[1024];
+            snprintf(buffer, sizeof(buffer),
+                    "Type error. Can't represent a hex value %s as int, uint, long or ulong at %s:%d:%d\n",
+                    literalValueNode->label, filename, root->children[0]->line,
+                    root->children[0]->pos + 1);
+            if (container->error == NULL) {
+              container->error = createOperationTreeErrorInfo(buffer);
+            } else {
+              addOperationTreeError(container, buffer);
+            }             
+          }
+        } else {
+          litReadNode->children[1]->type = createTypeInfo("int", false, false, 0, root->children[0]->line, root->children[0]->pos);
+        }
+        free(converted);
+      }
     } else if (strcmp(literalTypeNode->label, BITS) == 0) {
-      //TODO
+      char *output = (char*)malloc(100);
+      char *converted = convertHexOrBitToDecimalString(literalValueNode->label, CONV_TYPE_INT, output, sizeof(output));
+      if (converted == NULL) {
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer),
+                "Represantation error. Can't represent a binary value %s as int, uint, long or ulong at %s:%d:%d\n",
+                literalValueNode->label, filename, root->children[0]->line,
+                root->children[0]->pos + 1);
+        if (container->error == NULL) {
+          container->error = createOperationTreeErrorInfo(buffer);
+        } else {
+          addOperationTreeError(container, buffer);
+        }           
+      } else {
+        free((void *)literalValueNode->label);
+        literalValueNode->label = strdup(converted);
+        if (!isCanBeInt(converted)) {
+          if (isCanBeUnsignedInt(converted)) {
+            litReadNode->children[1]->type = createTypeInfo("uint", false, false, 0, root->children[0]->line, root->children[0]->pos);
+          } else if (isCanBeLong(converted)) {
+            litReadNode->children[1]->type = createTypeInfo("long", false, false, 0, root->children[0]->line, root->children[0]->pos);
+          } else if (isCanBeUnsignedLong(converted)) {
+            litReadNode->children[1]->type = createTypeInfo("ulong", false, false, 0, root->children[0]->line, root->children[0]->pos);
+          } else {
+            litReadNode->children[1]->type = createTypeInfo("_", false, false, 0, root->children[0]->line, root->children[0]->pos);
+            char buffer[1024];
+            snprintf(buffer, sizeof(buffer),
+                    "Type error. Can't represent a binary value %s as int, uint, long or ulong at %s:%d:%d\n",
+                    literalValueNode->label, filename, root->children[0]->line,
+                    root->children[0]->pos + 1);
+            if (container->error == NULL) {
+              container->error = createOperationTreeErrorInfo(buffer);
+            } else {
+              addOperationTreeError(container, buffer);
+            }             
+          }
+        } else {
+          litReadNode->children[1]->type = createTypeInfo("int", false, false, 0, root->children[0]->line, root->children[0]->pos);
+        }
+      }
+      free(converted);
     } else if (strcmp(literalTypeNode->label, STR) == 0) {
       litReadNode->children[1]->type = createTypeInfo("string", false, false, 0, root->children[0]->line, root->children[0]->pos);
     }

@@ -966,7 +966,11 @@ void writeOperationTreeToDot(FILE *file, OperationTreeNode *node, int *nodeCount
     }
     *dst = '\0';
 
-    fprintf(file, "        node%d [label=\"%s\", color=blue];\n", currentNodeId, escapedLabel);
+    if (node->type == NULL) {
+      fprintf(file, "        node%d [label=\"%s\", color=blue];\n", currentNodeId, escapedLabel);
+    } else {
+      fprintf(file, "        node%d [label=\"%s <%s:%d>\", color=blue];\n", currentNodeId, escapedLabel, node->type->typeName, node->type->arrayDim);
+    }
 
     for (uint32_t i = 0; i < node->childCount; i++) {
         int childNodeId = *nodeCounter;

@@ -7,6 +7,8 @@ int main(string[] args) {
     string s1 = "test1";
     string s2 = s1 + "test2";
     test2("lol");
+    byte y = 0x37;
+    byte u = 0b010;
     0;
 }
 
