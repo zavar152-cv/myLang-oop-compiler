@@ -1,0 +1,223 @@
+architecture myArch { 
+ 
+    registers:
+        /*--------------------General-Purpose Registers--------------------*/
+        storage R0_S[64];
+        storage R1_S[64];
+        storage R2_S[64];
+        storage R3_S[64];
+        storage R4_S[64];
+        storage R5_S[64];
+        storage R6_S[64];
+        storage R7_S[64];
+
+        /*-----64 bit-----*/
+        view RR0 = R0_S;
+        view RR1 = R1_S;
+        view RR2 = R2_S;
+        view RR3 = R3_S;
+        view RR4 = R4_S;
+        view RR5 = R5_S;
+        view RR6 = R6_S;
+        view RR7 = R7_S;        
+
+        /*-----32 bit-----*/
+        view ER0 = R0_S[0..31];
+        view ER1 = R1_S[0..31];
+        view ER2 = R2_S[0..31];
+        view ER3 = R3_S[0..31];
+        view ER4 = R4_S[0..31];
+        view ER5 = R5_S[0..31];
+        view ER6 = R6_S[0..31];
+        view ER7 = R7_S[0..31];  
+
+        /*-----16 bit-----*/
+        view R0 = R0_S[0..15];
+        view R1 = R1_S[0..15];
+        view R2 = R2_S[0..15];
+        view R3 = R3_S[0..15];
+        view R4 = R4_S[0..15];
+        view R5 = R5_S[0..15];
+        view R6 = R6_S[0..15];
+        view R7 = R7_S[0..15];          
+
+        /*-----8 bit (H)-----*/
+        view R0H = R0_S[8..15];
+        view R1H = R1_S[8..15];
+        view R2H = R2_S[8..15];
+        view R3H = R3_S[8..15];
+        view R4H = R4_S[8..15];
+        view R5H = R5_S[8..15];
+        view R6H = R6_S[8..15];
+        view R7H = R7_S[8..15];
+
+        /*-----8 bit (L)-----*/
+        view R0L = R0_S[0..7];
+        view R1L = R1_S[0..7];
+        view R2L = R2_S[0..7];
+        view R3L = R3_S[0..7];
+        view R4L = R4_S[0..7];
+        view R5L = R5_S[0..7];
+        view R6L = R6_S[0..7];
+        view R7L = R7_S[0..7];
+
+        /*------------------INSTRUCTION POINTER-------------------------*/
+        storage IP_S [64];
+        view IP = IP_S;
+
+        /*------------------STACK AND BASE POINTERS-------------------------*/
+        storage SP_S [64];
+        storage BP_S [64];
+        view SP = SP_S;
+        view BP = BP_S;
+
+        /*------------------IO REGISTERS-------------------------*/
+        storage IN_S [64];
+        storage OUT_S [64];
+        view IN = IN_S;
+        view OUT = OUT_S;        
+
+    memory:
+        range codeM [0x00000000 .. 0xffffffff] {
+            cell = 8;
+            endianess = little-endian;
+            granularity = 0;
+        }
+
+        range constantsM [0x00000000 .. 0xffffffff] {
+            cell = 8;
+            endianess = little-endian;
+            granularity = 0;
+        }
+
+        range dataM [0x00000000 .. 0xffffffff] {
+            cell = 8; // см пример записи и чтения
+            endianess = little-endian;
+            granularity = 0;
+        }
+ 
+    instructions: 
+        encode imm32 field = immediate[32];
+        encode off32 field = immediate[32];
+
+        encode reg field = register {
+            R0 = 000000,
+            R1 = 000001,
+            R2 = 000010,
+            R3 = 000011,
+            R4 = 000100,
+            R5 = 000101,
+            R6 = 000110,
+            R7 = 000111,
+            IP = 001000,
+            SP = 001001,
+            BP = 001010,
+            IN = 001011,
+            OUT = 001100
+	    };
+
+        encode size sequence = alternatives {
+            sz8 = {00}, //8 бит
+            sz16 = {01}, //16 бит
+            sz32 = {10}, //32 бит
+            sz64 = {11} //64 бита
+        };
+
+        encode addrMode sequence = alternatives {
+            a = {000}, // из регистра
+            b = {001}, // адрес в регистре
+            c = {010}, // адрес в регистре + смещение
+            d = {011}, // непосредственное значение
+            e = {100}, // адрес в BR + смещение
+            f = {101} // адрес в SP + смещение
+        };
+ 
+    // 0000 0001 YYXX XXXX XXXX XX00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
+    instruction add = {0000 0001, sequence size, reg as reg1, reg as reg2, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        when sz8 then {
+            let res = reg1 + reg2;
+            reg1 = res & 0x00000000000000ff;
+        } else when sz16 then {
+            let res = reg1 + reg2;
+            reg1 = res & 0x000000000000ffff;
+        } else when sz32 then {
+            let res = reg1 + reg2;
+            reg1 = res & 0x00000000ffffffff;
+        } else when sz64 then {
+            let res = reg1 + reg2;
+            reg1 = res & 0xffffffffffffffff;
+        }
+        IP = IP + 8;
+    };
+
+    instruction load-imm = {0000 0010, 00, reg as to, 000000, 00 0000 0000, imm32 as value} {
+        to = value;
+
+        IP = IP + 8;
+    };
+
+    instruction load = {0000 0011, sequence size, reg as to, reg as ptr, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        when sz8 then {
+            let res = dataM:8[ptr];
+            to = res & 0x00000000000000ff;
+        } else when sz16 then {
+            let res = dataM:8[ptr];
+            to = res & 0x000000000000ffff;
+        } else when sz32 then {
+            let res = dataM:8[ptr];
+            to = res & 0x00000000ffffffff;
+        } else when sz64 then {
+            let res = dataM:8[ptr];
+            to = res & 0xffffffffffffffff;
+        }
+        IP = IP + 8;
+    };
+
+    instruction store = {0000 0100, sequence size, reg as from, reg as ptr, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        when sz8 then {
+            dataM:8[ptr] = from & 0x00000000000000ff;
+        } else when sz16 then {
+            dataM:8[ptr] = from & 0x000000000000ffff;
+        } else when sz32 then {
+            dataM:8[ptr] = from & 0x00000000ffffffff;
+        } else when sz64 then {
+            dataM:8[ptr] = from & 0xffffffffffffffff;
+        }
+        IP = IP + 8;
+    };
+
+    instruction out = {0000 0101, 00, reg as from, 000000, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        OUT = from;
+        IP = IP + 8;
+    };
+
+    instruction in = {0000 0110, 00, 000000, reg as to, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        to = IN;
+        IP = IP + 8;
+    };
+
+    instruction hlt = {1111 1111 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+	};
+
+    mnemonics:
+        format plain2 is "{1}, {2}";
+
+        mnemonic hlt();
+
+        mnemonic add for add(reg1, reg2) "b {1}, {2}" when sz8,
+                     for add(reg1, reg2) "w {1}, {2}" when sz16,
+                     for add(reg1, reg2) "d {1}, {2}" when sz32,
+                     for add(reg1, reg2) "q {1}, {2}" when sz64; 
+
+        mnemonic st for store(from, ptr) "b {1}, {2}" when sz8,
+                    for store(from, ptr) "w {1}, {2}" when sz16,
+                    for store(from, ptr) "d {1}, {2}" when sz32,
+                    for store(from, ptr) "q {1}, {2}" when sz64;   
+
+        mnemonic ld for load(to, ptr) "b {1}, {2}" when sz8,
+                    for load(to, ptr) "w {1}, {2}" when sz16,
+                    for load(to, ptr) "d {1}, {2}" when sz32,
+                    for load(to, ptr) "q {1}, {2}" when sz64;  
+
+        mnemonic ldi for load-imm(to, value) plain2;                          
+} 

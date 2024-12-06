@@ -1,0 +1,979 @@
+Definition syntax tree at 06.12.2024 19:38:35
+
+Parsing C:\RemoteTasks.Workspace\Sessions\VisualizeArchModel_f324adb9-7c02-4422-bba9-4af0c5800213\workdir\in.myArch.target.pdsl
+
+ DefSyntaxTree at [L0, C0]: architecture myArch { \n \n    registers:\n        /*--------------------General-Purpose Registers--------------------*/\n        storage R0_S[64];\n        storage R1_S[64];\n        storage R2_S[64];\n        storage R3_S[64];\n        storage R4_S[64];\n        storage R5_S[64];\n        storage R6_S[64];\n        storage R7_S[64];\n\n        /*-----64 bit-----*/\n        view RR0 = R0_S;\n        view RR1 = R1_S;\n        view RR2 = R2_S;\n        view RR3 = R3_S;\n        view RR4 = R4_S;\n        view RR5 = R5_S;\n        view RR6 = R6_S;\n        view RR7 = R7_S;        \n\n        /*-----32 bit-----*/\n        view ER0 = R0_S[0..31];\n        view ER1 = R1_S[0..31];\n        view ER2 = R2_S[0..31];\n        view ER3 = R3_S[0..31];\n        view ER4 = R4_S[0..31];\n        view ER5 = R5_S[0..31];\n        view ER6 = R6_S[0..31];\n        view ER7 = R7_S[0..31];  \n\n        /*-----16 bit-----*/\n        view R0 = R0_S[0..15];\n        view R1 = R1_S[0..15];\n        view R2 = R2_S[0..15];\n        view R3 = R3_S[0..15];\n        view R4 = R4_S[0..15];\n        view R5 = R5_S[0..15];\n        view R6 = R6_S[0..15];\n        view R7 = R7_S[0..15];          \n\n        /*-----8 bit (H)-----*/\n        view R0H = R0_S[8..15];\n        view R1H = R1_S[8..15];\n        view R2H = R2_S[8..15];\n        view R3H = R3_S[8..15];\n        view R4H = R4_S[8..15];\n        view R5H = R5_S[8..15];\n        view R6H = R6_S[8..15];\n        view R7H = R7_S[8..15];\n\n        /*-----8 bit (L)-----*/\n        view R0L = R0_S[0..7];\n        view R1L = R1_S[0..7];\n        view R2L = R2_S[0..7];\n        view R3L = R3_S[0..7];\n        view R4L = R4_S[0..7];\n        view R5L = R5_S[0..7];\n        view R6L = R6_S[0..7];\n        view R7L = R7_S[0..7];\n\n        /*------------------INSTRUCTION POINTER-------------------------*/\n        storage IP_S [64];\n        view IP = IP_S;\n\n        /*------------------STACK AND BASE POINTERS-------------------------*/\n        storage SP_S [64];\n        storage BP_S [64];\n        view SP = SP_S;\n        view BP = BP_S;\n\n        /*------------------IO REGISTERS-------------------------*/\n        storage IN_S [64];\n        storage OUT_S [64];\n        view IN = IN_S;\n        view OUT = OUT_S;        \n\n    memory:\n        range codeM [0x00000000 .. 0xffffffff] {\n            cell = 8;\n            endianess = little-endian;\n            granularity = 0;\n        }\n\n        range constantsM [0x00000000 .. 0xffffffff] {\n            cell = 8;\n            endianess = little-endian;\n            granularity = 0;\n        }\n\n        range dataM [0x00000000 .. 0xffffffff] {\n            cell = 8; // см пример записи и чтения\n            endianess = little-endian;\n            granularity = 0;\n        }\n \n    instructions: \n        encode imm32 field = immediate[32];\n        encode off32 field = immediate[32];\n\n        encode reg field = register {\n            R0 = 000000,\n            R1 = 000001,\n            R2 = 000010,\n            R3 = 000011,\n            R4 = 000100,\n            R5 = 000101,\n            R6 = 000110,\n            R7 = 000111,\n            IP = 001000,\n            SP = 001001,\n            BP = 001010,\n            IN = 001011,\n            OUT = 001100\n	    };\n\n        encode size sequence = alternatives {\n            sz8 = {00}, //8 бит\n            sz16 = {01}, //16 бит\n            sz32 = {10}, //32 бит\n            sz64 = {11} //64 бита\n        };\n\n        encode addrMode sequence = alternatives {\n            a = {000}, // из регистра\n            b = {001}, // адрес в регистре\n            c = {010}, // адрес в регистре + смещение\n            d = {011}, // непосредственное значение\n            e = {100}, // адрес в BR + смещение\n            f = {101} // адрес в SP + смещение\n        };\n \n    // 0000 0001 XX XXXXXX XXXXXX 00 0000 0000 0000 0000 0000 0000 0000 0000\n    instruction add = {0000 0001, sequence size, reg as reg1, reg as reg2, 00 0000 0000 0000 0000 0000 0000 0000 0000} {\n        when sz8 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0x00000000000000ff;\n        } else when sz16 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0x000000000000ffff;\n        } else when sz32 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0x00000000ffffffff;\n        } else when sz64 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0xffffffffffffffff;\n        }\n        IP = IP + 8;\n    };\n\n    instruction load-imm = {0000 0010, 00, reg as to, 000000, 00, imm32 as value} {\n        to = value;\n\n        IP = IP + 8;\n    };\n\n    instruction load = {0000 0011, sequence size, reg as to, reg as ptr, 00 0000 0000 0000 0000 0000 0000 0000 0000} {\n        when sz8 then {\n            let res = dataM:8[ptr];\n            to = res & 0x00000000000000ff;\n        } else when sz16 then {\n            let res = dataM:8[ptr];\n            to = res & 0x000000000000ffff;\n        } else when sz32 then {\n            let res = dataM:8[ptr];\n            to = res & 0x00000000ffffffff;\n        } else when sz64 then {\n            let res = dataM:8[ptr];\n            to = res & 0xffffffffffffffff;\n        }\n        IP = IP + 8;\n    };\n\n    instruction store = {0000 0100, sequence size, reg as from, reg as ptr, 00 0000 0000 0000 0000 0000 0000 0000 0000} {\n        when sz8 then {\n            dataM:8[ptr] = from & 0x00000000000000ff;\n        } else when sz16 then {\n            dataM:8[ptr] = from & 0x000000000000ffff;\n        } else when sz32 then {\n            dataM:8[ptr] = from & 0x00000000ffffffff;\n        } else when sz64 then {\n            dataM:8[ptr] = from & 0xffffffffffffffff;\n        }\n        IP = IP + 8;\n    };\n\n    instruction out = {0000 0100, 00, reg as from, 000000, 00 0000 0000 0000 0000 0000 0000 0000 0000} {\n        OUT = from;\n        IP = IP + 8;\n    };\n\n    instruction hlt = {1111 1111} {\n	};\n\n    mnemonics:\n        format plain2 is "{1}, {2}";\n\n        mnemonic hlt();\n\n        mnemonic add for add(reg1, reg2) "b {1}, {2}" when sz8,\n                     for add(reg1, reg2) "w {1}, {2}" when sz16,\n                     for add(reg1, reg2) "d {1}, {2}" when sz32,\n                     for add(reg1, reg2) "q {1}, {2}" when sz64; \n\n        mnemonic st for store(from, ptr) "b {1}, {2}" when sz8,\n                    for store(from, ptr) "w {1}, {2}" when sz16,\n                    for store(from, ptr) "d {1}, {2}" when sz32,\n                    for store(from, ptr) "q {1}, {2}" when sz64;   \n\n        mnemonic ld for load(to, ptr) "b {1}, {2}" when sz8,\n                    for load(to, ptr) "w {1}, {2}" when sz16,\n                    for load(to, ptr) "d {1}, {2}" when sz32,\n                    for load(to, ptr) "q {1}, {2}" when sz64;  \n\n        mnemonic ldi for load-imm(to, value) plain2;                          \n}
+  └─ ArchitectureAspectSyntaxNode at [L0, C0]: architecture myArch { \n \n    registers:\n        /*--------------------General-Purpose Registers--------------------*/\n        storage R0_S[64];\n        storage R1_S[64];\n        storage R2_S[64];\n        storage R3_S[64];\n        storage R4_S[64];\n        storage R5_S[64];\n        storage R6_S[64];\n        storage R7_S[64];\n\n        /*-----64 bit-----*/\n        view RR0 = R0_S;\n        view RR1 = R1_S;\n        view RR2 = R2_S;\n        view RR3 = R3_S;\n        view RR4 = R4_S;\n        view RR5 = R5_S;\n        view RR6 = R6_S;\n        view RR7 = R7_S;        \n\n        /*-----32 bit-----*/\n        view ER0 = R0_S[0..31];\n        view ER1 = R1_S[0..31];\n        view ER2 = R2_S[0..31];\n        view ER3 = R3_S[0..31];\n        view ER4 = R4_S[0..31];\n        view ER5 = R5_S[0..31];\n        view ER6 = R6_S[0..31];\n        view ER7 = R7_S[0..31];  \n\n        /*-----16 bit-----*/\n        view R0 = R0_S[0..15];\n        view R1 = R1_S[0..15];\n        view R2 = R2_S[0..15];\n        view R3 = R3_S[0..15];\n        view R4 = R4_S[0..15];\n        view R5 = R5_S[0..15];\n        view R6 = R6_S[0..15];\n        view R7 = R7_S[0..15];          \n\n        /*-----8 bit (H)-----*/\n        view R0H = R0_S[8..15];\n        view R1H = R1_S[8..15];\n        view R2H = R2_S[8..15];\n        view R3H = R3_S[8..15];\n        view R4H = R4_S[8..15];\n        view R5H = R5_S[8..15];\n        view R6H = R6_S[8..15];\n        view R7H = R7_S[8..15];\n\n        /*-----8 bit (L)-----*/\n        view R0L = R0_S[0..7];\n        view R1L = R1_S[0..7];\n        view R2L = R2_S[0..7];\n        view R3L = R3_S[0..7];\n        view R4L = R4_S[0..7];\n        view R5L = R5_S[0..7];\n        view R6L = R6_S[0..7];\n        view R7L = R7_S[0..7];\n\n        /*------------------INSTRUCTION POINTER-------------------------*/\n        storage IP_S [64];\n        view IP = IP_S;\n\n        /*------------------STACK AND BASE POINTERS-------------------------*/\n        storage SP_S [64];\n        storage BP_S [64];\n        view SP = SP_S;\n        view BP = BP_S;\n\n        /*------------------IO REGISTERS-------------------------*/\n        storage IN_S [64];\n        storage OUT_S [64];\n        view IN = IN_S;\n        view OUT = OUT_S;        \n\n    memory:\n        range codeM [0x00000000 .. 0xffffffff] {\n            cell = 8;\n            endianess = little-endian;\n            granularity = 0;\n        }\n\n        range constantsM [0x00000000 .. 0xffffffff] {\n            cell = 8;\n            endianess = little-endian;\n            granularity = 0;\n        }\n\n        range dataM [0x00000000 .. 0xffffffff] {\n            cell = 8; // см пример записи и чтения\n            endianess = little-endian;\n            granularity = 0;\n        }\n \n    instructions: \n        encode imm32 field = immediate[32];\n        encode off32 field = immediate[32];\n\n        encode reg field = register {\n            R0 = 000000,\n            R1 = 000001,\n            R2 = 000010,\n            R3 = 000011,\n            R4 = 000100,\n            R5 = 000101,\n            R6 = 000110,\n            R7 = 000111,\n            IP = 001000,\n            SP = 001001,\n            BP = 001010,\n            IN = 001011,\n            OUT = 001100\n	    };\n\n        encode size sequence = alternatives {\n            sz8 = {00}, //8 бит\n            sz16 = {01}, //16 бит\n            sz32 = {10}, //32 бит\n            sz64 = {11} //64 бита\n        };\n\n        encode addrMode sequence = alternatives {\n            a = {000}, // из регистра\n            b = {001}, // адрес в регистре\n            c = {010}, // адрес в регистре + смещение\n            d = {011}, // непосредственное значение\n            e = {100}, // адрес в BR + смещение\n            f = {101} // адрес в SP + смещение\n        };\n \n    // 0000 0001 XX XXXXXX XXXXXX 00 0000 0000 0000 0000 0000 0000 0000 0000\n    instruction add = {0000 0001, sequence size, reg as reg1, reg as reg2, 00 0000 0000 0000 0000 0000 0000 0000 0000} {\n        when sz8 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0x00000000000000ff;\n        } else when sz16 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0x000000000000ffff;\n        } else when sz32 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0x00000000ffffffff;\n        } else when sz64 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0xffffffffffffffff;\n        }\n        IP = IP + 8;\n    };\n\n    instruction load-imm = {0000 0010, 00, reg as to, 000000, 00, imm32 as value} {\n        to = value;\n\n        IP = IP + 8;\n    };\n\n    instruction load = {0000 0011, sequence size, reg as to, reg as ptr, 00 0000 0000 0000 0000 0000 0000 0000 0000} {\n        when sz8 then {\n            let res = dataM:8[ptr];\n            to = res & 0x00000000000000ff;\n        } else when sz16 then {\n            let res = dataM:8[ptr];\n            to = res & 0x000000000000ffff;\n        } else when sz32 then {\n            let res = dataM:8[ptr];\n            to = res & 0x00000000ffffffff;\n        } else when sz64 then {\n            let res = dataM:8[ptr];\n            to = res & 0xffffffffffffffff;\n        }\n        IP = IP + 8;\n    };\n\n    instruction store = {0000 0100, sequence size, reg as from, reg as ptr, 00 0000 0000 0000 0000 0000 0000 0000 0000} {\n        when sz8 then {\n            dataM:8[ptr] = from & 0x00000000000000ff;\n        } else when sz16 then {\n            dataM:8[ptr] = from & 0x000000000000ffff;\n        } else when sz32 then {\n            dataM:8[ptr] = from & 0x00000000ffffffff;\n        } else when sz64 then {\n            dataM:8[ptr] = from & 0xffffffffffffffff;\n        }\n        IP = IP + 8;\n    };\n\n    instruction out = {0000 0100, 00, reg as from, 000000, 00 0000 0000 0000 0000 0000 0000 0000 0000} {\n        OUT = from;\n        IP = IP + 8;\n    };\n\n    instruction hlt = {1111 1111} {\n	};\n\n    mnemonics:\n        format plain2 is "{1}, {2}";\n\n        mnemonic hlt();\n\n        mnemonic add for add(reg1, reg2) "b {1}, {2}" when sz8,\n                     for add(reg1, reg2) "w {1}, {2}" when sz16,\n                     for add(reg1, reg2) "d {1}, {2}" when sz32,\n                     for add(reg1, reg2) "q {1}, {2}" when sz64; \n\n        mnemonic st for store(from, ptr) "b {1}, {2}" when sz8,\n                    for store(from, ptr) "w {1}, {2}" when sz16,\n                    for store(from, ptr) "d {1}, {2}" when sz32,\n                    for store(from, ptr) "q {1}, {2}" when sz64;   \n\n        mnemonic ld for load(to, ptr) "b {1}, {2}" when sz8,\n                    for load(to, ptr) "w {1}, {2}" when sz16,\n                    for load(to, ptr) "d {1}, {2}" when sz32,\n                    for load(to, ptr) "q {1}, {2}" when sz64;  \n\n        mnemonic ldi for load-imm(to, value) plain2;                          \n}
+      ├─ ArchRegistersSyntaxNode at [L3, C5]: registers:\n        /*--------------------General-Purpose Registers--------------------*/\n        storage R0_S[64];\n        storage R1_S[64];\n        storage R2_S[64];\n        storage R3_S[64];\n        storage R4_S[64];\n        storage R5_S[64];\n        storage R6_S[64];\n        storage R7_S[64];\n\n        /*-----64 bit-----*/\n        view RR0 = R0_S;\n        view RR1 = R1_S;\n        view RR2 = R2_S;\n        view RR3 = R3_S;\n        view RR4 = R4_S;\n        view RR5 = R5_S;\n        view RR6 = R6_S;\n        view RR7 = R7_S;        \n\n        /*-----32 bit-----*/\n        view ER0 = R0_S[0..31];\n        view ER1 = R1_S[0..31];\n        view ER2 = R2_S[0..31];\n        view ER3 = R3_S[0..31];\n        view ER4 = R4_S[0..31];\n        view ER5 = R5_S[0..31];\n        view ER6 = R6_S[0..31];\n        view ER7 = R7_S[0..31];  \n\n        /*-----16 bit-----*/\n        view R0 = R0_S[0..15];\n        view R1 = R1_S[0..15];\n        view R2 = R2_S[0..15];\n        view R3 = R3_S[0..15];\n        view R4 = R4_S[0..15];\n        view R5 = R5_S[0..15];\n        view R6 = R6_S[0..15];\n        view R7 = R7_S[0..15];          \n\n        /*-----8 bit (H)-----*/\n        view R0H = R0_S[8..15];\n        view R1H = R1_S[8..15];\n        view R2H = R2_S[8..15];\n        view R3H = R3_S[8..15];\n        view R4H = R4_S[8..15];\n        view R5H = R5_S[8..15];\n        view R6H = R6_S[8..15];\n        view R7H = R7_S[8..15];\n\n        /*-----8 bit (L)-----*/\n        view R0L = R0_S[0..7];\n        view R1L = R1_S[0..7];\n        view R2L = R2_S[0..7];\n        view R3L = R3_S[0..7];\n        view R4L = R4_S[0..7];\n        view R5L = R5_S[0..7];\n        view R6L = R6_S[0..7];\n        view R7L = R7_S[0..7];\n\n        /*------------------INSTRUCTION POINTER-------------------------*/\n        storage IP_S [64];\n        view IP = IP_S;\n\n        /*------------------STACK AND BASE POINTERS-------------------------*/\n        storage SP_S [64];\n        storage BP_S [64];\n        view SP = SP_S;\n        view BP = BP_S;\n\n        /*------------------IO REGISTERS-------------------------*/\n        storage IN_S [64];\n        storage OUT_S [64];\n        view IN = IN_S;\n        view OUT = OUT_S;
+      │   ├─ ArchRegsStorageItemSyntaxNode at [L5, C9]: storage R0_S[64]
+      │   │   ├─ Size: 64
+      │   │   └─ Name: R0_S
+      │   │ 
+      │   ├─ ArchRegsStorageItemSyntaxNode at [L6, C9]: storage R1_S[64]
+      │   │   ├─ Size: 64
+      │   │   └─ Name: R1_S
+      │   │ 
+      │   ├─ ArchRegsStorageItemSyntaxNode at [L7, C9]: storage R2_S[64]
+      │   │   ├─ Size: 64
+      │   │   └─ Name: R2_S
+      │   │ 
+      │   ├─ ArchRegsStorageItemSyntaxNode at [L8, C9]: storage R3_S[64]
+      │   │   ├─ Size: 64
+      │   │   └─ Name: R3_S
+      │   │ 
+      │   ├─ ArchRegsStorageItemSyntaxNode at [L9, C9]: storage R4_S[64]
+      │   │   ├─ Size: 64
+      │   │   └─ Name: R4_S
+      │   │ 
+      │   ├─ ArchRegsStorageItemSyntaxNode at [L10, C9]: storage R5_S[64]
+      │   │   ├─ Size: 64
+      │   │   └─ Name: R5_S
+      │   │ 
+      │   ├─ ArchRegsStorageItemSyntaxNode at [L11, C9]: storage R6_S[64]
+      │   │   ├─ Size: 64
+      │   │   └─ Name: R6_S
+      │   │ 
+      │   ├─ ArchRegsStorageItemSyntaxNode at [L12, C9]: storage R7_S[64]
+      │   │   ├─ Size: 64
+      │   │   └─ Name: R7_S
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L15, C9]: view RR0 = R0_S
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L15, C20]: R0_S
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 2147483647
+      │   │   │   └─ Name: R0_S
+      │   │   │ 
+      │   │   └─ Name: RR0
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L16, C9]: view RR1 = R1_S
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L16, C20]: R1_S
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 2147483647
+      │   │   │   └─ Name: R1_S
+      │   │   │ 
+      │   │   └─ Name: RR1
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L17, C9]: view RR2 = R2_S
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L17, C20]: R2_S
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 2147483647
+      │   │   │   └─ Name: R2_S
+      │   │   │ 
+      │   │   └─ Name: RR2
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L18, C9]: view RR3 = R3_S
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L18, C20]: R3_S
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 2147483647
+      │   │   │   └─ Name: R3_S
+      │   │   │ 
+      │   │   └─ Name: RR3
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L19, C9]: view RR4 = R4_S
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L19, C20]: R4_S
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 2147483647
+      │   │   │   └─ Name: R4_S
+      │   │   │ 
+      │   │   └─ Name: RR4
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L20, C9]: view RR5 = R5_S
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L20, C20]: R5_S
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 2147483647
+      │   │   │   └─ Name: R5_S
+      │   │   │ 
+      │   │   └─ Name: RR5
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L21, C9]: view RR6 = R6_S
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L21, C20]: R6_S
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 2147483647
+      │   │   │   └─ Name: R6_S
+      │   │   │ 
+      │   │   └─ Name: RR6
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L22, C9]: view RR7 = R7_S
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L22, C20]: R7_S
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 2147483647
+      │   │   │   └─ Name: R7_S
+      │   │   │ 
+      │   │   └─ Name: RR7
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L25, C9]: view ER0 = R0_S[0..31]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L25, C20]: R0_S[0..31]
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 32
+      │   │   │   └─ Name: R0_S
+      │   │   │ 
+      │   │   └─ Name: ER0
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L26, C9]: view ER1 = R1_S[0..31]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L26, C20]: R1_S[0..31]
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 32
+      │   │   │   └─ Name: R1_S
+      │   │   │ 
+      │   │   └─ Name: ER1
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L27, C9]: view ER2 = R2_S[0..31]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L27, C20]: R2_S[0..31]
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 32
+      │   │   │   └─ Name: R2_S
+      │   │   │ 
+      │   │   └─ Name: ER2
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L28, C9]: view ER3 = R3_S[0..31]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L28, C20]: R3_S[0..31]
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 32
+      │   │   │   └─ Name: R3_S
+      │   │   │ 
+      │   │   └─ Name: ER3
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L29, C9]: view ER4 = R4_S[0..31]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L29, C20]: R4_S[0..31]
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 32
+      │   │   │   └─ Name: R4_S
+      │   │   │ 
+      │   │   └─ Name: ER4
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L30, C9]: view ER5 = R5_S[0..31]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L30, C20]: R5_S[0..31]
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 32
+      │   │   │   └─ Name: R5_S
+      │   │   │ 
+      │   │   └─ Name: ER5
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L31, C9]: view ER6 = R6_S[0..31]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L31, C20]: R6_S[0..31]
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 32
+      │   │   │   └─ Name: R6_S
+      │   │   │ 
+      │   │   └─ Name: ER6
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L32, C9]: view ER7 = R7_S[0..31]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L32, C20]: R7_S[0..31]
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 32
+      │   │   │   └─ Name: R7_S
+      │   │   │ 
+      │   │   └─ Name: ER7
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L35, C9]: view R0 = R0_S[0..15]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L35, C19]: R0_S[0..15]
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 16
+      │   │   │   └─ Name: R0_S
+      │   │   │ 
+      │   │   └─ Name: R0
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L36, C9]: view R1 = R1_S[0..15]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L36, C19]: R1_S[0..15]
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 16
+      │   │   │   └─ Name: R1_S
+      │   │   │ 
+      │   │   └─ Name: R1
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L37, C9]: view R2 = R2_S[0..15]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L37, C19]: R2_S[0..15]
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 16
+      │   │   │   └─ Name: R2_S
+      │   │   │ 
+      │   │   └─ Name: R2
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L38, C9]: view R3 = R3_S[0..15]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L38, C19]: R3_S[0..15]
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 16
+      │   │   │   └─ Name: R3_S
+      │   │   │ 
+      │   │   └─ Name: R3
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L39, C9]: view R4 = R4_S[0..15]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L39, C19]: R4_S[0..15]
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 16
+      │   │   │   └─ Name: R4_S
+      │   │   │ 
+      │   │   └─ Name: R4
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L40, C9]: view R5 = R5_S[0..15]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L40, C19]: R5_S[0..15]
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 16
+      │   │   │   └─ Name: R5_S
+      │   │   │ 
+      │   │   └─ Name: R5
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L41, C9]: view R6 = R6_S[0..15]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L41, C19]: R6_S[0..15]
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 16
+      │   │   │   └─ Name: R6_S
+      │   │   │ 
+      │   │   └─ Name: R6
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L42, C9]: view R7 = R7_S[0..15]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L42, C19]: R7_S[0..15]
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 16
+      │   │   │   └─ Name: R7_S
+      │   │   │ 
+      │   │   └─ Name: R7
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L45, C9]: view R0H = R0_S[8..15]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L45, C20]: R0_S[8..15]
+      │   │   │   ├─ FromIndex: 8
+      │   │   │   ├─ ToIndex: 16
+      │   │   │   └─ Name: R0_S
+      │   │   │ 
+      │   │   └─ Name: R0H
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L46, C9]: view R1H = R1_S[8..15]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L46, C20]: R1_S[8..15]
+      │   │   │   ├─ FromIndex: 8
+      │   │   │   ├─ ToIndex: 16
+      │   │   │   └─ Name: R1_S
+      │   │   │ 
+      │   │   └─ Name: R1H
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L47, C9]: view R2H = R2_S[8..15]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L47, C20]: R2_S[8..15]
+      │   │   │   ├─ FromIndex: 8
+      │   │   │   ├─ ToIndex: 16
+      │   │   │   └─ Name: R2_S
+      │   │   │ 
+      │   │   └─ Name: R2H
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L48, C9]: view R3H = R3_S[8..15]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L48, C20]: R3_S[8..15]
+      │   │   │   ├─ FromIndex: 8
+      │   │   │   ├─ ToIndex: 16
+      │   │   │   └─ Name: R3_S
+      │   │   │ 
+      │   │   └─ Name: R3H
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L49, C9]: view R4H = R4_S[8..15]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L49, C20]: R4_S[8..15]
+      │   │   │   ├─ FromIndex: 8
+      │   │   │   ├─ ToIndex: 16
+      │   │   │   └─ Name: R4_S
+      │   │   │ 
+      │   │   └─ Name: R4H
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L50, C9]: view R5H = R5_S[8..15]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L50, C20]: R5_S[8..15]
+      │   │   │   ├─ FromIndex: 8
+      │   │   │   ├─ ToIndex: 16
+      │   │   │   └─ Name: R5_S
+      │   │   │ 
+      │   │   └─ Name: R5H
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L51, C9]: view R6H = R6_S[8..15]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L51, C20]: R6_S[8..15]
+      │   │   │   ├─ FromIndex: 8
+      │   │   │   ├─ ToIndex: 16
+      │   │   │   └─ Name: R6_S
+      │   │   │ 
+      │   │   └─ Name: R6H
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L52, C9]: view R7H = R7_S[8..15]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L52, C20]: R7_S[8..15]
+      │   │   │   ├─ FromIndex: 8
+      │   │   │   ├─ ToIndex: 16
+      │   │   │   └─ Name: R7_S
+      │   │   │ 
+      │   │   └─ Name: R7H
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L55, C9]: view R0L = R0_S[0..7]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L55, C20]: R0_S[0..7]
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 8
+      │   │   │   └─ Name: R0_S
+      │   │   │ 
+      │   │   └─ Name: R0L
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L56, C9]: view R1L = R1_S[0..7]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L56, C20]: R1_S[0..7]
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 8
+      │   │   │   └─ Name: R1_S
+      │   │   │ 
+      │   │   └─ Name: R1L
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L57, C9]: view R2L = R2_S[0..7]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L57, C20]: R2_S[0..7]
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 8
+      │   │   │   └─ Name: R2_S
+      │   │   │ 
+      │   │   └─ Name: R2L
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L58, C9]: view R3L = R3_S[0..7]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L58, C20]: R3_S[0..7]
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 8
+      │   │   │   └─ Name: R3_S
+      │   │   │ 
+      │   │   └─ Name: R3L
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L59, C9]: view R4L = R4_S[0..7]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L59, C20]: R4_S[0..7]
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 8
+      │   │   │   └─ Name: R4_S
+      │   │   │ 
+      │   │   └─ Name: R4L
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L60, C9]: view R5L = R5_S[0..7]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L60, C20]: R5_S[0..7]
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 8
+      │   │   │   └─ Name: R5_S
+      │   │   │ 
+      │   │   └─ Name: R5L
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L61, C9]: view R6L = R6_S[0..7]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L61, C20]: R6_S[0..7]
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 8
+      │   │   │   └─ Name: R6_S
+      │   │   │ 
+      │   │   └─ Name: R6L
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L62, C9]: view R7L = R7_S[0..7]
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L62, C20]: R7_S[0..7]
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 8
+      │   │   │   └─ Name: R7_S
+      │   │   │ 
+      │   │   └─ Name: R7L
+      │   │ 
+      │   ├─ ArchRegsStorageItemSyntaxNode at [L65, C9]: storage IP_S [64]
+      │   │   ├─ Size: 64
+      │   │   └─ Name: IP_S
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L66, C9]: view IP = IP_S
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L66, C19]: IP_S
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 2147483647
+      │   │   │   └─ Name: IP_S
+      │   │   │ 
+      │   │   └─ Name: IP
+      │   │ 
+      │   ├─ ArchRegsStorageItemSyntaxNode at [L69, C9]: storage SP_S [64]
+      │   │   ├─ Size: 64
+      │   │   └─ Name: SP_S
+      │   │ 
+      │   ├─ ArchRegsStorageItemSyntaxNode at [L70, C9]: storage BP_S [64]
+      │   │   ├─ Size: 64
+      │   │   └─ Name: BP_S
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L71, C9]: view SP = SP_S
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L71, C19]: SP_S
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 2147483647
+      │   │   │   └─ Name: SP_S
+      │   │   │ 
+      │   │   └─ Name: SP
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L72, C9]: view BP = BP_S
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L72, C19]: BP_S
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 2147483647
+      │   │   │   └─ Name: BP_S
+      │   │   │ 
+      │   │   └─ Name: BP
+      │   │ 
+      │   ├─ ArchRegsStorageItemSyntaxNode at [L75, C9]: storage IN_S [64]
+      │   │   ├─ Size: 64
+      │   │   └─ Name: IN_S
+      │   │ 
+      │   ├─ ArchRegsStorageItemSyntaxNode at [L76, C9]: storage OUT_S [64]
+      │   │   ├─ Size: 64
+      │   │   └─ Name: OUT_S
+      │   │ 
+      │   ├─ ArchRegsViewItemSyntaxNode at [L77, C9]: view IN = IN_S
+      │   │   ├─ IsHidden: False
+      │   │   ├─ ArchRegsViewWindowSyntaxNode at [L77, C19]: IN_S
+      │   │   │   ├─ FromIndex: 0
+      │   │   │   ├─ ToIndex: 2147483647
+      │   │   │   └─ Name: IN_S
+      │   │   │ 
+      │   │   └─ Name: IN
+      │   │ 
+      │   └─ ArchRegsViewItemSyntaxNode at [L78, C9]: view OUT = OUT_S
+      │       ├─ IsHidden: False
+      │       ├─ ArchRegsViewWindowSyntaxNode at [L78, C20]: OUT_S
+      │       │   ├─ FromIndex: 0
+      │       │   ├─ ToIndex: 2147483647
+      │       │   └─ Name: OUT_S
+      │       │ 
+      │       └─ Name: OUT
+      │     
+      ├─ ArchMemorySyntaxNode at [L80, C5]: memory:\n        range codeM [0x00000000 .. 0xffffffff] {\n            cell = 8;\n            endianess = little-endian;\n            granularity = 0;\n        }\n\n        range constantsM [0x00000000 .. 0xffffffff] {\n            cell = 8;\n            endianess = little-endian;\n            granularity = 0;\n        }\n\n        range dataM [0x00000000 .. 0xffffffff] {\n            cell = 8; // см пример записи и чтения\n            endianess = little-endian;\n            granularity = 0;\n        }
+      │   ├─ ArchMemoryRangeItemSyntaxNode at [L81, C9]: range codeM [0x00000000 .. 0xffffffff] {\n            cell = 8;\n            endianess = little-endian;\n            granularity = 0;\n        }
+      │   │   ├─ AddressFrom: 0
+      │   │   ├─ AddressTo: 4294967295
+      │   │   ├─ CellSize: 8
+      │   │   ├─ Endianess: Little
+      │   │   ├─ Granularity: 0
+      │   │   └─ Name: codeM
+      │   │ 
+      │   ├─ ArchMemoryRangeItemSyntaxNode at [L87, C9]: range constantsM [0x00000000 .. 0xffffffff] {\n            cell = 8;\n            endianess = little-endian;\n            granularity = 0;\n        }
+      │   │   ├─ AddressFrom: 0
+      │   │   ├─ AddressTo: 4294967295
+      │   │   ├─ CellSize: 8
+      │   │   ├─ Endianess: Little
+      │   │   ├─ Granularity: 0
+      │   │   └─ Name: constantsM
+      │   │ 
+      │   └─ ArchMemoryRangeItemSyntaxNode at [L93, C9]: range dataM [0x00000000 .. 0xffffffff] {\n            cell = 8; // см пример записи и чтения\n            endianess = little-endian;\n            granularity = 0;\n        }
+      │       ├─ AddressFrom: 0
+      │       ├─ AddressTo: 4294967295
+      │       ├─ CellSize: 8
+      │       ├─ Endianess: Little
+      │       ├─ Granularity: 0
+      │       └─ Name: dataM
+      │     
+      ├─ ArchInstructionsSyntaxNode at [L99, C5]: instructions: \n        encode imm32 field = immediate[32];\n        encode off32 field = immediate[32];\n\n        encode reg field = register {\n            R0 = 000000,\n            R1 = 000001,\n            R2 = 000010,\n            R3 = 000011,\n            R4 = 000100,\n            R5 = 000101,\n            R6 = 000110,\n            R7 = 000111,\n            IP = 001000,\n            SP = 001001,\n            BP = 001010,\n            IN = 001011,\n            OUT = 001100\n	    };\n\n        encode size sequence = alternatives {\n            sz8 = {00}, //8 бит\n            sz16 = {01}, //16 бит\n            sz32 = {10}, //32 бит\n            sz64 = {11} //64 бита\n        };\n\n        encode addrMode sequence = alternatives {\n            a = {000}, // из регистра\n            b = {001}, // адрес в регистре\n            c = {010}, // адрес в регистре + смещение\n            d = {011}, // непосредственное значение\n            e = {100}, // адрес в BR + смещение\n            f = {101} // адрес в SP + смещение\n        };\n \n    // 0000 0001 XX XXXXXX XXXXXX 00 0000 0000 0000 0000 0000 0000 0000 0000\n    instruction add = {0000 0001, sequence size, reg as reg1, reg as reg2, 00 0000 0000 0000 0000 0000 0000 0000 0000} {\n        when sz8 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0x00000000000000ff;\n        } else when sz16 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0x000000000000ffff;\n        } else when sz32 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0x00000000ffffffff;\n        } else when sz64 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0xffffffffffffffff;\n        }\n        IP = IP + 8;\n    };\n\n    instruction load-imm = {0000 0010, 00, reg as to, 000000, 00, imm32 as value} {\n        to = value;\n\n        IP = IP + 8;\n    };\n\n    instruction load = {0000 0011, sequence size, reg as to, reg as ptr, 00 0000 0000 0000 0000 0000 0000 0000 0000} {\n        when sz8 then {\n            let res = dataM:8[ptr];\n            to = res & 0x00000000000000ff;\n        } else when sz16 then {\n            let res = dataM:8[ptr];\n            to = res & 0x000000000000ffff;\n        } else when sz32 then {\n            let res = dataM:8[ptr];\n            to = res & 0x00000000ffffffff;\n        } else when sz64 then {\n            let res = dataM:8[ptr];\n            to = res & 0xffffffffffffffff;\n        }\n        IP = IP + 8;\n    };\n\n    instruction store = {0000 0100, sequence size, reg as from, reg as ptr, 00 0000 0000 0000 0000 0000 0000 0000 0000} {\n        when sz8 then {\n            dataM:8[ptr] = from & 0x00000000000000ff;\n        } else when sz16 then {\n            dataM:8[ptr] = from & 0x000000000000ffff;\n        } else when sz32 then {\n            dataM:8[ptr] = from & 0x00000000ffffffff;\n        } else when sz64 then {\n            dataM:8[ptr] = from & 0xffffffffffffffff;\n        }\n        IP = IP + 8;\n    };\n\n    instruction out = {0000 0100, 00, reg as from, 000000, 00 0000 0000 0000 0000 0000 0000 0000 0000} {\n        OUT = from;\n        IP = IP + 8;\n    };\n\n    instruction hlt = {1111 1111} {\n	};
+      │   ├─ ArchFieldEncodingSyntaxNode at [L100, C9]: encode imm32 field = immediate[32]
+      │   │   ├─ ArchFieldEncImmediateDescrSyntaxNode at [L100, C30]: immediate[32]
+      │   │   │   ├─ Length: 32
+      │   │   │   └─ Kind: Default
+      │   │   │ 
+      │   │   └─ Name: imm32
+      │   │ 
+      │   ├─ ArchFieldEncodingSyntaxNode at [L101, C9]: encode off32 field = immediate[32]
+      │   │   ├─ ArchFieldEncImmediateDescrSyntaxNode at [L101, C30]: immediate[32]
+      │   │   │   ├─ Length: 32
+      │   │   │   └─ Kind: Default
+      │   │   │ 
+      │   │   └─ Name: off32
+      │   │ 
+      │   ├─ ArchFieldEncodingSyntaxNode at [L103, C9]: encode reg field = register {\n            R0 = 000000,\n            R1 = 000001,\n            R2 = 000010,\n            R3 = 000011,\n            R4 = 000100,\n            R5 = 000101,\n            R6 = 000110,\n            R7 = 000111,\n            IP = 001000,\n            SP = 001001,\n            BP = 001010,\n            IN = 001011,\n            OUT = 001100\n	    }
+      │   │   ├─ ArchFieldEncRegisterDescrSyntaxNode at [L103, C28]: register {\n            R0 = 000000,\n            R1 = 000001,\n            R2 = 000010,\n            R3 = 000011,\n            R4 = 000100,\n            R5 = 000101,\n            R6 = 000110,\n            R7 = 000111,\n            IP = 001000,\n            SP = 001001,\n            BP = 001010,\n            IN = 001011,\n            OUT = 001100\n	    }
+      │   │   └─ Name: reg
+      │   │ 
+      │   ├─ ArchFieldsGroupEncodingSyntaxNode at [L119, C9]: encode size sequence = alternatives {\n            sz8 = {00}, //8 бит\n            sz16 = {01}, //16 бит\n            sz32 = {10}, //32 бит\n            sz64 = {11} //64 бита\n        }
+      │   │   └─ Name: size
+      │   │ 
+      │   ├─ ArchFieldsGroupEncodingSyntaxNode at [L126, C9]: encode addrMode sequence = alternatives {\n            a = {000}, // из регистра\n            b = {001}, // адрес в регистре\n            c = {010}, // адрес в регистре + смещение\n            d = {011}, // непосредственное значение\n            e = {100}, // адрес в BR + смещение\n            f = {101} // адрес в SP + смещение\n        }
+      │   │   └─ Name: addrMode
+      │   │ 
+      │   ├─ ArchInstructionEncodingSyntaxNode at [L136, C5]: instruction add = {0000 0001, sequence size, reg as reg1, reg as reg2, 00 0000 0000 0000 0000 0000 0000 0000 0000} {\n        when sz8 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0x00000000000000ff;\n        } else when sz16 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0x000000000000ffff;\n        } else when sz32 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0x00000000ffffffff;\n        } else when sz64 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0xffffffffffffffff;\n        }\n        IP = IP + 8;\n    }
+      │   │   ├─ ArchIstructionFieldsSequenceSyntaxNode at [L136, C23]: {0000 0001, sequence size, reg as reg1, reg as reg2, 00 0000 0000 0000 0000 0000 0000 0000 0000}
+      │   │   │   ├─ ArchInsnFieldsFixedBitsSyntaxNode at [L136, C24]: 0000 0001
+      │   │   │   │   └─ BitsStr: 0000 0001
+      │   │   │   │ 
+      │   │   │   ├─ ArchInsnFieldsEncodedSequenceRefSyntaxNode at [L136, C35]: sequence size
+      │   │   │   │   ├─ SequenceEncName: size
+      │   │   │   │   ├─ CaseName: <NULL>
+      │   │   │   │   └─ SequenceAlias: <NULL>
+      │   │   │   │ 
+      │   │   │   ├─ ArchInsnFieldsEncodedFieldRefSyntaxNode at [L136, C50]: reg as reg1
+      │   │   │   │   ├─ FieldEncName: reg
+      │   │   │   │   └─ FieldName: reg1
+      │   │   │   │ 
+      │   │   │   ├─ ArchInsnFieldsEncodedFieldRefSyntaxNode at [L136, C63]: reg as reg2
+      │   │   │   │   ├─ FieldEncName: reg
+      │   │   │   │   └─ FieldName: reg2
+      │   │   │   │ 
+      │   │   │   └─ ArchInsnFieldsFixedBitsSyntaxNode at [L136, C76]: 00 0000 0000 0000 0000 0000 0000 0000 0000
+      │   │   │       └─ BitsStr: 00 0000 0000 0000 0000 0000 0000 0000 0000
+      │   │   │     
+      │   │   ├─ ArchInstructionFunctionSyntaxNode at [L136, C120]: {\n        when sz8 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0x00000000000000ff;\n        } else when sz16 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0x000000000000ffff;\n        } else when sz32 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0x00000000ffffffff;\n        } else when sz64 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0xffffffffffffffff;\n        }\n        IP = IP + 8;\n    }
+      │   │   │   └─ ArchInsnBlockStmtSyntaxNode at [L136, C120]: {\n        when sz8 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0x00000000000000ff;\n        } else when sz16 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0x000000000000ffff;\n        } else when sz32 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0x00000000ffffffff;\n        } else when sz64 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0xffffffffffffffff;\n        }\n        IP = IP + 8;\n    }
+      │   │   │       ├─ ArchInsnWhenConditionStmtSyntaxNode at [L137, C9]: when sz8 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0x00000000000000ff;\n        } else when sz16 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0x000000000000ffff;\n        } else when sz32 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0x00000000ffffffff;\n        } else when sz64 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0xffffffffffffffff;\n        }
+      │   │   │       │   ├─ ArchMnemonicFormatConstraintSymbolExprSyntaxNode at [L137, C14]: sz8
+      │   │   │       │   ├─ ArchInsnBlockStmtSyntaxNode at [L137, C23]: {\n            let res = reg1 + reg2;\n            reg1 = res & 0x00000000000000ff;\n        }
+      │   │   │       │   │   ├─ ArchInsnVariableDeclarationStmtSyntaxNode at [L138, C13]: let res = reg1 + reg2;
+      │   │   │       │   │   │   ├─ Name: res
+      │   │   │       │   │   │   └─ ArchInsnBinaryExprSyntaxNode at [L138, C23]: reg1 + reg2
+      │   │   │       │   │   │       ├─ Operator: Sum
+      │   │   │       │   │   │       ├─ ArchInsnPlaceExprSyntaxNode at [L138, C23]: reg1
+      │   │   │       │   │   │       └─ ArchInsnPlaceExprSyntaxNode at [L138, C30]: reg2
+      │   │   │       │   │   │     
+      │   │   │       │   │   └─ ArchInsnExpressionStmtSyntaxNode at [L139, C13]: reg1 = res & 0x00000000000000ff;
+      │   │   │       │   │       └─ ArchInsnBinaryExprSyntaxNode at [L139, C13]: reg1 = res & 0x00000000000000ff
+      │   │   │       │   │           ├─ Operator: Assign
+      │   │   │       │   │           ├─ ArchInsnPlaceExprSyntaxNode at [L139, C13]: reg1
+      │   │   │       │   │           └─ ArchInsnBinaryExprSyntaxNode at [L139, C20]: res & 0x00000000000000ff
+      │   │   │       │   │               ├─ Operator: BitsAnd
+      │   │   │       │   │               ├─ ArchInsnPlaceExprSyntaxNode at [L139, C20]: res
+      │   │   │       │   │               └─ ArchInsnLiteralExprSyntaxNode at [L139, C26]: 0x00000000000000ff
+      │   │   │       │   │                   ├─ Kind: Hex
+      │   │   │       │   │                   └─ ValueString: 0x00000000000000ff
+      │   │   │       │   │                 
+      │   │   │       │   └─ ArchInsnWhenConditionStmtSyntaxNode at [L140, C16]: when sz16 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0x000000000000ffff;\n        } else when sz32 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0x00000000ffffffff;\n        } else when sz64 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0xffffffffffffffff;\n        }
+      │   │   │       │       ├─ ArchMnemonicFormatConstraintSymbolExprSyntaxNode at [L140, C21]: sz16
+      │   │   │       │       ├─ ArchInsnBlockStmtSyntaxNode at [L140, C31]: {\n            let res = reg1 + reg2;\n            reg1 = res & 0x000000000000ffff;\n        }
+      │   │   │       │       │   ├─ ArchInsnVariableDeclarationStmtSyntaxNode at [L141, C13]: let res = reg1 + reg2;
+      │   │   │       │       │   │   ├─ Name: res
+      │   │   │       │       │   │   └─ ArchInsnBinaryExprSyntaxNode at [L141, C23]: reg1 + reg2
+      │   │   │       │       │   │       ├─ Operator: Sum
+      │   │   │       │       │   │       ├─ ArchInsnPlaceExprSyntaxNode at [L141, C23]: reg1
+      │   │   │       │       │   │       └─ ArchInsnPlaceExprSyntaxNode at [L141, C30]: reg2
+      │   │   │       │       │   │     
+      │   │   │       │       │   └─ ArchInsnExpressionStmtSyntaxNode at [L142, C13]: reg1 = res & 0x000000000000ffff;
+      │   │   │       │       │       └─ ArchInsnBinaryExprSyntaxNode at [L142, C13]: reg1 = res & 0x000000000000ffff
+      │   │   │       │       │           ├─ Operator: Assign
+      │   │   │       │       │           ├─ ArchInsnPlaceExprSyntaxNode at [L142, C13]: reg1
+      │   │   │       │       │           └─ ArchInsnBinaryExprSyntaxNode at [L142, C20]: res & 0x000000000000ffff
+      │   │   │       │       │               ├─ Operator: BitsAnd
+      │   │   │       │       │               ├─ ArchInsnPlaceExprSyntaxNode at [L142, C20]: res
+      │   │   │       │       │               └─ ArchInsnLiteralExprSyntaxNode at [L142, C26]: 0x000000000000ffff
+      │   │   │       │       │                   ├─ Kind: Hex
+      │   │   │       │       │                   └─ ValueString: 0x000000000000ffff
+      │   │   │       │       │                 
+      │   │   │       │       └─ ArchInsnWhenConditionStmtSyntaxNode at [L143, C16]: when sz32 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0x00000000ffffffff;\n        } else when sz64 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0xffffffffffffffff;\n        }
+      │   │   │       │           ├─ ArchMnemonicFormatConstraintSymbolExprSyntaxNode at [L143, C21]: sz32
+      │   │   │       │           ├─ ArchInsnBlockStmtSyntaxNode at [L143, C31]: {\n            let res = reg1 + reg2;\n            reg1 = res & 0x00000000ffffffff;\n        }
+      │   │   │       │           │   ├─ ArchInsnVariableDeclarationStmtSyntaxNode at [L144, C13]: let res = reg1 + reg2;
+      │   │   │       │           │   │   ├─ Name: res
+      │   │   │       │           │   │   └─ ArchInsnBinaryExprSyntaxNode at [L144, C23]: reg1 + reg2
+      │   │   │       │           │   │       ├─ Operator: Sum
+      │   │   │       │           │   │       ├─ ArchInsnPlaceExprSyntaxNode at [L144, C23]: reg1
+      │   │   │       │           │   │       └─ ArchInsnPlaceExprSyntaxNode at [L144, C30]: reg2
+      │   │   │       │           │   │     
+      │   │   │       │           │   └─ ArchInsnExpressionStmtSyntaxNode at [L145, C13]: reg1 = res & 0x00000000ffffffff;
+      │   │   │       │           │       └─ ArchInsnBinaryExprSyntaxNode at [L145, C13]: reg1 = res & 0x00000000ffffffff
+      │   │   │       │           │           ├─ Operator: Assign
+      │   │   │       │           │           ├─ ArchInsnPlaceExprSyntaxNode at [L145, C13]: reg1
+      │   │   │       │           │           └─ ArchInsnBinaryExprSyntaxNode at [L145, C20]: res & 0x00000000ffffffff
+      │   │   │       │           │               ├─ Operator: BitsAnd
+      │   │   │       │           │               ├─ ArchInsnPlaceExprSyntaxNode at [L145, C20]: res
+      │   │   │       │           │               └─ ArchInsnLiteralExprSyntaxNode at [L145, C26]: 0x00000000ffffffff
+      │   │   │       │           │                   ├─ Kind: Hex
+      │   │   │       │           │                   └─ ValueString: 0x00000000ffffffff
+      │   │   │       │           │                 
+      │   │   │       │           └─ ArchInsnWhenConditionStmtSyntaxNode at [L146, C16]: when sz64 then {\n            let res = reg1 + reg2;\n            reg1 = res & 0xffffffffffffffff;\n        }
+      │   │   │       │               ├─ ArchMnemonicFormatConstraintSymbolExprSyntaxNode at [L146, C21]: sz64
+      │   │   │       │               ├─ ArchInsnBlockStmtSyntaxNode at [L146, C31]: {\n            let res = reg1 + reg2;\n            reg1 = res & 0xffffffffffffffff;\n        }
+      │   │   │       │               │   ├─ ArchInsnVariableDeclarationStmtSyntaxNode at [L147, C13]: let res = reg1 + reg2;
+      │   │   │       │               │   │   ├─ Name: res
+      │   │   │       │               │   │   └─ ArchInsnBinaryExprSyntaxNode at [L147, C23]: reg1 + reg2
+      │   │   │       │               │   │       ├─ Operator: Sum
+      │   │   │       │               │   │       ├─ ArchInsnPlaceExprSyntaxNode at [L147, C23]: reg1
+      │   │   │       │               │   │       └─ ArchInsnPlaceExprSyntaxNode at [L147, C30]: reg2
+      │   │   │       │               │   │     
+      │   │   │       │               │   └─ ArchInsnExpressionStmtSyntaxNode at [L148, C13]: reg1 = res & 0xffffffffffffffff;
+      │   │   │       │               │       └─ ArchInsnBinaryExprSyntaxNode at [L148, C13]: reg1 = res & 0xffffffffffffffff
+      │   │   │       │               │           ├─ Operator: Assign
+      │   │   │       │               │           ├─ ArchInsnPlaceExprSyntaxNode at [L148, C13]: reg1
+      │   │   │       │               │           └─ ArchInsnBinaryExprSyntaxNode at [L148, C20]: res & 0xffffffffffffffff
+      │   │   │       │               │               ├─ Operator: BitsAnd
+      │   │   │       │               │               ├─ ArchInsnPlaceExprSyntaxNode at [L148, C20]: res
+      │   │   │       │               │               └─ ArchInsnLiteralExprSyntaxNode at [L148, C26]: 0xffffffffffffffff
+      │   │   │       │               │                   ├─ Kind: Hex
+      │   │   │       │               │                   └─ ValueString: 0xffffffffffffffff
+      │   │   │       │               │                 
+      │   │   │       │               └─ ElseBranchOrNull: <NULL>
+      │   │   │       │             
+      │   │   │       └─ ArchInsnExpressionStmtSyntaxNode at [L150, C9]: IP = IP + 8;
+      │   │   │           └─ ArchInsnBinaryExprSyntaxNode at [L150, C9]: IP = IP + 8
+      │   │   │               ├─ Operator: Assign
+      │   │   │               ├─ ArchInsnPlaceExprSyntaxNode at [L150, C9]: IP
+      │   │   │               └─ ArchInsnBinaryExprSyntaxNode at [L150, C14]: IP + 8
+      │   │   │                   ├─ Operator: Sum
+      │   │   │                   ├─ ArchInsnPlaceExprSyntaxNode at [L150, C14]: IP
+      │   │   │                   └─ ArchInsnLiteralExprSyntaxNode at [L150, C19]: 8
+      │   │   │                       ├─ Kind: Dec
+      │   │   │                       └─ ValueString: 8
+      │   │   │                     
+      │   │   └─ Name: add
+      │   │ 
+      │   ├─ ArchInstructionEncodingSyntaxNode at [L153, C5]: instruction load-imm = {0000 0010, 00, reg as to, 000000, 00, imm32 as value} {\n        to = value;\n\n        IP = IP + 8;\n    }
+      │   │   ├─ ArchIstructionFieldsSequenceSyntaxNode at [L153, C28]: {0000 0010, 00, reg as to, 000000, 00, imm32 as value}
+      │   │   │   ├─ ArchInsnFieldsFixedBitsSyntaxNode at [L153, C29]: 0000 0010
+      │   │   │   │   └─ BitsStr: 0000 0010
+      │   │   │   │ 
+      │   │   │   ├─ ArchInsnFieldsFixedBitsSyntaxNode at [L153, C40]: 00
+      │   │   │   │   └─ BitsStr: 00
+      │   │   │   │ 
+      │   │   │   ├─ ArchInsnFieldsEncodedFieldRefSyntaxNode at [L153, C44]: reg as to
+      │   │   │   │   ├─ FieldEncName: reg
+      │   │   │   │   └─ FieldName: to
+      │   │   │   │ 
+      │   │   │   ├─ ArchInsnFieldsFixedBitsSyntaxNode at [L153, C55]: 000000
+      │   │   │   │   └─ BitsStr: 000000
+      │   │   │   │ 
+      │   │   │   ├─ ArchInsnFieldsFixedBitsSyntaxNode at [L153, C63]: 00
+      │   │   │   │   └─ BitsStr: 00
+      │   │   │   │ 
+      │   │   │   └─ ArchInsnFieldsEncodedFieldRefSyntaxNode at [L153, C67]: imm32 as value
+      │   │   │       ├─ FieldEncName: imm32
+      │   │   │       └─ FieldName: value
+      │   │   │     
+      │   │   ├─ ArchInstructionFunctionSyntaxNode at [L153, C83]: {\n        to = value;\n\n        IP = IP + 8;\n    }
+      │   │   │   └─ ArchInsnBlockStmtSyntaxNode at [L153, C83]: {\n        to = value;\n\n        IP = IP + 8;\n    }
+      │   │   │       ├─ ArchInsnExpressionStmtSyntaxNode at [L154, C9]: to = value;
+      │   │   │       │   └─ ArchInsnBinaryExprSyntaxNode at [L154, C9]: to = value
+      │   │   │       │       ├─ Operator: Assign
+      │   │   │       │       ├─ ArchInsnPlaceExprSyntaxNode at [L154, C9]: to
+      │   │   │       │       └─ ArchInsnPlaceExprSyntaxNode at [L154, C14]: value
+      │   │   │       │     
+      │   │   │       └─ ArchInsnExpressionStmtSyntaxNode at [L156, C9]: IP = IP + 8;
+      │   │   │           └─ ArchInsnBinaryExprSyntaxNode at [L156, C9]: IP = IP + 8
+      │   │   │               ├─ Operator: Assign
+      │   │   │               ├─ ArchInsnPlaceExprSyntaxNode at [L156, C9]: IP
+      │   │   │               └─ ArchInsnBinaryExprSyntaxNode at [L156, C14]: IP + 8
+      │   │   │                   ├─ Operator: Sum
+      │   │   │                   ├─ ArchInsnPlaceExprSyntaxNode at [L156, C14]: IP
+      │   │   │                   └─ ArchInsnLiteralExprSyntaxNode at [L156, C19]: 8
+      │   │   │                       ├─ Kind: Dec
+      │   │   │                       └─ ValueString: 8
+      │   │   │                     
+      │   │   └─ Name: load-imm
+      │   │ 
+      │   ├─ ArchInstructionEncodingSyntaxNode at [L159, C5]: instruction load = {0000 0011, sequence size, reg as to, reg as ptr, 00 0000 0000 0000 0000 0000 0000 0000 0000} {\n        when sz8 then {\n            let res = dataM:8[ptr];\n            to = res & 0x00000000000000ff;\n        } else when sz16 then {\n            let res = dataM:8[ptr];\n            to = res & 0x000000000000ffff;\n        } else when sz32 then {\n            let res = dataM:8[ptr];\n            to = res & 0x00000000ffffffff;\n        } else when sz64 then {\n            let res = dataM:8[ptr];\n            to = res & 0xffffffffffffffff;\n        }\n        IP = IP + 8;\n    }
+      │   │   ├─ ArchIstructionFieldsSequenceSyntaxNode at [L159, C24]: {0000 0011, sequence size, reg as to, reg as ptr, 00 0000 0000 0000 0000 0000 0000 0000 0000}
+      │   │   │   ├─ ArchInsnFieldsFixedBitsSyntaxNode at [L159, C25]: 0000 0011
+      │   │   │   │   └─ BitsStr: 0000 0011
+      │   │   │   │ 
+      │   │   │   ├─ ArchInsnFieldsEncodedSequenceRefSyntaxNode at [L159, C36]: sequence size
+      │   │   │   │   ├─ SequenceEncName: size
+      │   │   │   │   ├─ CaseName: <NULL>
+      │   │   │   │   └─ SequenceAlias: <NULL>
+      │   │   │   │ 
+      │   │   │   ├─ ArchInsnFieldsEncodedFieldRefSyntaxNode at [L159, C51]: reg as to
+      │   │   │   │   ├─ FieldEncName: reg
+      │   │   │   │   └─ FieldName: to
+      │   │   │   │ 
+      │   │   │   ├─ ArchInsnFieldsEncodedFieldRefSyntaxNode at [L159, C62]: reg as ptr
+      │   │   │   │   ├─ FieldEncName: reg
+      │   │   │   │   └─ FieldName: ptr
+      │   │   │   │ 
+      │   │   │   └─ ArchInsnFieldsFixedBitsSyntaxNode at [L159, C74]: 00 0000 0000 0000 0000 0000 0000 0000 0000
+      │   │   │       └─ BitsStr: 00 0000 0000 0000 0000 0000 0000 0000 0000
+      │   │   │     
+      │   │   ├─ ArchInstructionFunctionSyntaxNode at [L159, C118]: {\n        when sz8 then {\n            let res = dataM:8[ptr];\n            to = res & 0x00000000000000ff;\n        } else when sz16 then {\n            let res = dataM:8[ptr];\n            to = res & 0x000000000000ffff;\n        } else when sz32 then {\n            let res = dataM:8[ptr];\n            to = res & 0x00000000ffffffff;\n        } else when sz64 then {\n            let res = dataM:8[ptr];\n            to = res & 0xffffffffffffffff;\n        }\n        IP = IP + 8;\n    }
+      │   │   │   └─ ArchInsnBlockStmtSyntaxNode at [L159, C118]: {\n        when sz8 then {\n            let res = dataM:8[ptr];\n            to = res & 0x00000000000000ff;\n        } else when sz16 then {\n            let res = dataM:8[ptr];\n            to = res & 0x000000000000ffff;\n        } else when sz32 then {\n            let res = dataM:8[ptr];\n            to = res & 0x00000000ffffffff;\n        } else when sz64 then {\n            let res = dataM:8[ptr];\n            to = res & 0xffffffffffffffff;\n        }\n        IP = IP + 8;\n    }
+      │   │   │       ├─ ArchInsnWhenConditionStmtSyntaxNode at [L160, C9]: when sz8 then {\n            let res = dataM:8[ptr];\n            to = res & 0x00000000000000ff;\n        } else when sz16 then {\n            let res = dataM:8[ptr];\n            to = res & 0x000000000000ffff;\n        } else when sz32 then {\n            let res = dataM:8[ptr];\n            to = res & 0x00000000ffffffff;\n        } else when sz64 then {\n            let res = dataM:8[ptr];\n            to = res & 0xffffffffffffffff;\n        }
+      │   │   │       │   ├─ ArchMnemonicFormatConstraintSymbolExprSyntaxNode at [L160, C14]: sz8
+      │   │   │       │   ├─ ArchInsnBlockStmtSyntaxNode at [L160, C23]: {\n            let res = dataM:8[ptr];\n            to = res & 0x00000000000000ff;\n        }
+      │   │   │       │   │   ├─ ArchInsnVariableDeclarationStmtSyntaxNode at [L161, C13]: let res = dataM:8[ptr];
+      │   │   │       │   │   │   ├─ Name: res
+      │   │   │       │   │   │   └─ ArchInsnIndexerExprSyntaxNode at [L161, C23]: dataM:8[ptr]
+      │   │   │       │   │   │       ├─ ArchInsnPlaceExprSyntaxNode at [L161, C23]: dataM:8
+      │   │   │       │   │   │       └─ ArchInsnPlaceExprSyntaxNode at [L161, C31]: ptr
+      │   │   │       │   │   │     
+      │   │   │       │   │   └─ ArchInsnExpressionStmtSyntaxNode at [L162, C13]: to = res & 0x00000000000000ff;
+      │   │   │       │   │       └─ ArchInsnBinaryExprSyntaxNode at [L162, C13]: to = res & 0x00000000000000ff
+      │   │   │       │   │           ├─ Operator: Assign
+      │   │   │       │   │           ├─ ArchInsnPlaceExprSyntaxNode at [L162, C13]: to
+      │   │   │       │   │           └─ ArchInsnBinaryExprSyntaxNode at [L162, C18]: res & 0x00000000000000ff
+      │   │   │       │   │               ├─ Operator: BitsAnd
+      │   │   │       │   │               ├─ ArchInsnPlaceExprSyntaxNode at [L162, C18]: res
+      │   │   │       │   │               └─ ArchInsnLiteralExprSyntaxNode at [L162, C24]: 0x00000000000000ff
+      │   │   │       │   │                   ├─ Kind: Hex
+      │   │   │       │   │                   └─ ValueString: 0x00000000000000ff
+      │   │   │       │   │                 
+      │   │   │       │   └─ ArchInsnWhenConditionStmtSyntaxNode at [L163, C16]: when sz16 then {\n            let res = dataM:8[ptr];\n            to = res & 0x000000000000ffff;\n        } else when sz32 then {\n            let res = dataM:8[ptr];\n            to = res & 0x00000000ffffffff;\n        } else when sz64 then {\n            let res = dataM:8[ptr];\n            to = res & 0xffffffffffffffff;\n        }
+      │   │   │       │       ├─ ArchMnemonicFormatConstraintSymbolExprSyntaxNode at [L163, C21]: sz16
+      │   │   │       │       ├─ ArchInsnBlockStmtSyntaxNode at [L163, C31]: {\n            let res = dataM:8[ptr];\n            to = res & 0x000000000000ffff;\n        }
+      │   │   │       │       │   ├─ ArchInsnVariableDeclarationStmtSyntaxNode at [L164, C13]: let res = dataM:8[ptr];
+      │   │   │       │       │   │   ├─ Name: res
+      │   │   │       │       │   │   └─ ArchInsnIndexerExprSyntaxNode at [L164, C23]: dataM:8[ptr]
+      │   │   │       │       │   │       ├─ ArchInsnPlaceExprSyntaxNode at [L164, C23]: dataM:8
+      │   │   │       │       │   │       └─ ArchInsnPlaceExprSyntaxNode at [L164, C31]: ptr
+      │   │   │       │       │   │     
+      │   │   │       │       │   └─ ArchInsnExpressionStmtSyntaxNode at [L165, C13]: to = res & 0x000000000000ffff;
+      │   │   │       │       │       └─ ArchInsnBinaryExprSyntaxNode at [L165, C13]: to = res & 0x000000000000ffff
+      │   │   │       │       │           ├─ Operator: Assign
+      │   │   │       │       │           ├─ ArchInsnPlaceExprSyntaxNode at [L165, C13]: to
+      │   │   │       │       │           └─ ArchInsnBinaryExprSyntaxNode at [L165, C18]: res & 0x000000000000ffff
+      │   │   │       │       │               ├─ Operator: BitsAnd
+      │   │   │       │       │               ├─ ArchInsnPlaceExprSyntaxNode at [L165, C18]: res
+      │   │   │       │       │               └─ ArchInsnLiteralExprSyntaxNode at [L165, C24]: 0x000000000000ffff
+      │   │   │       │       │                   ├─ Kind: Hex
+      │   │   │       │       │                   └─ ValueString: 0x000000000000ffff
+      │   │   │       │       │                 
+      │   │   │       │       └─ ArchInsnWhenConditionStmtSyntaxNode at [L166, C16]: when sz32 then {\n            let res = dataM:8[ptr];\n            to = res & 0x00000000ffffffff;\n        } else when sz64 then {\n            let res = dataM:8[ptr];\n            to = res & 0xffffffffffffffff;\n        }
+      │   │   │       │           ├─ ArchMnemonicFormatConstraintSymbolExprSyntaxNode at [L166, C21]: sz32
+      │   │   │       │           ├─ ArchInsnBlockStmtSyntaxNode at [L166, C31]: {\n            let res = dataM:8[ptr];\n            to = res & 0x00000000ffffffff;\n        }
+      │   │   │       │           │   ├─ ArchInsnVariableDeclarationStmtSyntaxNode at [L167, C13]: let res = dataM:8[ptr];
+      │   │   │       │           │   │   ├─ Name: res
+      │   │   │       │           │   │   └─ ArchInsnIndexerExprSyntaxNode at [L167, C23]: dataM:8[ptr]
+      │   │   │       │           │   │       ├─ ArchInsnPlaceExprSyntaxNode at [L167, C23]: dataM:8
+      │   │   │       │           │   │       └─ ArchInsnPlaceExprSyntaxNode at [L167, C31]: ptr
+      │   │   │       │           │   │     
+      │   │   │       │           │   └─ ArchInsnExpressionStmtSyntaxNode at [L168, C13]: to = res & 0x00000000ffffffff;
+      │   │   │       │           │       └─ ArchInsnBinaryExprSyntaxNode at [L168, C13]: to = res & 0x00000000ffffffff
+      │   │   │       │           │           ├─ Operator: Assign
+      │   │   │       │           │           ├─ ArchInsnPlaceExprSyntaxNode at [L168, C13]: to
+      │   │   │       │           │           └─ ArchInsnBinaryExprSyntaxNode at [L168, C18]: res & 0x00000000ffffffff
+      │   │   │       │           │               ├─ Operator: BitsAnd
+      │   │   │       │           │               ├─ ArchInsnPlaceExprSyntaxNode at [L168, C18]: res
+      │   │   │       │           │               └─ ArchInsnLiteralExprSyntaxNode at [L168, C24]: 0x00000000ffffffff
+      │   │   │       │           │                   ├─ Kind: Hex
+      │   │   │       │           │                   └─ ValueString: 0x00000000ffffffff
+      │   │   │       │           │                 
+      │   │   │       │           └─ ArchInsnWhenConditionStmtSyntaxNode at [L169, C16]: when sz64 then {\n            let res = dataM:8[ptr];\n            to = res & 0xffffffffffffffff;\n        }
+      │   │   │       │               ├─ ArchMnemonicFormatConstraintSymbolExprSyntaxNode at [L169, C21]: sz64
+      │   │   │       │               ├─ ArchInsnBlockStmtSyntaxNode at [L169, C31]: {\n            let res = dataM:8[ptr];\n            to = res & 0xffffffffffffffff;\n        }
+      │   │   │       │               │   ├─ ArchInsnVariableDeclarationStmtSyntaxNode at [L170, C13]: let res = dataM:8[ptr];
+      │   │   │       │               │   │   ├─ Name: res
+      │   │   │       │               │   │   └─ ArchInsnIndexerExprSyntaxNode at [L170, C23]: dataM:8[ptr]
+      │   │   │       │               │   │       ├─ ArchInsnPlaceExprSyntaxNode at [L170, C23]: dataM:8
+      │   │   │       │               │   │       └─ ArchInsnPlaceExprSyntaxNode at [L170, C31]: ptr
+      │   │   │       │               │   │     
+      │   │   │       │               │   └─ ArchInsnExpressionStmtSyntaxNode at [L171, C13]: to = res & 0xffffffffffffffff;
+      │   │   │       │               │       └─ ArchInsnBinaryExprSyntaxNode at [L171, C13]: to = res & 0xffffffffffffffff
+      │   │   │       │               │           ├─ Operator: Assign
+      │   │   │       │               │           ├─ ArchInsnPlaceExprSyntaxNode at [L171, C13]: to
+      │   │   │       │               │           └─ ArchInsnBinaryExprSyntaxNode at [L171, C18]: res & 0xffffffffffffffff
+      │   │   │       │               │               ├─ Operator: BitsAnd
+      │   │   │       │               │               ├─ ArchInsnPlaceExprSyntaxNode at [L171, C18]: res
+      │   │   │       │               │               └─ ArchInsnLiteralExprSyntaxNode at [L171, C24]: 0xffffffffffffffff
+      │   │   │       │               │                   ├─ Kind: Hex
+      │   │   │       │               │                   └─ ValueString: 0xffffffffffffffff
+      │   │   │       │               │                 
+      │   │   │       │               └─ ElseBranchOrNull: <NULL>
+      │   │   │       │             
+      │   │   │       └─ ArchInsnExpressionStmtSyntaxNode at [L173, C9]: IP = IP + 8;
+      │   │   │           └─ ArchInsnBinaryExprSyntaxNode at [L173, C9]: IP = IP + 8
+      │   │   │               ├─ Operator: Assign
+      │   │   │               ├─ ArchInsnPlaceExprSyntaxNode at [L173, C9]: IP
+      │   │   │               └─ ArchInsnBinaryExprSyntaxNode at [L173, C14]: IP + 8
+      │   │   │                   ├─ Operator: Sum
+      │   │   │                   ├─ ArchInsnPlaceExprSyntaxNode at [L173, C14]: IP
+      │   │   │                   └─ ArchInsnLiteralExprSyntaxNode at [L173, C19]: 8
+      │   │   │                       ├─ Kind: Dec
+      │   │   │                       └─ ValueString: 8
+      │   │   │                     
+      │   │   └─ Name: load
+      │   │ 
+      │   ├─ ArchInstructionEncodingSyntaxNode at [L176, C5]: instruction store = {0000 0100, sequence size, reg as from, reg as ptr, 00 0000 0000 0000 0000 0000 0000 0000 0000} {\n        when sz8 then {\n            dataM:8[ptr] = from & 0x00000000000000ff;\n        } else when sz16 then {\n            dataM:8[ptr] = from & 0x000000000000ffff;\n        } else when sz32 then {\n            dataM:8[ptr] = from & 0x00000000ffffffff;\n        } else when sz64 then {\n            dataM:8[ptr] = from & 0xffffffffffffffff;\n        }\n        IP = IP + 8;\n    }
+      │   │   ├─ ArchIstructionFieldsSequenceSyntaxNode at [L176, C25]: {0000 0100, sequence size, reg as from, reg as ptr, 00 0000 0000 0000 0000 0000 0000 0000 0000}
+      │   │   │   ├─ ArchInsnFieldsFixedBitsSyntaxNode at [L176, C26]: 0000 0100
+      │   │   │   │   └─ BitsStr: 0000 0100
+      │   │   │   │ 
+      │   │   │   ├─ ArchInsnFieldsEncodedSequenceRefSyntaxNode at [L176, C37]: sequence size
+      │   │   │   │   ├─ SequenceEncName: size
+      │   │   │   │   ├─ CaseName: <NULL>
+      │   │   │   │   └─ SequenceAlias: <NULL>
+      │   │   │   │ 
+      │   │   │   ├─ ArchInsnFieldsEncodedFieldRefSyntaxNode at [L176, C52]: reg as from
+      │   │   │   │   ├─ FieldEncName: reg
+      │   │   │   │   └─ FieldName: from
+      │   │   │   │ 
+      │   │   │   ├─ ArchInsnFieldsEncodedFieldRefSyntaxNode at [L176, C65]: reg as ptr
+      │   │   │   │   ├─ FieldEncName: reg
+      │   │   │   │   └─ FieldName: ptr
+      │   │   │   │ 
+      │   │   │   └─ ArchInsnFieldsFixedBitsSyntaxNode at [L176, C77]: 00 0000 0000 0000 0000 0000 0000 0000 0000
+      │   │   │       └─ BitsStr: 00 0000 0000 0000 0000 0000 0000 0000 0000
+      │   │   │     
+      │   │   ├─ ArchInstructionFunctionSyntaxNode at [L176, C121]: {\n        when sz8 then {\n            dataM:8[ptr] = from & 0x00000000000000ff;\n        } else when sz16 then {\n            dataM:8[ptr] = from & 0x000000000000ffff;\n        } else when sz32 then {\n            dataM:8[ptr] = from & 0x00000000ffffffff;\n        } else when sz64 then {\n            dataM:8[ptr] = from & 0xffffffffffffffff;\n        }\n        IP = IP + 8;\n    }
+      │   │   │   └─ ArchInsnBlockStmtSyntaxNode at [L176, C121]: {\n        when sz8 then {\n            dataM:8[ptr] = from & 0x00000000000000ff;\n        } else when sz16 then {\n            dataM:8[ptr] = from & 0x000000000000ffff;\n        } else when sz32 then {\n            dataM:8[ptr] = from & 0x00000000ffffffff;\n        } else when sz64 then {\n            dataM:8[ptr] = from & 0xffffffffffffffff;\n        }\n        IP = IP + 8;\n    }
+      │   │   │       ├─ ArchInsnWhenConditionStmtSyntaxNode at [L177, C9]: when sz8 then {\n            dataM:8[ptr] = from & 0x00000000000000ff;\n        } else when sz16 then {\n            dataM:8[ptr] = from & 0x000000000000ffff;\n        } else when sz32 then {\n            dataM:8[ptr] = from & 0x00000000ffffffff;\n        } else when sz64 then {\n            dataM:8[ptr] = from & 0xffffffffffffffff;\n        }
+      │   │   │       │   ├─ ArchMnemonicFormatConstraintSymbolExprSyntaxNode at [L177, C14]: sz8
+      │   │   │       │   ├─ ArchInsnBlockStmtSyntaxNode at [L177, C23]: {\n            dataM:8[ptr] = from & 0x00000000000000ff;\n        }
+      │   │   │       │   │   └─ ArchInsnExpressionStmtSyntaxNode at [L178, C13]: dataM:8[ptr] = from & 0x00000000000000ff;
+      │   │   │       │   │       └─ ArchInsnBinaryExprSyntaxNode at [L178, C13]: dataM:8[ptr] = from & 0x00000000000000ff
+      │   │   │       │   │           ├─ Operator: Assign
+      │   │   │       │   │           ├─ ArchInsnIndexerExprSyntaxNode at [L178, C13]: dataM:8[ptr]
+      │   │   │       │   │           │   ├─ ArchInsnPlaceExprSyntaxNode at [L178, C13]: dataM:8
+      │   │   │       │   │           │   └─ ArchInsnPlaceExprSyntaxNode at [L178, C21]: ptr
+      │   │   │       │   │           │ 
+      │   │   │       │   │           └─ ArchInsnBinaryExprSyntaxNode at [L178, C28]: from & 0x00000000000000ff
+      │   │   │       │   │               ├─ Operator: BitsAnd
+      │   │   │       │   │               ├─ ArchInsnPlaceExprSyntaxNode at [L178, C28]: from
+      │   │   │       │   │               └─ ArchInsnLiteralExprSyntaxNode at [L178, C35]: 0x00000000000000ff
+      │   │   │       │   │                   ├─ Kind: Hex
+      │   │   │       │   │                   └─ ValueString: 0x00000000000000ff
+      │   │   │       │   │                 
+      │   │   │       │   └─ ArchInsnWhenConditionStmtSyntaxNode at [L179, C16]: when sz16 then {\n            dataM:8[ptr] = from & 0x000000000000ffff;\n        } else when sz32 then {\n            dataM:8[ptr] = from & 0x00000000ffffffff;\n        } else when sz64 then {\n            dataM:8[ptr] = from & 0xffffffffffffffff;\n        }
+      │   │   │       │       ├─ ArchMnemonicFormatConstraintSymbolExprSyntaxNode at [L179, C21]: sz16
+      │   │   │       │       ├─ ArchInsnBlockStmtSyntaxNode at [L179, C31]: {\n            dataM:8[ptr] = from & 0x000000000000ffff;\n        }
+      │   │   │       │       │   └─ ArchInsnExpressionStmtSyntaxNode at [L180, C13]: dataM:8[ptr] = from & 0x000000000000ffff;
+      │   │   │       │       │       └─ ArchInsnBinaryExprSyntaxNode at [L180, C13]: dataM:8[ptr] = from & 0x000000000000ffff
+      │   │   │       │       │           ├─ Operator: Assign
+      │   │   │       │       │           ├─ ArchInsnIndexerExprSyntaxNode at [L180, C13]: dataM:8[ptr]
+      │   │   │       │       │           │   ├─ ArchInsnPlaceExprSyntaxNode at [L180, C13]: dataM:8
+      │   │   │       │       │           │   └─ ArchInsnPlaceExprSyntaxNode at [L180, C21]: ptr
+      │   │   │       │       │           │ 
+      │   │   │       │       │           └─ ArchInsnBinaryExprSyntaxNode at [L180, C28]: from & 0x000000000000ffff
+      │   │   │       │       │               ├─ Operator: BitsAnd
+      │   │   │       │       │               ├─ ArchInsnPlaceExprSyntaxNode at [L180, C28]: from
+      │   │   │       │       │               └─ ArchInsnLiteralExprSyntaxNode at [L180, C35]: 0x000000000000ffff
+      │   │   │       │       │                   ├─ Kind: Hex
+      │   │   │       │       │                   └─ ValueString: 0x000000000000ffff
+      │   │   │       │       │                 
+      │   │   │       │       └─ ArchInsnWhenConditionStmtSyntaxNode at [L181, C16]: when sz32 then {\n            dataM:8[ptr] = from & 0x00000000ffffffff;\n        } else when sz64 then {\n            dataM:8[ptr] = from & 0xffffffffffffffff;\n        }
+      │   │   │       │           ├─ ArchMnemonicFormatConstraintSymbolExprSyntaxNode at [L181, C21]: sz32
+      │   │   │       │           ├─ ArchInsnBlockStmtSyntaxNode at [L181, C31]: {\n            dataM:8[ptr] = from & 0x00000000ffffffff;\n        }
+      │   │   │       │           │   └─ ArchInsnExpressionStmtSyntaxNode at [L182, C13]: dataM:8[ptr] = from & 0x00000000ffffffff;
+      │   │   │       │           │       └─ ArchInsnBinaryExprSyntaxNode at [L182, C13]: dataM:8[ptr] = from & 0x00000000ffffffff
+      │   │   │       │           │           ├─ Operator: Assign
+      │   │   │       │           │           ├─ ArchInsnIndexerExprSyntaxNode at [L182, C13]: dataM:8[ptr]
+      │   │   │       │           │           │   ├─ ArchInsnPlaceExprSyntaxNode at [L182, C13]: dataM:8
+      │   │   │       │           │           │   └─ ArchInsnPlaceExprSyntaxNode at [L182, C21]: ptr
+      │   │   │       │           │           │ 
+      │   │   │       │           │           └─ ArchInsnBinaryExprSyntaxNode at [L182, C28]: from & 0x00000000ffffffff
+      │   │   │       │           │               ├─ Operator: BitsAnd
+      │   │   │       │           │               ├─ ArchInsnPlaceExprSyntaxNode at [L182, C28]: from
+      │   │   │       │           │               └─ ArchInsnLiteralExprSyntaxNode at [L182, C35]: 0x00000000ffffffff
+      │   │   │       │           │                   ├─ Kind: Hex
+      │   │   │       │           │                   └─ ValueString: 0x00000000ffffffff
+      │   │   │       │           │                 
+      │   │   │       │           └─ ArchInsnWhenConditionStmtSyntaxNode at [L183, C16]: when sz64 then {\n            dataM:8[ptr] = from & 0xffffffffffffffff;\n        }
+      │   │   │       │               ├─ ArchMnemonicFormatConstraintSymbolExprSyntaxNode at [L183, C21]: sz64
+      │   │   │       │               ├─ ArchInsnBlockStmtSyntaxNode at [L183, C31]: {\n            dataM:8[ptr] = from & 0xffffffffffffffff;\n        }
+      │   │   │       │               │   └─ ArchInsnExpressionStmtSyntaxNode at [L184, C13]: dataM:8[ptr] = from & 0xffffffffffffffff;
+      │   │   │       │               │       └─ ArchInsnBinaryExprSyntaxNode at [L184, C13]: dataM:8[ptr] = from & 0xffffffffffffffff
+      │   │   │       │               │           ├─ Operator: Assign
+      │   │   │       │               │           ├─ ArchInsnIndexerExprSyntaxNode at [L184, C13]: dataM:8[ptr]
+      │   │   │       │               │           │   ├─ ArchInsnPlaceExprSyntaxNode at [L184, C13]: dataM:8
+      │   │   │       │               │           │   └─ ArchInsnPlaceExprSyntaxNode at [L184, C21]: ptr
+      │   │   │       │               │           │ 
+      │   │   │       │               │           └─ ArchInsnBinaryExprSyntaxNode at [L184, C28]: from & 0xffffffffffffffff
+      │   │   │       │               │               ├─ Operator: BitsAnd
+      │   │   │       │               │               ├─ ArchInsnPlaceExprSyntaxNode at [L184, C28]: from
+      │   │   │       │               │               └─ ArchInsnLiteralExprSyntaxNode at [L184, C35]: 0xffffffffffffffff
+      │   │   │       │               │                   ├─ Kind: Hex
+      │   │   │       │               │                   └─ ValueString: 0xffffffffffffffff
+      │   │   │       │               │                 
+      │   │   │       │               └─ ElseBranchOrNull: <NULL>
+      │   │   │       │             
+      │   │   │       └─ ArchInsnExpressionStmtSyntaxNode at [L186, C9]: IP = IP + 8;
+      │   │   │           └─ ArchInsnBinaryExprSyntaxNode at [L186, C9]: IP = IP + 8
+      │   │   │               ├─ Operator: Assign
+      │   │   │               ├─ ArchInsnPlaceExprSyntaxNode at [L186, C9]: IP
+      │   │   │               └─ ArchInsnBinaryExprSyntaxNode at [L186, C14]: IP + 8
+      │   │   │                   ├─ Operator: Sum
+      │   │   │                   ├─ ArchInsnPlaceExprSyntaxNode at [L186, C14]: IP
+      │   │   │                   └─ ArchInsnLiteralExprSyntaxNode at [L186, C19]: 8
+      │   │   │                       ├─ Kind: Dec
+      │   │   │                       └─ ValueString: 8
+      │   │   │                     
+      │   │   └─ Name: store
+      │   │ 
+      │   ├─ ArchInstructionEncodingSyntaxNode at [L189, C5]: instruction out = {0000 0100, 00, reg as from, 000000, 00 0000 0000 0000 0000 0000 0000 0000 0000} {\n        OUT = from;\n        IP = IP + 8;\n    }
+      │   │   ├─ ArchIstructionFieldsSequenceSyntaxNode at [L189, C23]: {0000 0100, 00, reg as from, 000000, 00 0000 0000 0000 0000 0000 0000 0000 0000}
+      │   │   │   ├─ ArchInsnFieldsFixedBitsSyntaxNode at [L189, C24]: 0000 0100
+      │   │   │   │   └─ BitsStr: 0000 0100
+      │   │   │   │ 
+      │   │   │   ├─ ArchInsnFieldsFixedBitsSyntaxNode at [L189, C35]: 00
+      │   │   │   │   └─ BitsStr: 00
+      │   │   │   │ 
+      │   │   │   ├─ ArchInsnFieldsEncodedFieldRefSyntaxNode at [L189, C39]: reg as from
+      │   │   │   │   ├─ FieldEncName: reg
+      │   │   │   │   └─ FieldName: from
+      │   │   │   │ 
+      │   │   │   ├─ ArchInsnFieldsFixedBitsSyntaxNode at [L189, C52]: 000000
+      │   │   │   │   └─ BitsStr: 000000
+      │   │   │   │ 
+      │   │   │   └─ ArchInsnFieldsFixedBitsSyntaxNode at [L189, C60]: 00 0000 0000 0000 0000 0000 0000 0000 0000
+      │   │   │       └─ BitsStr: 00 0000 0000 0000 0000 0000 0000 0000 0000
+      │   │   │     
+      │   │   ├─ ArchInstructionFunctionSyntaxNode at [L189, C104]: {\n        OUT = from;\n        IP = IP + 8;\n    }
+      │   │   │   └─ ArchInsnBlockStmtSyntaxNode at [L189, C104]: {\n        OUT = from;\n        IP = IP + 8;\n    }
+      │   │   │       ├─ ArchInsnExpressionStmtSyntaxNode at [L190, C9]: OUT = from;
+      │   │   │       │   └─ ArchInsnBinaryExprSyntaxNode at [L190, C9]: OUT = from
+      │   │   │       │       ├─ Operator: Assign
+      │   │   │       │       ├─ ArchInsnPlaceExprSyntaxNode at [L190, C9]: OUT
+      │   │   │       │       └─ ArchInsnPlaceExprSyntaxNode at [L190, C15]: from
+      │   │   │       │     
+      │   │   │       └─ ArchInsnExpressionStmtSyntaxNode at [L191, C9]: IP = IP + 8;
+      │   │   │           └─ ArchInsnBinaryExprSyntaxNode at [L191, C9]: IP = IP + 8
+      │   │   │               ├─ Operator: Assign
+      │   │   │               ├─ ArchInsnPlaceExprSyntaxNode at [L191, C9]: IP
+      │   │   │               └─ ArchInsnBinaryExprSyntaxNode at [L191, C14]: IP + 8
+      │   │   │                   ├─ Operator: Sum
+      │   │   │                   ├─ ArchInsnPlaceExprSyntaxNode at [L191, C14]: IP
+      │   │   │                   └─ ArchInsnLiteralExprSyntaxNode at [L191, C19]: 8
+      │   │   │                       ├─ Kind: Dec
+      │   │   │                       └─ ValueString: 8
+      │   │   │                     
+      │   │   └─ Name: out
+      │   │ 
+      │   └─ ArchInstructionEncodingSyntaxNode at [L194, C5]: instruction hlt = {1111 1111} {\n	}
+      │       ├─ ArchIstructionFieldsSequenceSyntaxNode at [L194, C23]: {1111 1111}
+      │       │   └─ ArchInsnFieldsFixedBitsSyntaxNode at [L194, C24]: 1111 1111
+      │       │       └─ BitsStr: 1111 1111
+      │       │     
+      │       ├─ ArchInstructionFunctionSyntaxNode at [L194, C35]: {\n	}
+      │       │   └─ ArchInsnBlockStmtSyntaxNode at [L194, C35]: {\n	}
+      │       │ 
+      │       └─ Name: hlt
+      │     
+      ├─ ArchMnemonicsSyntaxNode at [L197, C5]: mnemonics:\n        format plain2 is "{1}, {2}";\n\n        mnemonic hlt();\n\n        mnemonic add for add(reg1, reg2) "b {1}, {2}" when sz8,\n                     for add(reg1, reg2) "w {1}, {2}" when sz16,\n                     for add(reg1, reg2) "d {1}, {2}" when sz32,\n                     for add(reg1, reg2) "q {1}, {2}" when sz64; \n\n        mnemonic st for store(from, ptr) "b {1}, {2}" when sz8,\n                    for store(from, ptr) "w {1}, {2}" when sz16,\n                    for store(from, ptr) "d {1}, {2}" when sz32,\n                    for store(from, ptr) "q {1}, {2}" when sz64;   \n\n        mnemonic ld for load(to, ptr) "b {1}, {2}" when sz8,\n                    for load(to, ptr) "w {1}, {2}" when sz16,\n                    for load(to, ptr) "d {1}, {2}" when sz32,\n                    for load(to, ptr) "q {1}, {2}" when sz64;  \n\n        mnemonic ldi for load-imm(to, value) plain2;
+      │   ├─ ArchMnemonicAspectFormatDefSyntaxNode at [L198, C9]: format plain2 is "{1}, {2}"
+      │   │   ├─ SingleFormatString: "{1}, {2}"
+      │   │   ├─ MultiFormatStrings: <NULL>
+      │   │   ├─ IsSingleFormat: True
+      │   │   └─ Name: plain2
+      │   │ 
+      │   ├─ ArchMnemonicAspectMnemonicDefSyntaxNode at [L200, C9]: mnemonic hlt()
+      │   │   └─ Name: hlt
+      │   │ 
+      │   ├─ ArchMnemonicAspectMnemonicDefSyntaxNode at [L202, C9]: mnemonic add for add(reg1, reg2) "b {1}, {2}" when sz8,\n                     for add(reg1, reg2) "w {1}, {2}" when sz16,\n                     for add(reg1, reg2) "d {1}, {2}" when sz32,\n                     for add(reg1, reg2) "q {1}, {2}" when sz64
+      │   │   └─ Name: add
+      │   │ 
+      │   ├─ ArchMnemonicAspectMnemonicDefSyntaxNode at [L207, C9]: mnemonic st for store(from, ptr) "b {1}, {2}" when sz8,\n                    for store(from, ptr) "w {1}, {2}" when sz16,\n                    for store(from, ptr) "d {1}, {2}" when sz32,\n                    for store(from, ptr) "q {1}, {2}" when sz64
+      │   │   └─ Name: st
+      │   │ 
+      │   ├─ ArchMnemonicAspectMnemonicDefSyntaxNode at [L212, C9]: mnemonic ld for load(to, ptr) "b {1}, {2}" when sz8,\n                    for load(to, ptr) "w {1}, {2}" when sz16,\n                    for load(to, ptr) "d {1}, {2}" when sz32,\n                    for load(to, ptr) "q {1}, {2}" when sz64
+      │   │   └─ Name: ld
+      │   │ 
+      │   └─ ArchMnemonicAspectMnemonicDefSyntaxNode at [L217, C9]: mnemonic ldi for load-imm(to, value) plain2
+      │       └─ Name: ldi
+      │     
+      ├─ Kind: Default
+      └─ Name: myArch
+    
+
+
