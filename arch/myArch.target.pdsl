@@ -12,14 +12,14 @@ architecture myArch {
         storage R7_S[64];
 
         /*-----64 bit-----*/
-        view RR0 = R0_S;
-        view RR1 = R1_S;
-        view RR2 = R2_S;
-        view RR3 = R3_S;
-        view RR4 = R4_S;
-        view RR5 = R5_S;
-        view RR6 = R6_S;
-        view RR7 = R7_S;        
+        view R0 = R0_S;
+        view R1 = R1_S;
+        view R2 = R2_S;
+        view R3 = R3_S;
+        view R4 = R4_S;
+        view R5 = R5_S;
+        view R6 = R6_S;
+        view R7 = R7_S;        
 
         /*-----32 bit-----*/
         view ER0 = R0_S[0..31];
@@ -30,16 +30,6 @@ architecture myArch {
         view ER5 = R5_S[0..31];
         view ER6 = R6_S[0..31];
         view ER7 = R7_S[0..31];  
-
-        /*-----16 bit-----*/
-        view R0 = R0_S[0..15];
-        view R1 = R1_S[0..15];
-        view R2 = R2_S[0..15];
-        view R3 = R3_S[0..15];
-        view R4 = R4_S[0..15];
-        view R5 = R5_S[0..15];
-        view R6 = R6_S[0..15];
-        view R7 = R7_S[0..15];          
 
         /*-----8 bit (H)-----*/
         view R0H = R0_S[8..15];
@@ -61,21 +51,37 @@ architecture myArch {
         view R6L = R6_S[0..7];
         view R7L = R7_S[0..7];
 
-        /*------------------INSTRUCTION POINTER-------------------------*/
+        /*------------------INSTRUCTION AND ADDRESS POINTERS-------------------------*/
         storage IP_S [64];
+        storage AR_S [64];
         view IP = IP_S;
+        view AR = AR_S;
 
         /*------------------STACK AND BASE POINTERS-------------------------*/
         storage SP_S [64];
         storage BP_S [64];
+        storage BR1_S [64];
+        storage BR2_S [64];
+        storage RT_S [64];
         view SP = SP_S;
         view BP = BP_S;
+        view BR1 = BR1_S;
+        view BR2 = BR2_S;
+        view RT = RT_S;
 
         /*------------------IO REGISTERS-------------------------*/
         storage IN_S [64];
         storage OUT_S [64];
         view IN = IN_S;
         view OUT = OUT_S;        
+
+        /*------------------FLAGS REGISTER-------------------------*/
+        storage FLAGS_S [4];
+        view N = FLAGS_S[0];
+        view Z = FLAGS_S[1];
+        view V = FLAGS_S[2];
+        view C = FLAGS_S[3];
+
 
     memory:
         range codeM [0x00000000 .. 0xffffffff] {
@@ -91,14 +97,14 @@ architecture myArch {
         }
 
         range dataM [0x00000000 .. 0xffffffff] {
-            cell = 8; // см пример записи и чтения
+            cell = 8;
             endianess = little-endian;
             granularity = 0;
         }
  
     instructions: 
         encode imm32 field = immediate[32];
-        encode off32 field = immediate[32];
+        encode off32 field = immediate[32] offset;
 
         encode reg field = register {
             R0 = 000000,
@@ -113,7 +119,11 @@ architecture myArch {
             SP = 001001,
             BP = 001010,
             IN = 001011,
-            OUT = 001100
+            OUT = 001100,
+            AR = 001101,
+            RT = 001110,
+            BR1 = 001111,
+            BR2 = 010000
 	    };
 
         encode size sequence = alternatives {
@@ -122,35 +132,50 @@ architecture myArch {
             sz32 = {10}, //32 бит
             sz64 = {11} //64 бита
         };
-
-        encode addrMode sequence = alternatives {
-            a = {000}, // из регистра
-            b = {001}, // адрес в регистре
-            c = {010}, // адрес в регистре + смещение
-            d = {011}, // непосредственное значение
-            e = {100}, // адрес в BR + смещение
-            f = {101} // адрес в SP + смещение
-        };
  
+    instruction nop = {0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+	};
+
     // 0000 0001 YYXX XXXX XXXX XX00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
     instruction add = {0000 0001, sequence size, reg as reg1, reg as reg2, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
         when sz8 then {
             let res = reg1 + reg2;
+            let tempReg1 = reg1;
             reg1 = res & 0x00000000000000ff;
+            C = (reg1 < tempReg1) & 1;
+            N = (reg1 >> 7) & 1;
+            V = (((tempReg1 ^ reg1) & (reg2 ^ reg1)) >> 7) & 1;
         } else when sz16 then {
             let res = reg1 + reg2;
+            let tempReg1 = reg1;
             reg1 = res & 0x000000000000ffff;
+            C = (reg1 < tempReg1) & 1;
+            N = (reg1 >> 15) & 1;
+            V = (((tempReg1 ^ reg1) & (reg2 ^ reg1)) >> 15) & 1;
         } else when sz32 then {
             let res = reg1 + reg2;
+            let tempReg1 = reg1;
             reg1 = res & 0x00000000ffffffff;
+            C = (reg1 < tempReg1) & 1;
+            N = (reg1 >> 31) & 1;
+            V = (((tempReg1 ^ reg1) & (reg2 ^ reg1)) >> 31) & 1;
         } else when sz64 then {
             let res = reg1 + reg2;
+            let tempReg1 = reg1;
             reg1 = res & 0xffffffffffffffff;
+            C = (reg1 < tempReg1) & 1;
+            N = (reg1 >> 63) & 1;
+            V = (((tempReg1 ^ reg1) & (reg2 ^ reg1)) >> 63) & 1;
         }
+
+        if (reg1 == 0x0) then {
+            Z = 1;
+        }
+
         IP = IP + 8;
     };
 
-    instruction load-imm = {0000 0010, 00, reg as to, 000000, 00 0000 0000, imm32 as value} {
+    instruction load-imm32 = {0000 0010, 10, reg as to, 000000, 00 0000 0000, imm32 as value} {
         to = value;
 
         IP = IP + 8;
@@ -196,28 +221,580 @@ architecture myArch {
         IP = IP + 8;
     };
 
+    instruction load-off = {0000 0111, sequence size, reg as to, reg as ptr, 00 0000 0000, off32 as offsetValue} {
+        when sz8 then {
+            let res = dataM:8[ptr + offsetValue];
+            to = res & 0x00000000000000ff;
+        } else when sz16 then {
+            let res = dataM:8[ptr + offsetValue];
+            to = res & 0x000000000000ffff;
+        } else when sz32 then {
+            let res = dataM:8[ptr + offsetValue];
+            to = res & 0x00000000ffffffff;
+        } else when sz64 then {
+            let res = dataM:8[ptr + offsetValue];
+            to = res & 0xffffffffffffffff;
+        }
+        IP = IP + 8;
+    };
+
+    instruction store-off = {0000 1000, sequence size, reg as from, reg as ptr, 00 0000 0000, off32 as offsetValue} {
+        when sz8 then {
+            dataM:8[ptr + offsetValue] = from & 0x00000000000000ff;
+        } else when sz16 then {
+            dataM:8[ptr + offsetValue] = from & 0x000000000000ffff;
+        } else when sz32 then {
+            dataM:8[ptr + offsetValue] = from & 0x00000000ffffffff;
+        } else when sz64 then {
+            dataM:8[ptr + offsetValue] = from & 0xffffffffffffffff;
+        }
+        IP = IP + 8;
+    };
+
+    instruction push = {0000 1001, 00, reg as from, 000000, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        SP = SP - 8;
+        dataM:8[SP] = from;
+        IP = IP + 8;
+    };
+
+    instruction pop = {0000 1010, 00, reg as to, 000000, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        to = dataM:8[SP];
+        SP = SP + 8;
+        IP = IP + 8;
+    };
+
+    instruction mov = {0000 1011, 00, reg as to, reg as from, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        to = from;
+        IP = IP + 8;
+    };
+
+    //to < from
+    //size - destination size
+    instruction mov-trunc = {0000 1100, sequence size, reg as to, reg as from, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        when sz8 then {
+            to = from & 0x00000000000000ff;
+        } else when sz16 then {
+            to = from & 0x000000000000ffff;
+        } else when sz32 then {
+            to = from & 0x00000000ffffffff;
+        } else when sz64 then {
+            to = from & 0xffffffffffffffff;
+        }
+        IP = IP + 8;
+    };
+
+    //to > from
+    //size - destination size
+    instruction mov-zx = {0000 1101, sequence size, reg as to, reg as from, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        when sz8 then {
+            to = from & 0x00000000000000ff;
+        } else when sz16 then {
+            to = from & 0x000000000000ffff;
+        } else when sz32 then {
+            to = from & 0x00000000ffffffff;
+        } else when sz64 then {
+            to = from & 0xffffffffffffffff;
+        }
+        IP = IP + 8;
+    };
+
+    instruction convert-b-w = {0000 1110, 00, reg as to, reg as from, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        let sign_bit = (from >> 7) & 1;
+        let from_masked = from & 0xff;
+        if (sign_bit == 0x1) then {
+            let ext_mask = 0x000000000000ff00;
+            to = ext_mask | from_masked;
+        } else {
+            to = from_masked;
+        }
+        IP = IP + 8;
+    };
+
+    instruction convert-b-d = {0000 1111, 00, reg as to, reg as from, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        let sign_bit = (from >> 7) & 1;
+        let from_masked = from & 0xff;
+        if (sign_bit == 0x1) then {
+            let ext_mask = 0x00000000ffffff00;
+            to = ext_mask | from_masked;
+        } else {
+            to = from_masked;
+        }
+        IP = IP + 8;
+    };
+
+    instruction convert-b-q = {0001 0000, 00, reg as to, reg as from, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        let sign_bit = (from >> 7) & 1;
+        let from_masked = from & 0xff;
+        if (sign_bit == 0x1) then {
+            let ext_mask = 0xffffffffffffff00;
+            to = ext_mask | from_masked;
+        } else {
+            to = from_masked;
+        }
+        IP = IP + 8;
+    };
+
+    instruction convert-w-d = {0001 0001, 00, reg as to, reg as from, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        let sign_bit = (from >> 15) & 1;
+        let from_masked = from & 0xffff;
+        if (sign_bit == 0x1) then {
+            let ext_mask = 0x00000000ffff0000;
+            to = ext_mask | from_masked;
+        } else {
+            to = from_masked;
+        }
+        IP = IP + 8;
+    };
+
+    instruction convert-w-q = {0001 0010, 00, reg as to, reg as from, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        let sign_bit = (from >> 15) & 1;
+        let from_masked = from & 0xffff;
+        if (sign_bit == 0x1) then {
+            let ext_mask = 0xffffffffffff0000;
+            to = ext_mask | from_masked;
+        } else {
+            to = from_masked;
+        }
+        IP = IP + 8;
+    };
+
+
+    instruction convert-d-q = {0001 0011, 00, reg as to, reg as from, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        let sign_bit = (from >> 31) & 1;
+        let from_masked = from & 0xffffffff;
+        if (sign_bit == 0x1) then {
+            let ext_mask = 0xffffffff00000000;
+            to = ext_mask | from_masked;
+        } else {
+            to = from_masked;
+        }
+        IP = IP + 8;
+    };
+
+    instruction sub = {0001 0100, sequence size, reg as reg1, reg as reg2, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        when sz8 then {
+            let res = reg1 - reg2;
+            let tempReg1 = reg1;
+            reg1 = res & 0x00000000000000ff;
+            C = (reg1 < tempReg1) & 1;
+            N = (reg1 >> 7) & 1;
+            V = (((tempReg1 ^ reg1) & (reg2 ^ reg1)) >> 7) & 1;
+        } else when sz16 then {
+            let res = reg1 - reg2;
+            let tempReg1 = reg1;
+            reg1 = res & 0x000000000000ffff;
+            C = (reg1 < tempReg1) & 1;
+            N = (reg1 >> 15) & 1;
+            V = (((tempReg1 ^ reg1) & (reg2 ^ reg1)) >> 15) & 1;
+        } else when sz32 then {
+            let res = reg1 - reg2;
+            let tempReg1 = reg1;
+            reg1 = res & 0x00000000ffffffff;
+            C = (reg1 < tempReg1) & 1;
+            N = (reg1 >> 31) & 1;
+            V = (((tempReg1 ^ reg1) & (reg2 ^ reg1)) >> 31) & 1;
+        } else when sz64 then {
+            let res = reg1 - reg2;
+            let tempReg1 = reg1;
+            reg1 = res & 0xffffffffffffffff;
+            C = (reg1 < tempReg1) & 1;
+            N = (reg1 >> 63) & 1;
+            V = (((tempReg1 ^ reg1) & (reg2 ^ reg1)) >> 63) & 1;
+        }
+
+        if (reg1 == 0x0) then {
+            Z = 1;
+        } else {
+            Z = 0;
+        }
+
+        IP = IP + 8;
+    };
+
+    instruction mul = {0001 0101, sequence size, reg as reg1, reg as reg2, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        when sz8 then {
+            let res = reg1 * reg2;
+            reg1 = res & 0x00000000000000ff;
+            N = (reg1 >> 7) & 1;
+        } else when sz16 then {
+            let res = reg1 * reg2;
+            reg1 = res & 0x000000000000ffff;
+            N = (reg1 >> 15) & 1;
+        } else when sz32 then {
+            let res = reg1 * reg2;
+            reg1 = res & 0x00000000ffffffff;
+            N = (reg1 >> 31) & 1;
+        } else when sz64 then {
+            let res = reg1 * reg2;
+            reg1 = res & 0xffffffffffffffff;
+            N = (reg1 >> 63) & 1;
+        }
+
+        if (reg1 == 0x0) then {
+            Z = 1;
+        } else {
+            Z = 0;
+        }
+
+        IP = IP + 8;
+    };
+
+    instruction div = {0001 0110, sequence size, reg as reg1, reg as reg2, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        when sz8 then {
+            let res = reg1 / reg2;
+            reg1 = res & 0x00000000000000ff;
+            N = (reg1 >> 7) & 1;
+        } else when sz16 then {
+            let res = reg1 / reg2;
+            reg1 = res & 0x000000000000ffff;
+            N = (reg1 >> 15) & 1;
+        } else when sz32 then {
+            let res = reg1 / reg2;
+            reg1 = res & 0x00000000ffffffff;
+            N = (reg1 >> 31) & 1;
+        } else when sz64 then {
+            let res = reg1 / reg2;
+            reg1 = res & 0xffffffffffffffff;
+            N = (reg1 >> 63) & 1;
+        }
+
+        if (reg1 == 0x0) then {
+            Z = 1;
+        } else {
+            Z = 0;
+        }
+
+        IP = IP + 8;
+    };
+
+    instruction mod = {0001 0111, sequence size, reg as reg1, reg as reg2, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        when sz8 then {
+            let res = reg1 % reg2;
+            reg1 = res & 0x00000000000000ff;
+            N = (reg1 >> 7) & 1;
+        } else when sz16 then {
+            let res = reg1 % reg2;
+            reg1 = res & 0x000000000000ffff;
+            N = (reg1 >> 15) & 1;
+        } else when sz32 then {
+            let res = reg1 % reg2;
+            reg1 = res & 0x00000000ffffffff;
+            N = (reg1 >> 31) & 1;
+        } else when sz64 then {
+            let res = reg1 % reg2;
+            reg1 = res & 0xffffffffffffffff;
+            N = (reg1 >> 63) & 1;
+        }
+
+        if (reg1 == 0x0) then {
+            Z = 1;
+        } else {
+            Z = 0;
+        }
+
+        IP = IP + 8;
+    };
+
+    instruction neg = {0001 1000, sequence size, reg as reg1, 000000, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        when sz8 then {
+            let res = reg1;
+            if (reg1 == 0x80) then {
+                V = 1;
+            } else {
+                V = 0;
+            }
+            reg1 = ((~res) + 1) & 0x00000000000000ff;
+            N = (reg1 >> 7) & 1;
+        } else when sz16 then {
+            let res = reg1;
+            if (reg1 == 0x8000) then {
+                V = 1;
+            } else {
+                V = 0;
+            }
+            reg1 = ((~res) + 1) & 0x000000000000ffff;
+            N = (reg1 >> 15) & 1;
+        } else when sz32 then {
+            let res = reg1;
+            if (reg1 == 0x80000000) then {
+                V = 1;
+            } else {
+                V = 0;
+            }
+            reg1 = ((~res) + 1) & 0x00000000ffffffff;
+            N = (reg1 >> 31) & 1;
+        } else when sz64 then {
+            let res = reg1;
+            if (reg1 == 0x8000000000000000) then {
+                V = 1;
+            } else {
+                V = 0;
+            }
+            reg1 = ((~res) + 1) & 0xffffffffffffffff;
+            N = (reg1 >> 63) & 1;
+        }
+
+        if (reg1 == 0x0) then {
+            Z = 1;
+            C = 0;
+        } else {
+            Z = 0;
+            C = 1;
+        }
+
+        IP = IP + 8;
+    };
+
+    instruction not-i = {0001 1001, sequence size, reg as reg1, 000000, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        when sz8 then {
+            let res = reg1;
+            reg1 = (~res) & 0x00000000000000ff;
+        } else when sz16 then {
+            let res = reg1;
+            reg1 = (~res) & 0x000000000000ffff;
+        } else when sz32 then {
+            let res = reg1;
+            reg1 = (~res) & 0x00000000ffffffff;
+        } else when sz64 then {
+            let res = reg1;
+            reg1 = (~res) & 0xffffffffffffffff;
+        }
+
+        IP = IP + 8;
+    };
+
+    instruction AND = {0001 1010, sequence size, reg as reg1, reg as reg2, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        when sz8 then {
+            let res = reg1 & reg2;
+            reg1 = res & 0x00000000000000ff;
+            N = (reg1 >> 7) & 1;
+        } else when sz16 then {
+            let res = reg1 & reg2;
+            reg1 = res & 0x000000000000ffff;
+            N = (reg1 >> 15) & 1;
+        } else when sz32 then {
+            let res = reg1 & reg2;
+            reg1 = res & 0x00000000ffffffff;
+            N = (reg1 >> 31) & 1;
+        } else when sz64 then {
+            let res = reg1 & reg2;
+            reg1 = res & 0xffffffffffffffff;
+            N = (reg1 >> 63) & 1;
+        }
+
+        if (reg1 == 0x0) then {
+            Z = 1;
+        } else {
+            Z = 0;
+        }
+
+        IP = IP + 8;
+    };
+
+    instruction OR = {0001 1011, sequence size, reg as reg1, reg as reg2, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        when sz8 then {
+            let res = reg1 | reg2;
+            reg1 = res & 0x00000000000000ff;
+            N = (reg1 >> 7) & 1;
+        } else when sz16 then {
+            let res = reg1 | reg2;
+            reg1 = res & 0x000000000000ffff;
+            N = (reg1 >> 15) & 1;
+        } else when sz32 then {
+            let res = reg1 | reg2;
+            reg1 = res & 0x00000000ffffffff;
+            N = (reg1 >> 31) & 1;
+        } else when sz64 then {
+            let res = reg1 | reg2;
+            reg1 = res & 0xffffffffffffffff;
+            N = (reg1 >> 63) & 1;
+        }
+
+        if (reg1 == 0x0) then {
+            Z = 1;
+        } else {
+            Z = 0;
+        }
+
+        IP = IP + 8;
+    };
+
+    instruction jz = {0001 1100, 00, 000000, 000000, 00 0000 0000, imm32 as value} {
+        if (Z == 0x1) then {
+            IP = value;
+        } else {
+            IP = IP + 8;
+        }
+    };
+
+    instruction jnz = {0001 1101, 00, 000000, 000000, 00 0000 0000, imm32 as value} {
+        if (Z == 0x0) then {
+            IP = value;
+        } else {
+            IP = IP + 8;
+        }
+    };
+
+    instruction jeq = {0001 1110, 00, reg as reg1, reg as reg2, 00 0000 0000, imm32 as value} {
+        if (reg1 == reg2) then {
+            IP = value;
+        } else {
+            IP = IP + 8;
+        }
+    };
+
+    instruction jneq = {0001 1111, 00, reg as reg1, reg as reg2, 00 0000 0000, imm32 as value} {
+        if (reg1 != reg2) then {
+            IP = value;
+        } else {
+            IP = IP + 8;
+        }
+    };
+
+    instruction jgr = {0010 0000, 00, reg as reg1, reg as reg2, 00 0000 0000, imm32 as value} {
+        if (reg1 > reg2) then {
+            IP = value;
+        } else {
+            IP = IP + 8;
+        }
+    };
+
+    instruction jle = {0010 0001, 00, reg as reg1, reg as reg2, 00 0000 0000, imm32 as value} {
+        if (reg1 < reg2) then {
+            IP = value;
+        } else {
+            IP = IP + 8;
+        }
+    };
+
+    instruction jgreq = {0010 0010, 00, reg as reg1, reg as reg2, 00 0000 0000, imm32 as value} {
+        if (reg1 >= reg2) then {
+            IP = value;
+        } else {
+            IP = IP + 8;
+        }
+    };
+
+    instruction jleeq = {0010 0011, 00, reg as reg1, reg as reg2, 00 0000 0000, imm32 as value} {
+        if (reg1 <= reg2) then {
+            IP = value;
+        } else {
+            IP = IP + 8;
+        }
+    };
+
+    instruction jmp = {0010 0100, 00, 000000, 000000, 00 0000 0000, imm32 as value} {
+        IP = value;
+    };
+
+    instruction call = {0010 0101, 00, 000000, 000000, 00 0000 0000, imm32 as value} {
+        SP = SP - 8;
+        dataM:8[SP] = IP + 8;
+        IP = value;        
+    };
+
+    instruction ret = {0010 0110, 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        IP = dataM:8[SP];  
+        SP = SP + 8;
+    };
+
     instruction hlt = {1111 1111 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
 	};
 
     mnemonics:
+        format plain1 is "{1}";
         format plain2 is "{1}, {2}";
+        format plain3 is "{1}, {2}, {3}";
+   
+        mnemonic HLT for hlt();
+        mnemonic NOP for nop();
+        mnemonic RET for ret();
 
-        mnemonic hlt();
-
-        mnemonic add for add(reg1, reg2) "b {1}, {2}" when sz8,
+        mnemonic ADD for add(reg1, reg2) "b {1}, {2}" when sz8,
                      for add(reg1, reg2) "w {1}, {2}" when sz16,
                      for add(reg1, reg2) "d {1}, {2}" when sz32,
                      for add(reg1, reg2) "q {1}, {2}" when sz64; 
+        mnemonic SUB for sub(reg1, reg2) "b {1}, {2}" when sz8,
+                     for sub(reg1, reg2) "w {1}, {2}" when sz16,
+                     for sub(reg1, reg2) "d {1}, {2}" when sz32,
+                     for sub(reg1, reg2) "q {1}, {2}" when sz64; 
+        mnemonic MUL for mul(reg1, reg2) "b {1}, {2}" when sz8,
+                     for mul(reg1, reg2) "w {1}, {2}" when sz16,
+                     for mul(reg1, reg2) "d {1}, {2}" when sz32,
+                     for mul(reg1, reg2) "q {1}, {2}" when sz64;
+        mnemonic DIV for div(reg1, reg2) "b {1}, {2}" when sz8,
+                     for div(reg1, reg2) "w {1}, {2}" when sz16,
+                     for div(reg1, reg2) "d {1}, {2}" when sz32,
+                     for div(reg1, reg2) "q {1}, {2}" when sz64;
+        mnemonic MOD for mod(reg1, reg2) "b {1}, {2}" when sz8,
+                     for mod(reg1, reg2) "w {1}, {2}" when sz16,
+                     for mod(reg1, reg2) "d {1}, {2}" when sz32,
+                     for mod(reg1, reg2) "q {1}, {2}" when sz64;
 
-        mnemonic st for store(from, ptr) "b {1}, {2}" when sz8,
+        mnemonic ST for store(from, ptr) "b {1}, {2}" when sz8,
                     for store(from, ptr) "w {1}, {2}" when sz16,
                     for store(from, ptr) "d {1}, {2}" when sz32,
-                    for store(from, ptr) "q {1}, {2}" when sz64;   
-
-        mnemonic ld for load(to, ptr) "b {1}, {2}" when sz8,
+                    for store(from, ptr) "q {1}, {2}" when sz64,
+                    for store-off(from, ptr, offsetValue) "b {1}, [{2}, {3}]" when sz8,
+                    for store-off(from, ptr, offsetValue) "w {1}, [{2}, {3}]" when sz16,
+                    for store-off(from, ptr, offsetValue) "d {1}, [{2}, {3}]" when sz32,
+                    for store-off(from, ptr, offsetValue) "q {1}, [{2}, {3}]" when sz64;     
+        mnemonic LD for load(to, ptr) "b {1}, {2}" when sz8,
                     for load(to, ptr) "w {1}, {2}" when sz16,
                     for load(to, ptr) "d {1}, {2}" when sz32,
-                    for load(to, ptr) "q {1}, {2}" when sz64;  
+                    for load(to, ptr) "q {1}, {2}" when sz64,  
+                    for load-off(to, ptr, offsetValue) "b {1}, [{2}, {3}]" when sz8,
+                    for load-off(to, ptr, offsetValue) "w {1}, [{2}, {3}]" when sz16,
+                    for load-off(to, ptr, offsetValue) "d {1}, [{2}, {3}]" when sz32,
+                    for load-off(to, ptr, offsetValue) "q {1}, [{2}, {3}]" when sz64; 
+        mnemonic LDI32 for load-imm32(to, value) plain2;  
 
-        mnemonic ldi for load-imm(to, value) plain2;                          
+        mnemonic PUSH for push(from) plain1;     
+        mnemonic POP for pop(to) plain1; 
+
+        mnemonic MOV for mov(to, from) plain2; 
+        mnemonic MOVT for mov-trunc(to, from) "b {1}, {2}" when sz8,
+                      for mov-trunc(to, from) "w {1}, {2}" when sz16,
+                      for mov-trunc(to, from) "d {1}, {2}" when sz32,
+                      for mov-trunc(to, from) "q {1}, {2}" when sz64;    
+        mnemonic MOVZX for mov-zx(to, from) "b {1}, {2}" when sz8,
+                       for mov-zx(to, from) "w {1}, {2}" when sz16,
+                       for mov-zx(to, from) "d {1}, {2}" when sz32,
+                       for mov-zx(to, from) "q {1}, {2}" when sz64;  
+
+        mnemonic CBW for convert-b-w(to, from) plain2; 
+        mnemonic CBD for convert-b-d(to, from) plain2; 
+        mnemonic CBQ for convert-b-q(to, from) plain2; 
+        mnemonic CWD for convert-w-d(to, from) plain2;
+        mnemonic CWQ for convert-w-q(to, from) plain2; 
+        mnemonic CDQ for convert-d-q(to, from) plain2;  
+
+        mnemonic NEG for neg(reg1) "b {1}" when sz8,
+                     for neg(reg1) "w {1}" when sz16,
+                     for neg(reg1) "d {1}" when sz32,
+                     for neg(reg1) "q {1}" when sz64;   
+        mnemonic NOT for not-i(reg1) "b {1}" when sz8,
+                    for not-i(reg1) "w {1}" when sz16,
+                    for not-i(reg1) "d {1}" when sz32,
+                    for not-i(reg1) "q {1}" when sz64;  
+        mnemonic AND for AND(reg1, reg2) "b {1}, {2}" when sz8,
+                     for AND(reg1, reg2) "w {1}, {2}" when sz16,
+                     for AND(reg1, reg2) "d {1}, {2}" when sz32,
+                     for AND(reg1, reg2) "q {1}, {2}" when sz64;  
+        mnemonic OR for OR(reg1, reg2) "b {1}, {2}" when sz8,
+                    for OR(reg1, reg2) "w {1}, {2}" when sz16,
+                    for OR(reg1, reg2) "d {1}, {2}" when sz32,
+                    for OR(reg1, reg2) "q {1}, {2}" when sz64; 
+
+        mnemonic JMP for jmp(value) plain1;
+        mnemonic JZ for jz(value) plain1;
+        mnemonic JNZ for jnz(value) plain1;
+        mnemonic JEQ for jeq(reg1, reg2, value) plain3;
+        mnemonic JNEQ for jneq(reg1, reg2, value) plain3;
+        mnemonic JGR for jgr(reg1, reg2, value) plain3;
+        mnemonic JLE for jle(reg1, reg2, value) plain3;
+        mnemonic JGREQ for jgreq(reg1, reg2, value) plain3;
+        mnemonic JLEEQ for jleeq(reg1, reg2, value) plain3;
+
+        mnemonic CALL for call(value) plain1;
 } 
