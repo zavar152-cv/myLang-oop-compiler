@@ -8,6 +8,7 @@ varB:
 	[section codeM]
 
 main:
+	ENTER 1
 	;LDI32 SP, 0xFFFFFFFF
 
 	;LDI32 R6, 0x7FFFFFFF
@@ -21,9 +22,11 @@ main:
 	;cbq R6, R6
 	;cbq R5, R5
 
-	MOD d R6, R5
+	ADD d R6, R5
 
+	PUSH R6
 	CALL func
+	POP R6
 
 	LDI32 R7, 0xFF
 	;NOT b R7
@@ -42,7 +45,18 @@ main:
 	LD b R4, [SP, -8]
 
 func:
+	ENTER 2
 	LDI32 R0, 0x9
+	ST b R0, [BP, +8]
+	LDI32 R1, 0x7
+	LDI32 R2, 0x1
+	PUSH R1
+	PUSH R2
+	POP R3
+	POP R3
+	LD b R4, [BP, +8]
+	LDI32 R6, 0x0
+	LEAVE 2
 	RET
 
 here:
@@ -51,4 +65,5 @@ here:
 	POP R5
 	POP R5
 
+	LEAVE 1
 	HLT

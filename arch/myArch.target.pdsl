@@ -698,6 +698,20 @@ architecture myArch {
         SP = SP + 8;
     };
 
+    instruction enter = {0010 0111, 00, 000000, 000000, 00 0000 0000, imm32 as value} {
+        SP = SP - (8 * value);
+        dataM:8[SP] = BP;
+        BP = SP;
+        IP = IP + 8;
+    };
+
+    instruction leave = {0010 1000, 00, 000000, 000000, 00 0000 0000, imm32 as value} {
+        SP = BP;
+        BP = dataM:8[SP];
+        SP = SP + (8 * value);
+        IP = IP + 8;
+    };
+
     instruction hlt = {1111 1111 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
 	};
 
@@ -797,4 +811,6 @@ architecture myArch {
         mnemonic JLEEQ for jleeq(reg1, reg2, value) plain3;
 
         mnemonic CALL for call(value) plain1;
+        mnemonic ENTER for enter(value) plain1;
+        mnemonic LEAVE for leave(value) plain1;
 } 
