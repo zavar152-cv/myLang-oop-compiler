@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 OperationTreeNode *newOperationTreeNode(const char *label, uint32_t childCount, uint32_t line, uint32_t pos, bool isImaginary) {
   OperationTreeNode *node = (OperationTreeNode *)malloc(sizeof(OperationTreeNode));
@@ -17,6 +18,9 @@ OperationTreeNode *newOperationTreeNode(const char *label, uint32_t childCount, 
   node->pos = pos;
   node->isImaginary = isImaginary;
   node->type = NULL;
+  node->offset = 0;
+  node->isSpilled = false;
+  node->reg = NULL;
   return node;
 }
 
@@ -32,6 +36,8 @@ void destroyOperationTreeNodeTree(OperationTreeNode *root) {
   }
   free(root->children);
   free((void *)root->label);
+  if (root->reg != NULL)
+    free((void *)root->reg);
   free(root);
 }
 
@@ -1243,8 +1249,8 @@ void printOperationTreeHelper(OperationTreeNode* node, int level) {
     for (int i = 0; i < level; i++) {
         printf("    ");
     }
-    printf("%s (Line: %u, Pos: %u, Imaginary: %s, Type: %s, Array: %d)\n", node->label, node->line, node->pos,
-           node->isImaginary ? "Yes" : "No", node->type != NULL ? node->type->typeName : "_", node->type != NULL ? node->type->arrayDim : -1);
+    printf("%s (Line: %u, Pos: %u, Imaginary: %s, Type: %s, Array: %d, Reg: %s)\n", node->label, node->line, node->pos,
+           node->isImaginary ? "Yes" : "No", node->type != NULL ? node->type->typeName : "_", node->type != NULL ? node->type->arrayDim : -1, node->reg);
     for (uint32_t i = 0; i < node->childCount; i++) {
         printOperationTreeHelper(node->children[i], level + 1);
     }
@@ -1360,10 +1366,11 @@ FunctionEntry *createFunctionEntry(const char *fileName, const char *functionNam
     entry->argumentsCount = argumentsCount;
     entry->isVarargs = isVarargs;
     entry->isBuiltin = isBuiltin;
+    entry->locals = NULL;
     return entry;
 }
 
-void freeFunctionEntry(FunctionEntry *entry) {
+void freeFunctionEntry(FunctionEntry *entry, void (*free_value)(void *)) {
     if (!entry) {
         return;
     }
@@ -1371,6 +1378,7 @@ void freeFunctionEntry(FunctionEntry *entry) {
     freeArguments(entry->arguments);
     free(entry->fileName);
     free(entry->functionName);
+    freeHashTable(entry->locals, free_value);
     free(entry);
 }
 
@@ -1383,14 +1391,14 @@ FunctionTable *createFunctionTable(void) {
     return table;
 }
 
-void freeFunctionTable(FunctionTable *table) {
+void freeFunctionTable(FunctionTable *table, void (*free_value)(void *)) {
     if (!table) {
         return;
     }
     FunctionEntry *current = table->entry;
     while (current) {
         FunctionEntry *next = current->next;
-        freeFunctionEntry(current);
+        freeFunctionEntry(current, free_value);
         current = next;
     }
     free(table);
@@ -1418,4 +1426,26 @@ FunctionEntry *findFunctionEntry(FunctionTable *table, const char *functionName)
         current = current->next;
     }
     return NULL;
+}
+
+uint8_t getTypeSize(const char *type, bool custom, bool array) {
+  if (custom | array) {
+    return 8;
+  }
+
+  if (strcmp(type, "byte") == 0) {
+    return 1;
+  } else if (strcmp(type, "int") == 0) {
+    return 4;
+  } else if (strcmp(type, "uint") == 0) {
+    return 4;
+  } else if (strcmp(type, "long") == 0) {
+    return 8;
+  } else if (strcmp(type, "ulong") == 0) {
+    return 8;
+  } else if (strcmp(type, "char") == 0) {
+    return 1;
+  } else if (strcmp(type, "bool") == 0) {
+    return 1;
+  }
 }

@@ -10,6 +10,7 @@
 #include <time.h>
 #include "../grammar/myLang.h"
 #include "scope/scope.h"
+#include "../asm/symbols.h"
 
 BasicBlock *parseBlock(MyAstNode* block, Program *program, const char* filename, bool isLoop, BasicBlock* prevBlock, BasicBlock* existingBlock, BasicBlock* loopBlock, CFG *cfg, ScopeManager *sm, FunctionTable *functionTable, uint32_t *uid);
 
@@ -457,9 +458,11 @@ BasicBlock *parseBlock(MyAstNode* block, Program *program, const char* filename,
   return currentBlock;
 }
 
+
 Program *buildProgram(FilesToAnalyze *files, bool debug) {
   Program *program = (Program *)malloc(sizeof(Program));
   program->functions = NULL;
+  program->functionTable = NULL;
   program->errors = NULL;
   program->warnings = NULL;
   FunctionTable *functionTable = createFunctionTable();
@@ -664,7 +667,7 @@ Program *buildProgram(FilesToAnalyze *files, bool debug) {
     }
   }
 
-  freeFunctionTable(functionTable);
+  program->functionTable = functionTable;
   return program;
 }
 
@@ -969,7 +972,7 @@ void writeOperationTreeToDot(FILE *file, OperationTreeNode *node, int *nodeCount
     if (node->type == NULL) {
       fprintf(file, "        node%d [label=\"%s\", color=blue];\n", currentNodeId, escapedLabel);
     } else {
-      fprintf(file, "        node%d [label=\"%s <%s:%d>\", color=blue];\n", currentNodeId, escapedLabel, node->type->typeName, node->type->arrayDim);
+      fprintf(file, "        node%d [label=\"%s <%s:%d, reg: %s, spilled: %d, offset: %d>\", color=blue];\n", currentNodeId, escapedLabel, node->type->typeName, node->type->arrayDim, node->reg, node->isSpilled, node->offset);
     }
 
     for (uint32_t i = 0; i < node->childCount; i++) {

@@ -10,6 +10,8 @@
 #include "./dotUtils/dotUtils.h"
 #include "cfg/cfg.h"
 #include "cfg/cg/cg.h"
+#include "asm/symbols.h"
+#include "asm/codegen/codegen.h"
 
 struct arguments {
     char **input_files;
@@ -148,6 +150,10 @@ char* getDirectory(const char* path) {
     }
 }
 
+void freeLocalVarAsVoid(void *local) {
+  freeLocalVar((LocalVar *)local);
+}
+
 int main(int argc, char *argv[]) {
 
     struct arguments arguments;
@@ -211,6 +217,36 @@ int main(int argc, char *argv[]) {
         warning = warning->next;
       }
     }
+
+    FunctionEntry *funcE = prog->functionTable->entry;
+    while (funcE != NULL) {
+        funcE->locals = createHashTable(20);
+        FunctionInfo *func = prog->functions;
+        while (func != NULL) {
+          if (strcmp(func->functionName, funcE->functionName) == 0) {
+            break;
+          }
+          func = func->next;
+        }
+        if (func->cfg != NULL) {
+            BasicBlock *b = func->cfg->blocks;
+            while (b != NULL) {
+                for (int i = 0; i < b->instructionCount; i++) {
+                    scanOperationTreeForVars(funcE, b->instructions[i].otRoot);
+                    prepareRegsAndTemps(b->instructions[i].otRoot);
+                }
+                b = b->next;
+            }
+            if (arguments.debug) {
+                printf("Locals for %s:\n", funcE->functionName);
+                printHashTable(funcE->locals);
+            } 
+        }
+        funcE = funcE->next;
+    }
+
+
+    freeFunctionTable(prog->functionTable, freeLocalVarAsVoid);
 
     FunctionInfo *func = prog->functions;
     const char *mainFileName = NULL;

@@ -2,6 +2,7 @@
 
 #include "../../grammar/ast/myAst.h"
 #include "../scope/scope.h"
+#include "../../hashtable/hashtable.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -27,6 +28,9 @@ typedef struct OperationTreeNode {
   uint32_t pos;
   bool isImaginary;
   TypeInfo *type;
+  char *reg;
+  bool isSpilled;
+  uint32_t offset;
 } OperationTreeNode;
 
 typedef struct __attribute__((packed)) OperationTreeErrorInfo {
@@ -54,6 +58,7 @@ typedef struct FunctionEntry {
     ArgumentInfo *arguments;
     bool isVarargs;
     bool isBuiltin;
+    HashTable *locals;
     struct FunctionEntry *next;
     uint32_t argumentsCount;
     uint32_t line;
@@ -94,14 +99,16 @@ TypeInfo *copyTypeInfo(TypeInfo *typeInfo);
 
 FunctionEntry *createFunctionEntry(const char *fileName, const char *functionName, TypeInfo *returnType, ArgumentInfo *arguments, bool isVarargs, bool isBuiltin, uint32_t argumentsCount, uint32_t line, uint32_t pos);
 
-void freeFunctionEntry(FunctionEntry *entry);
+void freeFunctionEntry(FunctionEntry *entry, void (*free_value)(void *));
 
 FunctionTable *createFunctionTable();
 
-void freeFunctionTable(FunctionTable *table);
+void freeFunctionTable(FunctionTable *table, void (*free_value)(void *));
 
 void addFunctionTable(FunctionTable *table, FunctionEntry *entry);
 
 FunctionEntry *findFunctionEntry(FunctionTable *table, const char *functionName);
 
 void checkTypeCompatibility(OperationTreeNode *lValueExprNode, OperationTreeNode *rValueExprNode, OperationTreeErrorContainer *container, const char* filename);
+
+uint8_t getTypeSize(const char *type, bool custom, bool array);

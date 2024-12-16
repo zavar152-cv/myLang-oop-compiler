@@ -86,6 +86,7 @@ typedef struct __attribute__((packed)) ProgramWarningInfo {
 
 typedef struct Program {
     FunctionInfo *functions;
+    FunctionTable *functionTable;
     ProgramErrorInfo *errors;
     ProgramWarningInfo *warnings;
 } Program;
