@@ -181,6 +181,8 @@ bool isBinaryOperationAllowed(const char *op, const char *lType, const char *rTy
     return (isNumericType(lType) && isNumericType(rType));
   } else if (isEqOp(op)) {
     return true;
+  } else if (isCmpOp(op)) {
+    return (isNumericType(lType) && isNumericType(rType)) || (isLogicalType(lType) && isLogicalType(rType));
   } else if (isLogicalOp(op)) {
     return (isNumericType(lType) && isNumericType(rType)) || (isLogicalType(lType) && isLogicalType(rType));
   } else {
@@ -813,7 +815,11 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
     } else {
       if (strcmp(leftExprNode->type->typeName, rightExprNode->type->typeName) == 0) {
         if (isBinaryOperationAllowed(binaryOpNode->label, leftExprNode->type->typeName, rightExprNode->type->typeName)) {
-          binaryOpNode->type = copyTypeInfo(leftExprNode->type);
+          if (isCmpOp(binaryOpNode->label)) {
+            binaryOpNode->type = createTypeInfo("bool", false, false, 0, binaryOpNode->line, binaryOpNode->pos);
+          } else {
+            binaryOpNode->type = copyTypeInfo(leftExprNode->type);
+          }
         } else {
           binaryOpNode->type = createTypeInfo("_", false, false, 0, binaryOpNode->line, binaryOpNode->pos);
           char buffer[1024];

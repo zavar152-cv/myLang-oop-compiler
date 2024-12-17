@@ -25,6 +25,12 @@
 #define OP_MUL "*"
 #define OP_DIV "/"
 #define OP_MOD "%"
+#define OP_EQ "=="
+#define OP_NEQ "!="
+#define OP_GR ">"
+#define OP_LE "<"
+#define OP_GREQ ">="
+#define OP_LEEQ "<="
 
 #define OP_NOT "NOT"
 #define OP_NEG "NEG"

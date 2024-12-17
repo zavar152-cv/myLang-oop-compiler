@@ -69,7 +69,13 @@ void prepareRegsAndTempsHelper(OperationTreeNode *root, StringStack *stack, bool
                 strcmp(root->label, OP_MINUS) == 0 ||
                 strcmp(root->label, OP_DIV) == 0 ||
                 strcmp(root->label, OP_MUL) == 0 ||
-                strcmp(root->label, OP_MOD) == 0) {
+                strcmp(root->label, OP_MOD) == 0 ||
+                strcmp(root->label, OP_EQ) == 0 ||
+                strcmp(root->label, OP_NEQ) == 0 ||
+                strcmp(root->label, OP_GR) == 0 ||
+                strcmp(root->label, OP_LE) == 0 ||
+                strcmp(root->label, OP_GREQ) == 0 ||
+                strcmp(root->label, OP_LEEQ) == 0) {
         prepareRegsAndTempsHelper(root->children[0], stack, stackOnly, debug);
         prepareRegsAndTempsHelper(root->children[1], stack, stackOnly, debug);
         pushStack(stack, root->children[1]->reg);
