@@ -54,8 +54,10 @@ architecture myArch {
         /*------------------INSTRUCTION AND ADDRESS POINTERS-------------------------*/
         storage IP_S [64];
         storage AR_S [64];
+        storage ALR_S [64];
         view IP = IP_S;
         view AR = AR_S;
+        view ALR = ALR_S;
 
         /*------------------STACK AND BASE POINTERS-------------------------*/
         storage SP_S [64];
@@ -123,7 +125,8 @@ architecture myArch {
             AR = 001101,
             RT = 001110,
             BR1 = 001111,
-            BR2 = 010000
+            BR2 = 010000,
+            ALR = 010001
 	    };
 
         encode size sequence = alternatives {

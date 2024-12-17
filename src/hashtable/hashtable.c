@@ -109,7 +109,7 @@ void deleteKeyFromHashTable(HashTable *table, const char *key) {
     }
 }
 
-void freeHashTable(HashTable *table, void (*free_value)(void *)) {
+void freeHashTable(HashTable *table, void (*freeValue)(void *)) {
     if (table == NULL)
         return;
     for (int i = 0; i < table->size; i++) {
@@ -118,8 +118,8 @@ void freeHashTable(HashTable *table, void (*free_value)(void *)) {
             HashNode *temp = node;
             node = node->next;
             free(temp->key);
-            if(free_value) {
-                free_value(temp->value);
+            if(freeValue) {
+                freeValue(temp->value);
             }
             free(temp);
         }

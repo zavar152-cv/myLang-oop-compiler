@@ -1,4 +1,4 @@
-#include "dotUtils/dotUtils.h"
+#include "dotUtils.h"
 #include <antlr3.h>
 #include <antlr3defs.h>
 #include <stdio.h>

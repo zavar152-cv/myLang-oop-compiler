@@ -17,6 +17,11 @@
 #define REG_RT "RT"
 #define REG_SP "SP"
 #define REG_BP "BP"
+
+#define REG_BR1 "BR1"
+#define REG_BR2 "BR2"
+#define REG_ALR "ALR"
+
 #define REG_IN "IN"
 #define REG_OUT "OUT"
 

@@ -154,6 +154,10 @@ void freeLocalVarAsVoid(void *local) {
   freeLocalVar((LocalVar *)local);
 }
 
+void freeConstVarAsVoid(void *local) {
+  freeConstVar((ConstVar *)local);
+}
+
 int main(int argc, char *argv[]) {
 
     struct arguments arguments;
@@ -221,6 +225,7 @@ int main(int argc, char *argv[]) {
     FunctionEntry *funcE = prog->functionTable->entry;
     while (funcE != NULL) {
         funcE->locals = createHashTable(20);
+        funcE->consts = createHashTable(20);
         FunctionInfo *func = prog->functions;
         while (func != NULL) {
           if (strcmp(func->functionName, funcE->functionName) == 0) {
@@ -238,15 +243,18 @@ int main(int argc, char *argv[]) {
                 b = b->next;
             }
             if (arguments.debug) {
-                printf("Locals for %s:\n", funcE->functionName);
+                printf("\nLocals for %s:\n", funcE->functionName);
                 printHashTable(funcE->locals);
+
+                printf("\nConsts for %s:\n", funcE->functionName);
+                printHashTable(funcE->consts);
             } 
         }
         funcE = funcE->next;
     }
 
 
-    freeFunctionTable(prog->functionTable, freeLocalVarAsVoid);
+    freeFunctionTable(prog->functionTable, freeLocalVarAsVoid, freeConstVarAsVoid);
 
     FunctionInfo *func = prog->functions;
     const char *mainFileName = NULL;

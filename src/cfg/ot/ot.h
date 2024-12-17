@@ -59,6 +59,7 @@ typedef struct FunctionEntry {
     bool isVarargs;
     bool isBuiltin;
     HashTable *locals;
+    HashTable *consts;
     struct FunctionEntry *next;
     uint32_t argumentsCount;
     uint32_t line;
@@ -99,11 +100,11 @@ TypeInfo *copyTypeInfo(TypeInfo *typeInfo);
 
 FunctionEntry *createFunctionEntry(const char *fileName, const char *functionName, TypeInfo *returnType, ArgumentInfo *arguments, bool isVarargs, bool isBuiltin, uint32_t argumentsCount, uint32_t line, uint32_t pos);
 
-void freeFunctionEntry(FunctionEntry *entry, void (*free_value)(void *));
+void freeFunctionEntry(FunctionEntry *entry, void (*freeValueLocals)(void *), void (*freeValueConsts)(void *));
 
 FunctionTable *createFunctionTable();
 
-void freeFunctionTable(FunctionTable *table, void (*free_value)(void *));
+void freeFunctionTable(FunctionTable *table, void (*freeValueLocals)(void *), void (*freeValueConsts)(void *));
 
 void addFunctionTable(FunctionTable *table, FunctionEntry *entry);
 

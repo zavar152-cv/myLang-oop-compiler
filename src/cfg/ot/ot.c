@@ -1373,10 +1373,11 @@ FunctionEntry *createFunctionEntry(const char *fileName, const char *functionNam
     entry->isVarargs = isVarargs;
     entry->isBuiltin = isBuiltin;
     entry->locals = NULL;
+    entry->consts = NULL;
     return entry;
 }
 
-void freeFunctionEntry(FunctionEntry *entry, void (*free_value)(void *)) {
+void freeFunctionEntry(FunctionEntry *entry, void (*freeValueLocals)(void *), void (*freeValueConsts)(void *)) {
     if (!entry) {
         return;
     }
@@ -1384,7 +1385,8 @@ void freeFunctionEntry(FunctionEntry *entry, void (*free_value)(void *)) {
     freeArguments(entry->arguments);
     free(entry->fileName);
     free(entry->functionName);
-    freeHashTable(entry->locals, free_value);
+    freeHashTable(entry->locals, freeValueLocals);
+    freeHashTable(entry->consts, freeValueConsts);
     free(entry);
 }
 
@@ -1397,14 +1399,14 @@ FunctionTable *createFunctionTable(void) {
     return table;
 }
 
-void freeFunctionTable(FunctionTable *table, void (*free_value)(void *)) {
+void freeFunctionTable(FunctionTable *table, void (*freeValueLocals)(void *), void (*freeValueConsts)(void *)) {
     if (!table) {
         return;
     }
     FunctionEntry *current = table->entry;
     while (current) {
         FunctionEntry *next = current->next;
-        freeFunctionEntry(current, free_value);
+        freeFunctionEntry(current, freeValueLocals, freeValueConsts);
         current = next;
     }
     free(table);
