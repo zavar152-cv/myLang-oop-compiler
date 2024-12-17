@@ -712,6 +712,93 @@ architecture myArch {
         IP = IP + 8;
     };
 
+    instruction load-const = {0010 1001, 11, reg as to, reg as ptr, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        let res = constantsM:8[ptr];
+        to = res & 0xffffffffffffffff;
+        IP = IP + 8;
+    };
+
+    instruction eq = {0010 1010, 00, reg as reg1, reg as reg2, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        if (reg1 == reg2) then {
+            reg1 = 1;
+            Z = 1;
+        } else {
+            reg1 = 0;
+            Z = 0;
+        }
+        IP = IP + 8;
+    };
+
+    instruction neq = {0010 1011, 00, reg as reg1, reg as reg2, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        if (reg1 != reg2) then {
+            reg1 = 1;
+            Z = 1;
+        } else {
+            reg1 = 0;
+            Z = 0;
+        }
+        IP = IP + 8;
+    };
+
+    instruction gr = {0010 1100, 00, reg as reg1, reg as reg2, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        if (reg1 > reg2) then {
+            reg1 = 1;
+            Z = 1;
+        } else {
+            reg1 = 0;
+            Z = 0;
+        }
+        IP = IP + 8;
+    };
+
+    instruction le = {0010 1101, 00, reg as reg1, reg as reg2, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        if (reg1 < reg2) then {
+            reg1 = 1;
+            Z = 1;
+        } else {
+            reg1 = 0;
+            Z = 0;
+        }
+        IP = IP + 8;
+    };
+
+    instruction greq = {0010 1110, 00, reg as reg1, reg as reg2, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        if (reg1 >= reg2) then {
+            reg1 = 1;
+            Z = 1;
+        } else {
+            reg1 = 0;
+            Z = 0;
+        }
+        IP = IP + 8;
+    };
+
+    instruction leeq = {0010 1111, 00, reg as reg1, reg as reg2, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        if (reg1 <= reg2) then {
+            reg1 = 1;
+            Z = 1;
+        } else {
+            reg1 = 0;
+            Z = 0;
+        }
+        IP = IP + 8;
+    };
+
+    instruction memcpy-const = {0011 0000, 11, reg as toPtr, reg as fromPtr, 00 0000 0000, imm32 as size} {
+        let i = size;
+        let dest = toPtr;
+        let src = fromPtr;
+
+        while i > 0 do {
+            dataM:8[dest] = constantsM:8[src];
+            dest = dest + 8;
+            src = src + 8;
+            i = i - 1;
+        }
+
+        IP = IP + 8;
+    };
+
     instruction hlt = {1111 1111 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
 	};
 
@@ -762,6 +849,7 @@ architecture myArch {
                     for load-off(to, ptr, offsetValue) "d {1}, [{2}, {3}]" when sz32,
                     for load-off(to, ptr, offsetValue) "q {1}, [{2}, {3}]" when sz64; 
         mnemonic LDI32 for load-imm32(to, value) plain2;  
+        mnemonic LDC64 for load-const(to, ptr) plain2;  
 
         mnemonic PUSH for push(from) plain1;     
         mnemonic POP for pop(to) plain1; 
@@ -775,6 +863,8 @@ architecture myArch {
                        for mov-zx(to, from) "w {1}, {2}" when sz16,
                        for mov-zx(to, from) "d {1}, {2}" when sz32,
                        for mov-zx(to, from) "q {1}, {2}" when sz64;  
+
+        mnemonic MEMCPYC for memcpy-const(toPtr, fromPtr, size) plain3;
 
         mnemonic CBW for convert-b-w(to, from) plain2; 
         mnemonic CBD for convert-b-d(to, from) plain2; 
@@ -799,6 +889,13 @@ architecture myArch {
                     for OR(reg1, reg2) "w {1}, {2}" when sz16,
                     for OR(reg1, reg2) "d {1}, {2}" when sz32,
                     for OR(reg1, reg2) "q {1}, {2}" when sz64; 
+
+        mnemonic EQ for eq(reg1, reg2) plain2;
+        mnemonic NEQ for neq(reg1, reg2) plain2;
+        mnemonic GR for gr(reg1, reg2) plain2;
+        mnemonic LE for le(reg1, reg2) plain2;
+        mnemonic GREQ for greq(reg1, reg2) plain2;
+        mnemonic LEEQ for leeq(reg1, reg2) plain2;
 
         mnemonic JMP for jmp(value) plain1;
         mnemonic JZ for jz(value) plain1;

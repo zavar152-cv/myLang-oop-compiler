@@ -1,9 +1,18 @@
-﻿	[section dataM]
+﻿	[section constantsM]
+constA:
+	dq 0x7
+constStr:
+	dq 0x8
+	dq 0x9
+	dq 0x10
+
+	[section dataM]
 
 varA: 
 	dd 0x2
 varB: 
 	dd 0x2
+emptyPlace:
 
 	[section codeM]
 
@@ -13,6 +22,18 @@ main:
 
 	;LDI32 R6, 0x7FFFFFFF
 	;LDI32 R5, 0x00000001
+
+	LDI32 BR1, constStr
+	LDI32 BR2, emptyPlace
+	MEMCPYC BR2, BR1, 3
+
+	LD q R0, [BR2, 0]
+	LD q R0, [BR2, 8]
+	LD q R0, [BR2, 16]
+	LDI32 AR, constA
+	LDC64 R0, AR
+	LDI32 R1, 0x7
+	NEQ R0, R1
 
 	LDI32 AR, varA
 	LD d R6, AR
