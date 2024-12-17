@@ -26,6 +26,9 @@
 #define OP_DIV "/"
 #define OP_MOD "%"
 
+#define OP_NOT "NOT"
+#define OP_NEG "NEG"
+
 void calcMaxRegs(OperationTreeNode *root, uint8_t *maxRegs);
 
 void prepareRegsAndTemps(OperationTreeNode *root);

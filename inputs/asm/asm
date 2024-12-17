@@ -1,11 +1,22 @@
 int main(string[] args) {
     int a;
-    int b = 6;
-    a = 1 + 2 + 4 + b + 8 + 9 + 0 + 3 + 7;
-    func(1,2,3,4,5,6,7,8,9,10+1);
+    int b = --6;
+    uint q = __castToUintFromInt(1);
+    int[][][][][][][][][][] arr;
+    arr[1][2][3][4][5][6][7][8][9][10] = 7;
+    string s = "lol";
+    char c = s[0];
+    long l = 1;
+    a = 12 * 11 / 10 / -9 / 5 / ((1 + 2 + 4 + b + 8 + 9 + 0 + 3 - 7) + __castToIntFromLong(__sizeof("arr")));
+    func(1,2,3,4,5,6,7,8,9,func(1,2,3,4,5,6,7,8,!9,10+1));
+    func2(1,2,3,4,5,6,7+8+9);
     0;
 }
 
 int func(int a, int b, int c, int d, int e, int f, int g, int h, int j, int k) {
+    0;
+}
+
+int func2(int a, int b, int c, int d, int e, int f, int g) {
     0;
 }
