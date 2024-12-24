@@ -6,6 +6,7 @@
 #include <string.h>
 #include <time.h>
 
+#include "cfg/ot/ot.h"
 #include "grammar/myLang.h"
 #include "./dotUtils/dotUtils.h"
 #include "cfg/cfg.h"
@@ -223,6 +224,7 @@ int main(int argc, char *argv[]) {
     }
 
     FunctionEntry *funcE = prog->functionTable->entry;
+    uint32_t alrValue = 0;
     while (funcE != NULL) {
         funcE->locals = createHashTable(20);
         funcE->consts = createHashTable(20);
@@ -242,28 +244,71 @@ int main(int argc, char *argv[]) {
                 }
                 b = b->next;
             }
-            if (arguments.debug) {
-                printf("\nLocals for %s:\n", funcE->functionName);
-                for (int i = 0; i < funcE->locals->size; i++) {
-                  HashNode *node = funcE->locals->buckets[i];
-                  while (node) {
-                    printf("Key: %s, Value: %p, Index: %d", node->key, node->value, ((LocalVar *)node->value)->index);
-                    printf("\n");
-                    node = node->next;
-                  }
-                }
 
-                printf("\nConsts for %s:\n", funcE->functionName);
-                for (int i = 0; i < funcE->consts->size; i++) {
-                  HashNode *node = funcE->consts->buckets[i];
-                  while (node) {
-                    printf("Key: %s, Value: %p, Index: %d", node->key, node->value, ((ConstVar *)node->value)->index);
-                    printf("\n");
-                    node = node->next;
-                  }
-                }
+        for (int i = 0; i < funcE->consts->size; i++) {
+            HashNode *node = funcE->consts->buckets[i];
+            while (node) {
+                ((ConstVar *)node->value)->address = ((ConstVar *)node->value)->address + alrValue;
+                alrValue = alrValue + ((ConstVar *)node->value)->size;
+                node = node->next;
+            }
+        }
+
+        if (funcE->argumentsCount > 0) {
+            int64_t offset = 8 + funcE->argumentsCount * 8;
+            ArgumentInfo *arg = funcE->arguments;
+            while (arg != NULL) {
+                arg->offset = offset;
+                offset = offset - 8;
+                arg = arg->next;
             } 
         }
+        
+
+        if (arguments.debug) {
+          printf("\nLocals for %s:\n", funcE->functionName);
+          for (int i = 0; i < funcE->locals->size; i++) {
+            HashNode *node = funcE->locals->buckets[i];
+            while (node) {
+              printf("Key: %s, Name: %s, Index: %d", node->key, ((LocalVar *)node->value)->name,
+                     ((LocalVar *)node->value)->index);
+              printf("\n");
+              node = node->next;
+            }
+          }
+
+          printf("\nConsts for %s:\n", funcE->functionName);
+          for (int i = 0; i < funcE->consts->size; i++) {
+            HashNode *node = funcE->consts->buckets[i];
+            while (node) {
+              printf("Key: %s, Value: %s, Address: %d", node->key, ((ConstVar *)node->value)->name,
+                     ((ConstVar *)node->value)->address);
+              printf("\n");
+              node = node->next;
+            }
+          }
+          if (funcE->argumentsCount > 0) {
+            printf("\nArgs for %s:\n", funcE->functionName);
+            ArgumentInfo *arg = funcE->arguments;
+            while (arg != NULL) {
+                printf("Name: %s, Offset: %ld", arg->name, arg->offset);
+                printf("\n");
+                arg = arg->next;
+            } 
+          }
+        }
+
+        
+        b = func->cfg->blocks;
+        while (b != NULL) {
+            for (int i = 0; i < b->instructionCount; i++) {
+                //TODO in codegen
+            }
+            b = b->next;
+        }
+
+        }
+
         funcE = funcE->next;
     }
 

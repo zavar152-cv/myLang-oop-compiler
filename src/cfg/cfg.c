@@ -787,6 +787,7 @@ ArgumentInfo *createArgumentInfo(TypeInfo *type, const char *name, uint32_t line
   argInfo->line = line;
   argInfo->pos = pos;
   argInfo->isVarargs = false;
+  argInfo->offset = 0;
   return argInfo;
 }
 

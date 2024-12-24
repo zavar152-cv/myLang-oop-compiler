@@ -22,11 +22,17 @@ ulong __castToUlongFromByte(byte b);
 ulong __castToUlongFromInt(int i);
 ulong __castToUlongFromLong(long l);
 
+//deprecated
+int __initArray(string type, string varName, int dim, int sizes ...);
+
+//memory
+void __alloc(string var, long size);
+
 long __sizeof(string type);
 
 int __lengthof(string var);
 
-//deprecated
-int __initArray(string type, string varName, int dim, int sizes ...);
+//io
+byte __read();
 
-void __alloc(string var, long size);
+void __write(byte b);

@@ -49,6 +49,7 @@ typedef struct ArgumentInfo {
     struct ArgumentInfo *next;
     uint32_t line;
     uint32_t pos;
+    int64_t offset;
 } ArgumentInfo;
 
 typedef struct FunctionEntry {

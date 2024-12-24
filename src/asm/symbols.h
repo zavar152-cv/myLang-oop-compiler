@@ -17,7 +17,7 @@ typedef struct ConstVar {
     char *name;
     char *typeName;
     uint8_t size;
-    uint32_t index;
+    uint32_t address;
     union {
         uint64_t ulongV;
         int64_t longV;
