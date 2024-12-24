@@ -1,3 +1,4 @@
+#include <stdint.h>
 typedef struct HashNode {
     char *key;
     void *value;
@@ -6,8 +7,8 @@ typedef struct HashNode {
 
 typedef struct HashTable {
     HashNode **buckets;
-    int size;
-    int count;
+    uint32_t size;
+    uint32_t count;
 } HashTable;
 
 HashTable *createHashTable(int size);

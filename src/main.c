@@ -244,10 +244,24 @@ int main(int argc, char *argv[]) {
             }
             if (arguments.debug) {
                 printf("\nLocals for %s:\n", funcE->functionName);
-                printHashTable(funcE->locals);
+                for (int i = 0; i < funcE->locals->size; i++) {
+                  HashNode *node = funcE->locals->buckets[i];
+                  while (node) {
+                    printf("Key: %s, Value: %p, Index: %d", node->key, node->value, ((LocalVar *)node->value)->index);
+                    printf("\n");
+                    node = node->next;
+                  }
+                }
 
                 printf("\nConsts for %s:\n", funcE->functionName);
-                printHashTable(funcE->consts);
+                for (int i = 0; i < funcE->consts->size; i++) {
+                  HashNode *node = funcE->consts->buckets[i];
+                  while (node) {
+                    printf("Key: %s, Value: %p, Index: %d", node->key, node->value, ((ConstVar *)node->value)->index);
+                    printf("\n");
+                    node = node->next;
+                  }
+                }
             } 
         }
         funcE = funcE->next;

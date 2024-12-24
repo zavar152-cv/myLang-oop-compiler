@@ -1,5 +1,4 @@
 #include "symbols.h"
-#include <stdint.h>
 #include <string.h>
 
 char* concatName(const char *s1, const char *s2)
@@ -33,7 +32,7 @@ void scanOperationTreeForVarsHelper(FunctionEntry *entry, OperationTreeNode *roo
             arrayDim = strtol(root->children[0]->children[2]->children[0]->label, &endptr, 10);
         }
         uint8_t size = getTypeSize(root->children[0]->children[0]->label, custom, array);
-        LocalVar *local = createLocalVar(root->children[1]->label, root->children[0]->children[0]->label, size, custom, array, arrayDim);
+        LocalVar *local = createLocalVar(root->children[1]->label, root->children[0]->children[0]->label, size, custom, array, arrayDim, entry->locals->count);
         insertInHashTable(entry->locals, local->name, local);
     }
     if (strcmp(root->label, LIT_READ) == 0 && 
@@ -41,11 +40,16 @@ void scanOperationTreeForVarsHelper(FunctionEntry *entry, OperationTreeNode *roo
             strcmp(root->type->typeName, "long") == 0 ||
             strcmp(root->type->typeName, "ulong") == 0)) {
         uint8_t size = 8;
-        ConstVar *local = createConstVar(root->children[1]->label, root->type->typeName, size);
-        char* name = concatName("const$", local->name);
+        
+        ConstVar *constVar = createConstVar(root->children[1]->label, root->type->typeName, size, entry->consts->count);
+        char* name = concatName("const$", constVar->name);
         char output[strlen(name) + 1]; 
         removeQuotesName(name, output);
-        insertInHashTable(entry->consts, output, local);
+        if (searchHashTable(entry->consts, output) == NULL) {
+            insertInHashTable(entry->consts, output, constVar);
+        } else {
+            freeConstVar(constVar);
+        }
         free(name);
     }
     for (uint32_t i = 0; i < root->childCount; i++) {
@@ -57,7 +61,7 @@ void scanOperationTreeForVars(FunctionEntry *entry, OperationTreeNode *root) {
     scanOperationTreeForVarsHelper(entry, root);
 }
 
-LocalVar *createLocalVar(const char *name, const char *typeName, uint8_t size, bool custom, bool isArray, uint32_t arrayDim) {
+LocalVar *createLocalVar(const char *name, const char *typeName, uint8_t size, bool custom, bool isArray, uint32_t arrayDim, uint32_t index) {
     LocalVar *var = (LocalVar *)malloc(sizeof(LocalVar));
     if (!var) {
         return NULL;
@@ -70,6 +74,7 @@ LocalVar *createLocalVar(const char *name, const char *typeName, uint8_t size, b
     var->custom = custom;
     var->isArray = isArray;
     var->arrayDim = arrayDim;
+    var->index = index;
 
     return var;
 }
@@ -89,7 +94,7 @@ void freeLocalVar(LocalVar *var) {
     free(var);
 }
 
-ConstVar *createConstVar(const char *name, const char *typeName, uint8_t size) {
+ConstVar *createConstVar(const char *name, const char *typeName, uint8_t size, uint32_t index) {
     ConstVar *var = (ConstVar *)malloc(sizeof(ConstVar));
     if (!var) {
         return NULL;
@@ -99,6 +104,7 @@ ConstVar *createConstVar(const char *name, const char *typeName, uint8_t size) {
     var->typeName = typeName ? strdup(typeName) : NULL;
 
     var->size = size;
+    var->index = index;
 
     return var;    
 }
