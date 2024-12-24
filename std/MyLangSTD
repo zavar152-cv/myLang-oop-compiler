@@ -26,4 +26,7 @@ long __sizeof(string type);
 
 int __lengthof(string var);
 
+//deprecated
 int __initArray(string type, string varName, int dim, int sizes ...);
+
+void __alloc(string var, long size);

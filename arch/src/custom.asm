@@ -17,7 +17,17 @@ emptyPlace:
 	[section codeM]
 
 main:
-	ENTER 1
+	ENTER 0
+
+	LDI32 R7, 0x71
+	LDI32 R6, 0x78
+
+	PUSH R7
+	PUSH R6
+	CALL func
+	POP R6
+	POP R7
+
 	;LDI32 SP, 0xFFFFFFFF
 
 	;LDI32 R6, 0x7FFFFFFF
@@ -45,10 +55,6 @@ main:
 
 	ADD d R6, R5
 
-	PUSH R6
-	CALL func
-	POP R6
-
 	LDI32 R7, 0xFF
 	;NOT b R7
 	;JZ here
@@ -68,15 +74,22 @@ main:
 func:
 	ENTER 2
 	LDI32 R0, 0x9
-	ST b R0, [BP, +8]
+	ST q R0, [BP, -8]
+	LDI32 R0, 0x89
+	ST q R0, [BP, -16]
+
+	LD q R5, [BP, 16]
+	LD q R5, [BP, 24]
+
 	LDI32 R1, 0x7
 	LDI32 R2, 0x1
 	PUSH R1
 	PUSH R2
 	POP R3
 	POP R3
-	LD b R4, [BP, +8]
 	LDI32 R6, 0x0
+	LD q R0, [BP, -8]
+	LD q R0, [BP, -16]
 	LEAVE 2
 	RET
 
@@ -86,5 +99,5 @@ here:
 	POP R5
 	POP R5
 
-	LEAVE 1
+	LEAVE 0
 	HLT

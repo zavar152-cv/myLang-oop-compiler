@@ -52,16 +52,16 @@ architecture myArch {
         view R7L = R7_S[0..7];
 
         /*------------------INSTRUCTION AND ADDRESS POINTERS-------------------------*/
-        storage IP_S [64];
-        storage AR_S [64];
-        storage ALR_S [64];
+        storage IP_S [32];
+        storage AR_S [32];
+        storage ALR_S [32];
         view IP = IP_S;
         view AR = AR_S;
         view ALR = ALR_S;
 
         /*------------------STACK AND BASE POINTERS-------------------------*/
-        storage SP_S [64];
-        storage BP_S [64];
+        storage SP_S [32];
+        storage BP_S [32];
         storage BR1_S [64];
         storage BR2_S [64];
         storage RT_S [64];
@@ -225,31 +225,47 @@ architecture myArch {
     };
 
     instruction load-off = {0000 0111, sequence size, reg as to, reg as ptr, 00 0000 0000, off32 as offsetValue} {
+        let addr = 0; 
+        if (offsetValue >> 31) & 1 == 1 then { 
+            let temp = offsetValue; 
+            addr = ptr + temp;
+        } else { 
+            addr = ptr + offsetValue; 
+        }
+        addr = addr & 0x00000000ffffffff;
         when sz8 then {
-            let res = dataM:8[ptr + offsetValue];
+            let res = dataM:8[addr];
             to = res & 0x00000000000000ff;
         } else when sz16 then {
-            let res = dataM:8[ptr + offsetValue];
+            let res = dataM:8[addr];
             to = res & 0x000000000000ffff;
         } else when sz32 then {
-            let res = dataM:8[ptr + offsetValue];
+            let res = dataM:8[addr];
             to = res & 0x00000000ffffffff;
         } else when sz64 then {
-            let res = dataM:8[ptr + offsetValue];
+            let res = dataM:8[addr];
             to = res & 0xffffffffffffffff;
         }
         IP = IP + 8;
     };
 
     instruction store-off = {0000 1000, sequence size, reg as from, reg as ptr, 00 0000 0000, off32 as offsetValue} {
+        let addr = 0; 
+        if (offsetValue >> 31) & 1 == 1 then { 
+            let temp = offsetValue; 
+            addr = ptr + temp;
+        } else { 
+            addr = ptr + offsetValue; 
+        }
+        addr = addr & 0x00000000ffffffff;
         when sz8 then {
-            dataM:8[ptr + offsetValue] = from & 0x00000000000000ff;
+            dataM:8[addr] = from & 0x00000000000000ff;
         } else when sz16 then {
-            dataM:8[ptr + offsetValue] = from & 0x000000000000ffff;
+            dataM:8[addr] = from & 0x000000000000ffff;
         } else when sz32 then {
-            dataM:8[ptr + offsetValue] = from & 0x00000000ffffffff;
+            dataM:8[addr] = from & 0x00000000ffffffff;
         } else when sz64 then {
-            dataM:8[ptr + offsetValue] = from & 0xffffffffffffffff;
+            dataM:8[addr] = from & 0xffffffffffffffff;
         }
         IP = IP + 8;
     };
@@ -702,16 +718,18 @@ architecture myArch {
     };
 
     instruction enter = {0010 0111, 00, 000000, 000000, 00 0000 0000, imm32 as value} {
-        SP = SP - (8 * value);
+        SP = SP - 8;
         dataM:8[SP] = BP;
         BP = SP;
+        SP = SP - (8 * value);
         IP = IP + 8;
     };
 
     instruction leave = {0010 1000, 00, 000000, 000000, 00 0000 0000, imm32 as value} {
+        SP = SP + (8 * value);
         SP = BP;
         BP = dataM:8[SP];
-        SP = SP + (8 * value);
+        SP = SP + 8;
         IP = IP + 8;
     };
 
