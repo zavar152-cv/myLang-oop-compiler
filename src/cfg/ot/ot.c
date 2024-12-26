@@ -691,9 +691,9 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
         }
       } else if (strcmp(indexNode->type->typeName, "string") == 0) {
         freeTypeInfo(indexNode->type);
-        freeTypeInfo(indexNameNode->type);
+        //freeTypeInfo(indexNameNode->type);
         indexNode->type = createTypeInfo("char", false, false, 0, indexNode->line, indexNode->pos);
-        indexNameNode->type = createTypeInfo("char", false, true, 1, indexNode->line, indexNode->pos);
+        //indexNameNode->type = createTypeInfo("char", false, true, 1, indexNode->line, indexNode->pos);
       }
       if (!indexNameNode->type->isArray) {
         char buffer[1024];

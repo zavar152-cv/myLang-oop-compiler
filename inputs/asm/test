@@ -1,11 +1,11 @@
 int main(string[] args) {
 
-    char[] arr;
-    __alloc("arr", 4);
+    // char[] arr;
+    // __alloc("arr", 4);
 
-    arr[0] = '1';
+    // arr[0] = '1';
 
-    __writeChar(arr[0]);
+    // __writeChar(arr[0]);
 
     // if ('1' == '\n') {
 
@@ -48,11 +48,10 @@ int main(string[] args) {
 
     int ret = test(1, 2, 3, test(1, 1, 1, 1));
     if (ret == 10) {
-        string out = "YES";
         i = 0;
         l = 4;
         while (i != l) {
-            __writeChar(out[i]);
+            __writeChar("YES"[i]);
             i = i + 1;
         }
     }
