@@ -25,26 +25,28 @@ test:
 main:
 
 .BB0:
-  ENTER 7
+  ENTER 9
 .BB1:
   LDI32 R0, const1
-  ST q R0, [BP, -32]
-  LD b R0, [BP, -32]
+  ST q R0, [BP, -48]
+  LD b R0, [BP, -48]
   LDI32 R1, 0
   LDI32 BR2, 8
   MUL q R1, BR2
   ADD q R0, R1
   LDC64 R0, R0
-  ST b R0, [BP, -40]
+  ST b R0, [BP, -56]
   LDI32 R0, 0
-  ST d R0, [BP, -48]
+  ST d R0, [BP, -64]
+  ST d R0, [BP, -16]
   LDI32 R0, 14
-  ST d R0, [BP, -56]
+  ST d R0, [BP, -72]
+  ST d R0, [BP, -24]
   JMP .BB2
 
 .BB2:
-  LD d R0, [BP, -48]
-  LD d R1, [BP, -56]
+  LD d R0, [BP, -64]
+  LD d R1, [BP, -72]
   NEQ R0, R1
   JZ .BB4
   JNZ .BB3
@@ -122,12 +124,12 @@ main:
   POP R2
   POP R1
   POP R0
-  ST d RT, [BP, -24]
+  ST d RT, [BP, -40]
   JMP .BB5
 
 .BB4:
-  LD b R0, [BP, -32]
-  LD d R1, [BP, -48]
+  LD b R0, [BP, -48]
+  LD d R1, [BP, -64]
   LDI32 BR2, 8
   MUL q R1, BR2
   ADD q R0, R1
@@ -152,14 +154,15 @@ main:
   POP R2
   POP R1
   POP R0
-  LD d R0, [BP, -48]
+  LD d R0, [BP, -64]
   LDI32 R1, 1
   ADD d R0, R1
-  ST d R0, [BP, -48]
+  ST d R0, [BP, -64]
+  ST d R0, [BP, -16]
   JMP .BB2
 
 .BB5:
-  LD d R0, [BP, -24]
+  LD d R0, [BP, -40]
   LDI32 R1, 10
   EQ R0, R1
   JZ .BB7
@@ -205,8 +208,8 @@ main:
   POP R2
   POP R1
   POP R0
-  ST b RT, [BP, -16]
-  LD b R0, [BP, -16]
+  ST b RT, [BP, -32]
+  LD b R0, [BP, -32]
   MOV BR1, SP
   PUSH R0
   PUSH R1
@@ -235,14 +238,16 @@ main:
   LDI32 R0, const0
   ST q R0, [BP, -8]
   LDI32 R0, 0
-  ST d R0, [BP, -48]
+  ST d R0, [BP, -64]
+  ST d R0, [BP, -16]
   LDI32 R0, 4
-  ST d R0, [BP, -56]
+  ST d R0, [BP, -72]
+  ST d R0, [BP, -24]
   JMP .BB8
 
 .BB8:
-  LD d R0, [BP, -48]
-  LD d R1, [BP, -56]
+  LD d R0, [BP, -64]
+  LD d R1, [BP, -72]
   NEQ R0, R1
   JZ .BB10
   JNZ .BB9
@@ -252,7 +257,7 @@ main:
 
 .BB10:
   LD b R0, [BP, -8]
-  LD d R1, [BP, -48]
+  LD d R1, [BP, -64]
   LDI32 BR2, 8
   MUL q R1, BR2
   ADD q R0, R1
@@ -277,14 +282,15 @@ main:
   POP R2
   POP R1
   POP R0
-  LD d R0, [BP, -48]
+  LD d R0, [BP, -64]
   LDI32 R1, 1
   ADD d R0, R1
-  ST d R0, [BP, -48]
+  ST d R0, [BP, -64]
+  ST d R0, [BP, -16]
   JMP .BB8
 
 .BB11:
-  LEAVE 7
+  LEAVE 9
 
   HLT
 

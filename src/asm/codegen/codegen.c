@@ -307,9 +307,6 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
         } else {
             commandCALL(buffer, root->children[0]->label);
         }
-        if (root->isSpilled) {
-            commandPUSH(buffer, root->reg);
-        }
         if (wasSpilled) {
             char countBuffer[1024];
             snprintf(countBuffer, sizeof(countBuffer), "%u", (root->childCount - 1) * 8);
@@ -326,6 +323,9 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
         commandPOP(buffer, REG_R2);
         commandPOP(buffer, REG_R1);
         commandPOP(buffer, REG_R0);
+        if (root->isSpilled) {
+            commandPUSH(buffer, root->reg);
+        }
     } else if (strcmp(root->label, OP_PLUS) == 0) {
         generateASMForOTHelper(entry, root->children[0], buffer);
         generateASMForOTHelper(entry, root->children[1], buffer);

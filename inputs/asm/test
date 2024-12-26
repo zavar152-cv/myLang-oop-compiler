@@ -42,8 +42,8 @@ int main(string[] args) {
     int ret = test(1, 2, 3, test(1, 1, 1, 1));
     if (ret == 10) {
         string out = "YES";
-        i = 0;
-        l = 4;
+        int i = 0;
+        int l = 4;
         while (i != l) {
             __writeChar(out[i]);
             i = i + 1;
