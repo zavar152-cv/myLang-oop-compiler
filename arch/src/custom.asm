@@ -25,34 +25,32 @@ test:
 main:
 
 .BB0:
-  ENTER 9
+  ENTER 7
 .BB1:
   LDI32 R0, const1
-  ST q R0, [BP, -48]
-  LD b R0, [BP, -48]
+  ST q R0, [BP, -32]
+  LD b R0, [BP, -32]
   LDI32 R1, 0
   LDI32 BR2, 8
   MUL q R1, BR2
   ADD q R0, R1
   LDC64 R0, R0
-  ST b R0, [BP, -56]
+  ST b R0, [BP, -40]
   LDI32 R0, 0
-  ST d R0, [BP, -64]
-  ST d R0, [BP, -16]
+  ST d R0, [BP, -48]
   LDI32 R0, 14
-  ST d R0, [BP, -72]
-  ST d R0, [BP, -24]
+  ST d R0, [BP, -56]
   JMP .BB2
 
 .BB2:
-  LD d R0, [BP, -64]
-  LD d R1, [BP, -72]
+  LD d R0, [BP, -48]
+  LD d R1, [BP, -56]
   NEQ R0, R1
   JZ .BB4
   JNZ .BB3
 
 .BB3:
-  LDI32 R0, 10
+  LDI32 R0, 0x0A
   MOV BR1, SP
   PUSH R0
   PUSH R1
@@ -124,12 +122,12 @@ main:
   POP R2
   POP R1
   POP R0
-  ST d RT, [BP, -40]
+  ST d RT, [BP, -24]
   JMP .BB5
 
 .BB4:
-  LD b R0, [BP, -48]
-  LD d R1, [BP, -64]
+  LD b R0, [BP, -32]
+  LD d R1, [BP, -48]
   LDI32 BR2, 8
   MUL q R1, BR2
   ADD q R0, R1
@@ -154,22 +152,21 @@ main:
   POP R2
   POP R1
   POP R0
-  LD d R0, [BP, -64]
+  LD d R0, [BP, -48]
   LDI32 R1, 1
   ADD d R0, R1
-  ST d R0, [BP, -64]
-  ST d R0, [BP, -16]
+  ST d R0, [BP, -48]
   JMP .BB2
 
 .BB5:
-  LD d R0, [BP, -40]
+  LD d R0, [BP, -24]
   LDI32 R1, 10
   EQ R0, R1
   JZ .BB7
   JNZ .BB6
 
 .BB6:
-  LDI32 R0, 10
+  LDI32 R0, 0x0A
   MOV BR1, SP
   PUSH R0
   PUSH R1
@@ -208,8 +205,8 @@ main:
   POP R2
   POP R1
   POP R0
-  ST b RT, [BP, -32]
-  LD b R0, [BP, -32]
+  ST b RT, [BP, -16]
+  LD b R0, [BP, -16]
   MOV BR1, SP
   PUSH R0
   PUSH R1
@@ -230,24 +227,63 @@ main:
   POP R2
   POP R1
   POP R0
-  LDI32 R0, 0
-  MOV RT, R0
+  LDI32 R0, 0x0A
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R0
+  POP R0
+  MOV OUT, R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  LDI32 R0, 0x61
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R0
+  POP R0
+  MOV OUT, R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  MOV RT, RT
   JMP .BB11
 
 .BB7:
   LDI32 R0, const0
   ST q R0, [BP, -8]
   LDI32 R0, 0
-  ST d R0, [BP, -64]
-  ST d R0, [BP, -16]
+  ST d R0, [BP, -48]
   LDI32 R0, 4
-  ST d R0, [BP, -72]
-  ST d R0, [BP, -24]
+  ST d R0, [BP, -56]
   JMP .BB8
 
 .BB8:
-  LD d R0, [BP, -64]
-  LD d R1, [BP, -72]
+  LD d R0, [BP, -48]
+  LD d R1, [BP, -56]
   NEQ R0, R1
   JZ .BB10
   JNZ .BB9
@@ -257,7 +293,7 @@ main:
 
 .BB10:
   LD b R0, [BP, -8]
-  LD d R1, [BP, -64]
+  LD d R1, [BP, -48]
   LDI32 BR2, 8
   MUL q R1, BR2
   ADD q R0, R1
@@ -282,15 +318,14 @@ main:
   POP R2
   POP R1
   POP R0
-  LD d R0, [BP, -64]
+  LD d R0, [BP, -48]
   LDI32 R1, 1
   ADD d R0, R1
-  ST d R0, [BP, -64]
-  ST d R0, [BP, -16]
+  ST d R0, [BP, -48]
   JMP .BB8
 
 .BB11:
-  LEAVE 9
+  LEAVE 7
 
   HLT
 

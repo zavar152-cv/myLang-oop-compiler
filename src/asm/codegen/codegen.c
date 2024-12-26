@@ -235,6 +235,19 @@ void generateBuiltin(const char *name, FunctionEntry *entry, OperationTreeNode *
     }
 }
 
+char parseEscapedChar(const char *str) {
+    if (str[1] != '\\') {
+        return str[1];
+    }
+    switch (str[2]) {
+        case 'n':  return '\n';
+        case 't':  return '\t';
+        case 'r':  return '\r';
+        case '\\': return '\\';
+        default:   return str[2];
+    }
+}
+
 void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struct StringBuffer *buffer) {
     if (strcmp(root->label, WRITE) == 0) {
         
@@ -448,7 +461,8 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
                     commandLDI32(buffer, root->reg, "0");
                 }
             } else if (strcmp(root->children[1]->type->typeName, "char") == 0) {
-                unsigned char value = (unsigned char)root->children[1]->label[1];
+                unsigned char value = parseEscapedChar(root->children[1]->label);
+                printf("Got: %c\n", root->children[1]->label[1]);
                 char output[6]; 
                 sprintf(output, "0x%02X", value);
                 commandLDI32(buffer, root->reg, output);

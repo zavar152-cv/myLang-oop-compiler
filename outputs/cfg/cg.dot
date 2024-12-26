@@ -3,12 +3,10 @@ digraph CallGraph {
 
     "test";
     "__readChar";
-    "__write";
     "__writeChar";
     "main";
 
     "main" -> "test" [color=blue];
     "main" -> "__readChar" [color=blue];
-    "main" -> "__write" [color=blue];
     "main" -> "__writeChar" [color=blue];
 }

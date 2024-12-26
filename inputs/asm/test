@@ -1,5 +1,12 @@
 int main(string[] args) {
 
+    char[] arr;
+    __alloc("arr", 4);
+
+    arr[0] = '1';
+
+    __writeChar(arr[0]);
+
     // if ('1' == '\n') {
 
     // }
@@ -37,30 +44,26 @@ int main(string[] args) {
         i = i + 1;
     }
     
-    __write(10); // \n
+    __writeChar('\n'); // \n
 
     int ret = test(1, 2, 3, test(1, 1, 1, 1));
     if (ret == 10) {
         string out = "YES";
-        int i = 0;
-        int l = 4;
+        i = 0;
+        l = 4;
         while (i != l) {
             __writeChar(out[i]);
             i = i + 1;
         }
     }
 
-    __write(10); // \n
+    __writeChar('\n'); // \n
 
     char in = __readChar();
     __writeChar(in);
-
-    // char[] arr;
-    // __alloc("arr", 4);
-
-    // arr[0] = '1';
-
-    // __writeChar(arr[0]);
+    __writeChar('\n');
+    __writeChar('a')
+    __writeChar('\n');
 
     0;
 }

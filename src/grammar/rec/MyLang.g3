@@ -320,12 +320,16 @@ IDENTIFIER_TOKEN: (('a'..'z' | 'A'..'Z') | ('_')) (('a'..'z' | 'A'..'Z') | ('_')
 BITS_TOKEN: '0' ('b'|'B') ('0' | '1')+ ;
 HEX_TOKEN: '0'('x'|'X') ('0'..'9' | 'a'..'f' | 'A'..'F')+ ;
 DEC_TOKEN: ('-')?('0'..'9')+ ;
-CHAR_TOKEN: '\'' ~('\'' | '\\') '\'' ;
+CHAR_TOKEN: '\'' (ESC_SEQ | ~('\'' | '\\')) '\'' ;
 STR_TOKEN: ('"') ('\\' . | ~('\\'|'"'))* ('"');
 VARARGS_TOKEN: '...';
 
 LINE_COMMENT
     :   '//' ~('\n'|'\r')* { SKIP(); };
+
+fragment ESC_SEQ
+    :   '\\' ('n' | 't' | 'r' | '\\' | '\'' | '\"')
+    ;
 
 NEWLINE:'\r'? '\n' { SKIP(); };
 WSS: (' '|'\t')+ { SKIP(); };
