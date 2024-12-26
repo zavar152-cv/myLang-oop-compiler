@@ -30,7 +30,7 @@ typedef struct OperationTreeNode {
   TypeInfo *type;
   char *reg;
   bool isSpilled;
-  uint32_t offset;
+  int32_t offset;
 } OperationTreeNode;
 
 typedef struct __attribute__((packed)) OperationTreeErrorInfo {

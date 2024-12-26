@@ -72,8 +72,8 @@ architecture myArch {
         view RT = RT_S;
 
         /*------------------IO REGISTERS-------------------------*/
-        storage IN_S [64];
-        storage OUT_S [64];
+        storage IN_S [8];
+        storage OUT_S [8];
         view IN = IN_S;
         view OUT = OUT_S;        
 
@@ -819,6 +819,30 @@ architecture myArch {
 
         IP = IP + 8;
     };
+    instruction load-c-off = {0011 0001, sequence size, reg as to, reg as ptr, 00 0000 0000, off32 as offsetValue} {
+        let addr = 0; 
+        if (offsetValue >> 31) & 1 == 1 then { 
+            let temp = offsetValue; 
+            addr = ptr + temp;
+        } else { 
+            addr = ptr + offsetValue; 
+        }
+        addr = addr & 0x00000000ffffffff;
+        when sz8 then {
+            let res = dataM:8[addr];
+            to = res & 0x00000000000000ff;
+        } else when sz16 then {
+            let res = dataM:8[addr];
+            to = res & 0x000000000000ffff;
+        } else when sz32 then {
+            let res = dataM:8[addr];
+            to = res & 0x00000000ffffffff;
+        } else when sz64 then {
+            let res = dataM:8[addr];
+            to = res & 0xffffffffffffffff;
+        }
+        IP = IP + 8;
+    };
 
     instruction hlt = {1111 1111 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
 	};
@@ -864,11 +888,15 @@ architecture myArch {
         mnemonic LD for load(to, ptr) "b {1}, {2}" when sz8,
                     for load(to, ptr) "w {1}, {2}" when sz16,
                     for load(to, ptr) "d {1}, {2}" when sz32,
-                    for load(to, ptr) "q {1}, {2}" when sz64,  
+                    for load(to, ptr) "q {1}, {2}" when sz64,   
                     for load-off(to, ptr, offsetValue) "b {1}, [{2}, {3}]" when sz8,
                     for load-off(to, ptr, offsetValue) "w {1}, [{2}, {3}]" when sz16,
                     for load-off(to, ptr, offsetValue) "d {1}, [{2}, {3}]" when sz32,
                     for load-off(to, ptr, offsetValue) "q {1}, [{2}, {3}]" when sz64; 
+        mnemonic LDC for load-c-off(to, ptr, offsetValue) "b {1}, [{2}, {3}]" when sz8,
+                     for load-c-off(to, ptr, offsetValue) "w {1}, [{2}, {3}]" when sz16,
+                     for load-c-off(to, ptr, offsetValue) "d {1}, [{2}, {3}]" when sz32,
+                     for load-c-off(to, ptr, offsetValue) "q {1}, [{2}, {3}]" when sz64; 
         mnemonic LDI32 for load-imm32(to, value) plain2;  
         mnemonic LDC64 for load-const(to, ptr) plain2;  
 

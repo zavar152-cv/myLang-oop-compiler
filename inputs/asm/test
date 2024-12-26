@@ -1,0 +1,71 @@
+int main(string[] args) {
+
+    // if ('1' == '\n') {
+
+    // }
+
+    // long b = 45;
+    // int a = 2*3 + 4*5 + 6*7 + 8*9 + 10*11 + 12*13 + 14*15 + 16*17;
+    // {
+    //     int y = 9 + 7;
+    // }
+
+    // if (2 == 3) {
+    //     int h = --9;
+    // } else {
+    //     int j = 1;
+    // }
+
+    //int ret = test(1, 2, 3, 4);
+
+    // int a = 0;
+    // while (true == true) {
+    //     byte b = __read();
+    //     if (__castToIntFromByte(b) == 12) {
+    //         break;
+    //     }
+    // }
+
+    // a = 9;
+    string s = "Hello, World!";
+    char c = s[0];
+
+    int i = 0;
+    int l = 14;
+    while (i != l) {
+        __writeChar(s[i]);
+        i = i + 1;
+    }
+    
+    __write(10); // \n
+
+    int ret = test(1, 2, 3, test(1, 1, 1, 1));
+    if (ret == 10) {
+        string out = "YES";
+        i = 0;
+        l = 4;
+        while (i != l) {
+            __writeChar(out[i]);
+            i = i + 1;
+        }
+    }
+
+    __write(10); // \n
+
+    char in = __readChar();
+    __writeChar(in);
+
+    // char[] arr;
+    // __alloc("arr", 4);
+
+    // arr[0] = '1';
+
+    // __writeChar(arr[0]);
+
+    0;
+}
+
+int test(int a, int b, int c, int d) {
+    int r = a + b + c + d;
+    r;
+}

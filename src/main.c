@@ -6,6 +6,7 @@
 #include <string.h>
 #include <time.h>
 
+#include "asm/stringbuffer/stringbuffer.h"
 #include "cfg/ot/ot.h"
 #include "grammar/myLang.h"
 #include "./dotUtils/dotUtils.h"
@@ -17,6 +18,7 @@
 struct arguments {
     char **input_files;
     char *output_dir;
+    char *asm_dir;
     int debug;
     int ot;
     int input_file_count;
@@ -24,8 +26,9 @@ struct arguments {
 
 static struct argp_option options[] = {
     { "debug",  'd', 0,       0, "Enable debug output" },
-    { "output", 'o', "DIR",   0, "Output directory name" },
+    { "output", 'o', "DIR",   0, "Output directory name for CFG" },
     { "operation tree", 't', 0,   0, "Draw operation tree in dot with CFG" },
+    { "asm", 'a', "DIR",   0, "Output directory name for ASM" },
     { 0 }
 };
 
@@ -41,6 +44,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             break;
         case 'o':
             arguments->output_dir = arg;
+            break;
+        case 'a':
+            arguments->asm_dir = arg;
             break;
         case ARGP_KEY_ARG:
             arguments->input_files = realloc(arguments->input_files, sizeof(char*) * (arguments->input_file_count + 1));
@@ -63,7 +69,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
 
 static char args_doc[] = "INPUT_FILES...";
 
-static char doc[] = "CFG and CG builder from AST";
+static char doc[] = "Compiler";
 
 static struct argp argp = { options, parse_opt, args_doc, doc };
 
@@ -166,6 +172,7 @@ int main(int argc, char *argv[]) {
     arguments.debug = 0;
     arguments.ot = 0;
     arguments.output_dir = NULL;
+    arguments.asm_dir = NULL;
     arguments.input_files = NULL;
     arguments.input_file_count = 0;
 
@@ -225,6 +232,9 @@ int main(int argc, char *argv[]) {
 
     FunctionEntry *funcE = prog->functionTable->entry;
     uint32_t alrValue = 0;
+    struct StringBuffer *buffer = stringbuffer_new_with_options(1024, true);
+    stringbuffer_append_string(buffer, "    [section codeM]\n\n");
+    commandJMP(buffer, "main");
     while (funcE != NULL) {
         funcE->locals = createHashTable(20);
         funcE->consts = createHashTable(20);
@@ -245,73 +255,110 @@ int main(int argc, char *argv[]) {
                 b = b->next;
             }
 
-        for (int i = 0; i < funcE->consts->size; i++) {
-            HashNode *node = funcE->consts->buckets[i];
-            while (node) {
-                ((ConstVar *)node->value)->address = ((ConstVar *)node->value)->address + alrValue;
-                alrValue = alrValue + ((ConstVar *)node->value)->size;
-                node = node->next;
+            for (int i = 0; i < funcE->consts->size; i++) {
+                HashNode *node = funcE->consts->buckets[i];
+                while (node) {
+                    ((ConstVar *)node->value)->address = ((ConstVar *)node->value)->address + alrValue;
+                    alrValue = alrValue + ((ConstVar *)node->value)->size;
+                    node = node->next;
+                }
             }
-        }
 
-        if (funcE->argumentsCount > 0) {
-            int64_t offset = 8 + funcE->argumentsCount * 8;
-            ArgumentInfo *arg = funcE->arguments;
-            while (arg != NULL) {
-                arg->offset = offset;
-                offset = offset - 8;
-                arg = arg->next;
-            } 
-        }
-        
-
-        if (arguments.debug) {
-          printf("\nLocals for %s:\n", funcE->functionName);
-          for (int i = 0; i < funcE->locals->size; i++) {
-            HashNode *node = funcE->locals->buckets[i];
-            while (node) {
-              printf("Key: %s, Name: %s, Index: %d", node->key, ((LocalVar *)node->value)->name,
-                     ((LocalVar *)node->value)->index);
-              printf("\n");
-              node = node->next;
+            if (funcE->argumentsCount > 0) {
+                int64_t offset = 8 + funcE->argumentsCount * 8;
+                ArgumentInfo *arg = funcE->arguments;
+                while (arg != NULL) {
+                    arg->offset = offset;
+                    offset = offset - 8;
+                    arg = arg->next;
+                } 
             }
-          }
+            
 
-          printf("\nConsts for %s:\n", funcE->functionName);
-          for (int i = 0; i < funcE->consts->size; i++) {
-            HashNode *node = funcE->consts->buckets[i];
-            while (node) {
-              printf("Key: %s, Value: %s, Address: %d", node->key, ((ConstVar *)node->value)->name,
-                     ((ConstVar *)node->value)->address);
-              printf("\n");
-              node = node->next;
-            }
-          }
-          if (funcE->argumentsCount > 0) {
-            printf("\nArgs for %s:\n", funcE->functionName);
-            ArgumentInfo *arg = funcE->arguments;
-            while (arg != NULL) {
-                printf("Name: %s, Offset: %ld", arg->name, arg->offset);
+            if (arguments.debug) {
+            printf("\nLocals for %s:\n", funcE->functionName);
+            for (int i = 0; i < funcE->locals->size; i++) {
+                HashNode *node = funcE->locals->buckets[i];
+                while (node) {
+                printf("Key: %s, Name: %s, Index: %d", node->key, ((LocalVar *)node->value)->name,
+                        ((LocalVar *)node->value)->index);
                 printf("\n");
-                arg = arg->next;
-            } 
-          }
-        }
-
-        
-        b = func->cfg->blocks;
-        while (b != NULL) {
-            for (int i = 0; i < b->instructionCount; i++) {
-                //TODO in codegen
+                node = node->next;
+                }
             }
-            b = b->next;
-        }
+
+            printf("\nConsts for %s:\n", funcE->functionName);
+            for (int i = 0; i < funcE->consts->size; i++) {
+                HashNode *node = funcE->consts->buckets[i];
+                while (node) {
+                printf("Key: %s, Value: %s, Address: %d", node->key, ((ConstVar *)node->value)->name,
+                        ((ConstVar *)node->value)->address);
+                printf("\n");
+                node = node->next;
+                }
+            }
+            if (funcE->argumentsCount > 0) {
+                printf("\nArgs for %s:\n", funcE->functionName);
+                ArgumentInfo *arg = funcE->arguments;
+                while (arg != NULL) {
+                    printf("Name: %s, Offset: %ld", arg->name, arg->offset);
+                    printf("\n");
+                    arg = arg->next;
+                } 
+            }
+            }
+            bool isMain = strcmp(funcE->functionName, "main") == 0;
+            generateASMForFunction(buffer, func, funcE, isMain);
 
         }
 
         funcE = funcE->next;
     }
+    commandHLT(buffer);
 
+    stringbuffer_append_string(buffer, "\n    [section constantsM]\n\n");
+    funcE = prog->functionTable->entry;
+
+    while (funcE != NULL) {
+        for (int i = 0; i < funcE->consts->size; i++) {
+            HashNode *node = funcE->consts->buckets[i];
+            while (node) {
+                stringbuffer_append_string(buffer, "\n");
+                ConstVar *var = ((ConstVar *)node->value);
+                if (strcmp(var->typeName, "string") == 0) {
+                    stringbuffer_append_string(buffer, node->key);
+                    stringbuffer_append_string(buffer, ":\n");
+                    for (size_t i = 1; i < strlen(var->name) - 1; i++) {
+                        stringbuffer_append_string(buffer, "  dq ");
+                        unsigned char value = (unsigned char)var->name[i];
+                        char output[6]; 
+                        sprintf(output, "0x%02X", value);
+                        stringbuffer_append_string(buffer, output);
+                        stringbuffer_append_string(buffer, "\n");
+                    }
+                    stringbuffer_append_string(buffer, "  dq 0x00");
+                } else {
+                    stringbuffer_append_string(buffer, node->key);
+                    stringbuffer_append_string(buffer, ":\n");
+                    stringbuffer_append_string(buffer, "  dq ");
+                    stringbuffer_append_string(buffer, ((ConstVar *)node->value)->name);
+                    stringbuffer_append_string(buffer, "\n");
+                }
+
+                node = node->next;
+            }
+        }
+        funcE = funcE->next;
+    }
+
+    char *out = stringbuffer_to_string(buffer);
+    printf("%s\n\n", out);
+    stringbuffer_release(buffer);
+
+    FILE *asmFile = fopen(arguments.asm_dir, "w");
+    fprintf(asmFile, "%s", out);
+    fclose(asmFile);
+    free(out);
 
     freeFunctionTable(prog->functionTable, freeLocalVarAsVoid, freeConstVarAsVoid);
 

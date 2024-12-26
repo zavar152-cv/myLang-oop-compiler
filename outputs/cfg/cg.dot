@@ -1,16 +1,14 @@
 digraph CallGraph {
     node [shape=ellipse, style=filled, color=lightblue];
 
-    "func2";
-    "func";
-    "__sizeof";
-    "__castToIntFromLong";
-    "__castToUintFromInt";
+    "test";
+    "__readChar";
+    "__write";
+    "__writeChar";
     "main";
 
-    "main" -> "func2" [color=blue];
-    "main" -> "func" [color=blue];
-    "main" -> "__sizeof" [color=blue];
-    "main" -> "__castToIntFromLong" [color=blue];
-    "main" -> "__castToUintFromInt" [color=blue];
+    "main" -> "test" [color=blue];
+    "main" -> "__readChar" [color=blue];
+    "main" -> "__write" [color=blue];
+    "main" -> "__writeChar" [color=blue];
 }

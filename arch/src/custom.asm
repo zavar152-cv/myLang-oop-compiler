@@ -1,103 +1,313 @@
-﻿	[section constantsM]
-constA:
-	dq 0x7
-constStr:
-	dq 0x8
-	dq 0x9
-	dq 0x10
+    [section codeM]
 
-	[section dataM]
+  JMP main
+test:
 
-varA: 
-	dd 0x2
-varB: 
-	dd 0x2
-emptyPlace:
+.BB0:
+  ENTER 1
+.BB1:
+  LD d R0, [BP, 16]
+  LD d R1, [BP, 24]
+  ADD d R0, R1
+  LD d R1, [BP, 32]
+  ADD d R0, R1
+  LD d R1, [BP, 40]
+  ADD d R0, R1
+  ST d R0, [BP, -8]
+  LD d R0, [BP, -8]
+  MOV RT, R0
+  JMP .BB2
 
-	[section codeM]
+.BB2:
+  LEAVE 1
+  RET
 
 main:
-	ENTER 0
 
-	LDI32 R7, 0x71
-	LDI32 R6, 0x78
+.BB0:
+  ENTER 7
+.BB1:
+  LDI32 R0, const1
+  ST q R0, [BP, -32]
+  LD b R0, [BP, -32]
+  LDI32 R1, 0
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LDC64 R0, R0
+  ST b R0, [BP, -40]
+  LDI32 R0, 0
+  ST d R0, [BP, -48]
+  LDI32 R0, 14
+  ST d R0, [BP, -56]
+  JMP .BB2
 
-	PUSH R7
-	PUSH R6
-	CALL func
-	POP R6
-	POP R7
+.BB2:
+  LD d R0, [BP, -48]
+  LD d R1, [BP, -56]
+  NEQ R0, R1
+  JZ .BB4
+  JNZ .BB3
 
-	;LDI32 SP, 0xFFFFFFFF
+.BB3:
+  LDI32 R0, 10
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R0
+  POP R0
+  MOV OUT, R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  LDI32 R6, 1
+  LDI32 R5, 1
+  LDI32 R4, 1
+  LDI32 R3, 1
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R6
+  PUSH R5
+  PUSH R4
+  PUSH R3
+  CALL test
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  LDI32 R2, 3
+  LDI32 R1, 2
+  LDI32 R0, 1
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH RT
+  PUSH R2
+  PUSH R1
+  PUSH R0
+  CALL test
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  ST d RT, [BP, -24]
+  JMP .BB5
 
-	;LDI32 R6, 0x7FFFFFFF
-	;LDI32 R5, 0x00000001
+.BB4:
+  LD b R0, [BP, -32]
+  LD d R1, [BP, -48]
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LDC64 R0, R0
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R0
+  POP R0
+  MOV OUT, R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  LD d R0, [BP, -48]
+  LDI32 R1, 1
+  ADD d R0, R1
+  ST d R0, [BP, -48]
+  JMP .BB2
 
-	LDI32 BR1, constStr
-	LDI32 BR2, emptyPlace
-	MEMCPYC BR2, BR1, 3
+.BB5:
+  LD d R0, [BP, -24]
+  LDI32 R1, 10
+  EQ R0, R1
+  JZ .BB7
+  JNZ .BB6
 
-	LD q R0, [BR2, 0]
-	LD q R0, [BR2, 8]
-	LD q R0, [BR2, 16]
-	LDI32 AR, constA
-	LDC64 R0, AR
-	LDI32 R1, 0x7
-	NEQ R0, R1
+.BB6:
+  LDI32 R0, 10
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R0
+  POP R0
+  MOV OUT, R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  MOV RT, IN
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  ST b RT, [BP, -16]
+  LD b R0, [BP, -16]
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R0
+  POP R0
+  MOV OUT, R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  LDI32 R0, 0
+  MOV RT, R0
+  JMP .BB11
 
-	LDI32 AR, varA
-	LD d R6, AR
-	LDI32 AR, varB
-	LD d R5, AR
+.BB7:
+  LDI32 R0, const0
+  ST q R0, [BP, -8]
+  LDI32 R0, 0
+  ST d R0, [BP, -48]
+  LDI32 R0, 4
+  ST d R0, [BP, -56]
+  JMP .BB8
 
-	;cbq R6, R6
-	;cbq R5, R5
+.BB8:
+  LD d R0, [BP, -48]
+  LD d R1, [BP, -56]
+  NEQ R0, R1
+  JZ .BB10
+  JNZ .BB9
 
-	ADD d R6, R5
+.BB9:
+  JMP .BB6
 
-	LDI32 R7, 0xFF
-	;NOT b R7
-	;JZ here
-	LDI32 R1, 0xFA
-	JGREQ R7, R1, here
+.BB10:
+  LD b R0, [BP, -8]
+  LD d R1, [BP, -48]
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LDC64 R0, R0
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R0
+  POP R0
+  MOV OUT, R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  LD d R0, [BP, -48]
+  LDI32 R1, 1
+  ADD d R0, R1
+  ST d R0, [BP, -48]
+  JMP .BB8
 
-	LDI32 R0, 0x10
-	LDI32 R1, 0x80
-	ADD b R0, R1
-	LDI32 AR, 0x7
-	ST b R0, AR
-	LD b R3, AR
+.BB11:
+  LEAVE 7
 
-	ST b R3, [SP, -8]
-	LD b R4, [SP, -8]
+  HLT
 
-func:
-	ENTER 2
-	LDI32 R0, 0x9
-	ST q R0, [BP, -8]
-	LDI32 R0, 0x89
-	ST q R0, [BP, -16]
+    [section constantsM]
 
-	LD q R5, [BP, 16]
-	LD q R5, [BP, 24]
 
-	LDI32 R1, 0x7
-	LDI32 R2, 0x1
-	PUSH R1
-	PUSH R2
-	POP R3
-	POP R3
-	LDI32 R6, 0x0
-	LD q R0, [BP, -8]
-	LD q R0, [BP, -16]
-	LEAVE 2
-	RET
-
-here:
-	PUSH R1
-	PUSH R7
-	POP R5
-	POP R5
-
-	LEAVE 0
-	HLT
+const0:
+  dq 0x59
+  dq 0x45
+  dq 0x53
+  dq 0x00
+const1:
+  dq 0x48
+  dq 0x65
+  dq 0x6C
+  dq 0x6C
+  dq 0x6F
+  dq 0x2C
+  dq 0x20
+  dq 0x57
+  dq 0x6F
+  dq 0x72
+  dq 0x6C
+  dq 0x64
+  dq 0x21
+  dq 0x00

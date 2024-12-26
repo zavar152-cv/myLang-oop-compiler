@@ -1,9 +1,11 @@
 //register __castToByte
+byte __castToByteFromInt(int i);
 byte __castToByteFromUint(uint ui);
 byte __castToByteFromLong(long l);
 byte __castToByteFromUlong(ulong ul);
 
 //register __castToInt
+int __castToIntFromByte(byte b);
 int __castToIntFromUint(uint ui);
 int __castToIntFromLong(long l);
 int __castToIntFromUlong(ulong ul);
@@ -30,9 +32,11 @@ void __alloc(string var, long size);
 
 long __sizeof(string type);
 
-int __lengthof(string var);
+int __lengthof(string s);
 
 //io
 byte __read();
+char __readChar();
 
 void __write(byte b);
+void __writeChar(char c);
