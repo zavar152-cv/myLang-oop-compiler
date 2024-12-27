@@ -1,11 +1,13 @@
 digraph CallGraph {
     node [shape=ellipse, style=filled, color=lightblue];
 
+    "__alloc";
     "test";
     "__readChar";
     "__writeChar";
     "main";
 
+    "main" -> "__alloc" [color=blue];
     "main" -> "test" [color=blue];
     "main" -> "__readChar" [color=blue];
     "main" -> "__writeChar" [color=blue];

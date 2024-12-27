@@ -11,6 +11,7 @@
 #define WRITE "write"
 #define OT_CALL "call"
 #define INDEX "index"
+#define INDEXR "indexr"
 #define DECLARE "declare"
 #define SEQ_DECLARE "seqDeclare"
 #define WITH_TYPE "withType"

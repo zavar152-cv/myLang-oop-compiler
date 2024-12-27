@@ -667,7 +667,7 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
     //left - EXPR_LISR
     //right - EXPR
     if (root->childCount == 1) {
-      OperationTreeNode *indexNameNode = buildExprOperationTreeFromAstNode(root->children[0], isLvalue, isFunctionName, container, sm, functionTable, filename);
+      OperationTreeNode *indexNameNode = buildExprOperationTreeFromAstNode(root->children[0], false, isFunctionName, container, sm, functionTable, filename);
       char buffer[1024];
       snprintf(buffer, sizeof(buffer),
                "Index error. Missing index value at %s:%d:%d\n",
@@ -680,7 +680,7 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
       }
       return indexNameNode;
     } else {
-      OperationTreeNode *indexNameNode = buildExprOperationTreeFromAstNode(root->children[1], isLvalue, isFunctionName, container, sm, functionTable, filename);
+      OperationTreeNode *indexNameNode = buildExprOperationTreeFromAstNode(root->children[1], false, isFunctionName, container, sm, functionTable, filename);
       OperationTreeNode *indexNode = newOperationTreeNode(INDEX, 1 + root->children[0]->childCount, indexNameNode->line, indexNameNode->pos, indexNameNode->isImaginary);
       indexNode->children[0] = indexNameNode;
       indexNode->type = copyTypeInfo(indexNameNode->type);
@@ -695,7 +695,7 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
         indexNode->type = createTypeInfo("char", false, false, 0, indexNode->line, indexNode->pos);
         //indexNameNode->type = createTypeInfo("char", false, true, 1, indexNode->line, indexNode->pos);
       }
-      if (!indexNameNode->type->isArray) {
+      if (!(indexNameNode->type->isArray || strcmp(indexNameNode->type->typeName, "string") == 0)) {
         char buffer[1024];
         snprintf(buffer, sizeof(buffer),
                 "Index error. Index can be applied only for arrays or strings at %s:%d:%d\n",
@@ -736,6 +736,10 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
         }
       }
 
+      if (!isLvalue) {
+        free(indexNode->label);
+        indexNode->label = strdup(INDEXR);
+      }
       return indexNode;
     }
   } else if (isBinaryOp(root->label)) {

@@ -34,7 +34,7 @@ void prepareRegsAndTempsHelper(OperationTreeNode *root, StringStack *stack, bool
             prepareRegsAndTempsHelper(root->children[0], stack, stackOnly, debug);
         }
         prepareRegsAndTempsHelper(root->children[1], stack, stackOnly, debug);
-    } else if (strcmp(root->label, INDEX) == 0) {
+    } else if (strcmp(root->label, INDEX) == 0 || strcmp(root->label, INDEXR) == 0) {
         if (root->children[0]->childCount == 0) {
             root->children[0]->reg = strdup(REG_AR);
         } else {
@@ -250,10 +250,8 @@ char parseEscapedChar(const char *str) {
 
 void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struct StringBuffer *buffer) {
     if (strcmp(root->label, WRITE) == 0) {
-        
-
-        generateASMForOTHelper(entry, root->children[1], buffer);
         if (root->children[0]->childCount == 0) {
+            generateASMForOTHelper(entry, root->children[1], buffer);
             bool found = false;
             for (int i = 0; i < entry->locals->size; i++) {
                 HashNode *node = entry->locals->buckets[i];
@@ -275,6 +273,7 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
             }
         } else {
             generateASMForOTHelper(entry, root->children[0], buffer);
+            generateASMForOTHelper(entry, root->children[1], buffer);
             commandST(buffer, "q", root->children[1]->reg, root->children[0]->reg);
         }
     } else if (strcmp(root->label, INDEX) == 0) {
@@ -283,7 +282,25 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
         commandLDI32(buffer, REG_BR2, "8");
         commandMUL(buffer, "q", root->children[1]->reg, REG_BR2);
         commandADD(buffer, "q", root->children[0]->reg, root->children[1]->reg);
-        commandLDC64(buffer, root->children[0]->reg, root->children[0]->reg);
+        // if (strcmp(root->children[0]->type->typeName, "string") == 0) {
+        //     commandLDC64(buffer, root->children[0]->reg, root->children[0]->reg);
+        // } else {
+        //     commandLD(buffer, "q", root->children[0]->reg, root->children[0]->reg);
+        // }
+        if (root->isSpilled) {
+            commandPUSH(buffer, root->reg);
+        }
+    } else if (strcmp(root->label, INDEXR) == 0) {
+        generateASMForOTHelper(entry, root->children[0], buffer);
+        generateASMForOTHelper(entry, root->children[1], buffer);
+        commandLDI32(buffer, REG_BR2, "8");
+        commandMUL(buffer, "q", root->children[1]->reg, REG_BR2);
+        commandADD(buffer, "q", root->children[0]->reg, root->children[1]->reg);
+        if (strcmp(root->children[0]->type->typeName, "string") == 0) {
+            commandLDC64(buffer, root->children[0]->reg, root->children[0]->reg);
+        } else {
+            commandLD(buffer, "q", root->children[0]->reg, root->children[0]->reg);
+        }
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
@@ -462,7 +479,6 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
                 }
             } else if (strcmp(root->children[1]->type->typeName, "char") == 0) {
                 unsigned char value = parseEscapedChar(root->children[1]->label);
-                printf("Got: %c\n", root->children[1]->label[1]);
                 char output[6]; 
                 sprintf(output, "0x%02X", value);
                 commandLDI32(buffer, root->reg, output);

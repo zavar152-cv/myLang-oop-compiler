@@ -25,26 +25,292 @@ test:
 main:
 
 .BB0:
-  ENTER 6
+  ENTER 8
 .BB1:
-  LDI32 R0, const1
-  ST q R0, [BP, -24]
-  LD q R0, [BP, -24]
+  LDI32 AR, const3
+  LDC64 R1, AR
+  LDI32 R0, const2
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R1
+  PUSH R0
+  POP R0
+  POP R1
+  ADD q ALR, R1
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  LD b R0, [BP, -24]
+  LDI32 R1, 1
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LDI32 R1, 0x31
+  ST q R1, R0
+  LD b R0, [BP, -24]
+  LDI32 R1, 2
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LDI32 R1, 0x68
+  ST q R1, R0
+  LD b R0, [BP, -24]
+  LDI32 R1, 1
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R0
+  POP R0
+  MOV OUT, R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  LDI32 R0, 0x0A
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R0
+  POP R0
+  MOV OUT, R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  LD b R0, [BP, -24]
+  LDI32 R1, 2
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R0
+  POP R0
+  MOV OUT, R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  LDI32 R0, 0x0A
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R0
+  POP R0
+  MOV OUT, R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  LDI32 AR, const5
+  LDC64 R1, AR
+  LDI32 R0, const4
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R1
+  PUSH R0
+  POP R0
+  POP R1
+  ADD q ALR, R1
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  LD b R0, [BP, -32]
+  LDI32 R1, 6
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LDI32 R1, 0x32
+  ST q R1, R0
+  LD b R0, [BP, -32]
+  LDI32 R1, 5
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LDI32 R1, 0x6B
+  ST q R1, R0
+  LD b R0, [BP, -32]
+  LDI32 R1, 6
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R0
+  POP R0
+  MOV OUT, R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  LDI32 R0, 0x0A
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R0
+  POP R0
+  MOV OUT, R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  LD b R0, [BP, -32]
+  LDI32 R1, 5
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R0
+  POP R0
+  MOV OUT, R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  LDI32 R0, 0x0A
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R0
+  POP R0
+  MOV OUT, R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  LDI32 R0, const6
+  ST q R0, [BP, -40]
+  LD q R0, [BP, -40]
   LDI32 R1, 0
   LDI32 BR2, 8
   MUL q R1, BR2
   ADD q R0, R1
   LDC64 R0, R0
-  ST b R0, [BP, -32]
+  ST b R0, [BP, -48]
   LDI32 R0, 0
-  ST d R0, [BP, -40]
+  ST d R0, [BP, -56]
   LDI32 R0, 14
-  ST d R0, [BP, -48]
+  ST d R0, [BP, -64]
   JMP .BB2
 
 .BB2:
-  LD d R0, [BP, -40]
-  LD d R1, [BP, -48]
+  LD d R0, [BP, -56]
+  LD d R1, [BP, -64]
   NEQ R0, R1
   JZ .BB4
   JNZ .BB3
@@ -126,8 +392,8 @@ main:
   JMP .BB5
 
 .BB4:
-  LD q R0, [BP, -24]
-  LD d R1, [BP, -40]
+  LD q R0, [BP, -40]
+  LD d R1, [BP, -56]
   LDI32 BR2, 8
   MUL q R1, BR2
   ADD q R0, R1
@@ -152,10 +418,10 @@ main:
   POP R2
   POP R1
   POP R0
-  LD d R0, [BP, -40]
+  LD d R0, [BP, -56]
   LDI32 R1, 1
   ADD d R0, R1
-  ST d R0, [BP, -40]
+  ST d R0, [BP, -56]
   JMP .BB2
 
 .BB5:
@@ -163,7 +429,7 @@ main:
   LDI32 R1, 10
   EQ R0, R1
   JZ .BB7
-  JNZ .BB6
+  JNZ .BB8
 
 .BB6:
   LDI32 R0, 0x0A
@@ -292,28 +558,31 @@ main:
   POP R0
   LDI32 R0, 0
   MOV RT, R0
-  JMP .BB11
+  JMP .BB18
 
 .BB7:
   LDI32 R0, 0
-  ST d R0, [BP, -40]
+  ST d R0, [BP, -56]
   LDI32 R0, 4
-  ST d R0, [BP, -48]
-  JMP .BB8
+  ST d R0, [BP, -64]
+  JMP .BB9
 
 .BB8:
-  LD d R0, [BP, -40]
-  LD d R1, [BP, -48]
-  NEQ R0, R1
-  JZ .BB10
-  JNZ .BB9
+  JMP .BB12
 
 .BB9:
-  JMP .BB6
+  LD d R0, [BP, -56]
+  LD d R1, [BP, -64]
+  NEQ R0, R1
+  JZ .BB11
+  JNZ .BB10
 
 .BB10:
-  LDI32 R0, const0
-  LD d R1, [BP, -40]
+  JMP .BB6
+
+.BB11:
+  LDI32 R0, const1
+  LD d R1, [BP, -56]
   LDI32 BR2, 8
   MUL q R1, BR2
   ADD q R0, R1
@@ -338,14 +607,74 @@ main:
   POP R2
   POP R1
   POP R0
-  LD d R0, [BP, -40]
+  LD d R0, [BP, -56]
   LDI32 R1, 1
   ADD d R0, R1
-  ST d R0, [BP, -40]
-  JMP .BB8
+  ST d R0, [BP, -56]
+  JMP .BB9
 
-.BB11:
-  LEAVE 6
+.BB12:
+  LD d R0, [BP, -16]
+  LDI32 R1, 9
+  EQ R0, R1
+  JZ .BB14
+  JNZ .BB13
+
+.BB13:
+  JMP .BB6
+
+.BB14:
+  LDI32 R0, 0
+  ST d R0, [BP, -56]
+  LDI32 R0, 3
+  ST d R0, [BP, -64]
+  JMP .BB15
+
+.BB15:
+  LD d R0, [BP, -56]
+  LD d R1, [BP, -64]
+  NEQ R0, R1
+  JZ .BB17
+  JNZ .BB16
+
+.BB16:
+  JMP .BB13
+
+.BB17:
+  LDI32 R0, const0
+  LD d R1, [BP, -56]
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LDC64 R0, R0
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R0
+  POP R0
+  MOV OUT, R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  LD d R0, [BP, -56]
+  LDI32 R1, 1
+  ADD d R0, R1
+  ST d R0, [BP, -56]
+  JMP .BB15
+
+.BB18:
+  LEAVE 8
 
   HLT
 
@@ -353,11 +682,32 @@ main:
 
 
 const0:
+  dq 0x4E
+  dq 0x4F
+  dq 0x00
+const1:
   dq 0x59
   dq 0x45
   dq 0x53
   dq 0x00
-const1:
+const2:
+  dq 0x61
+  dq 0x72
+  dq 0x72
+  dq 0x00
+const3:
+  dq 4
+
+const4:
+  dq 0x61
+  dq 0x72
+  dq 0x72
+  dq 0x32
+  dq 0x00
+const5:
+  dq 8
+
+const6:
   dq 0x48
   dq 0x65
   dq 0x6C
