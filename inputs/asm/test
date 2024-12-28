@@ -30,7 +30,7 @@ int main(string[] args) {
         i = i + 1;
     }
     
-    __writeChar('\n'); // \n
+    __writeChar('\n');
 
     int ret = test(1, 2, 3, test(1, 1, 1, test(0, 0, 0, test(0, 0, 0, 1))));
     if (ret == 10) {
@@ -96,5 +96,21 @@ int recursive(int i) {
         __writeChar('\n');
         recursive(i + 1);
     }
+    0;
+}
+
+int strlength(string str) {
+    int len = 0;
+    while (true == true) {
+        if (str[len] == '\0') {
+            break;
+        }
+        len = len + 1;
+    }
+    len;
+}
+
+int println() {
+    __writeChar('\n');
     0;
 }

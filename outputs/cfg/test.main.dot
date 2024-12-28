@@ -1045,10 +1045,12 @@ digraph CFG {
         node366 [label="write <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
         node367 [label="l <int:0, reg: AR, spilled: 0, offset: 0>", color=blue];
         node366 -> node367[color=blue];
-        node368 [label="litRead <int:0, reg: R0, spilled: 0, offset: 0>", color=blue];
-        node369 [label="DEC", color=blue];
+        node368 [label="call <int:0, reg: RT, spilled: 0, offset: 0>", color=blue];
+        node369 [label="strlength <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
         node368 -> node369[color=blue];
-        node370 [label="14 <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node370 [label="read <string:0, reg: R0, spilled: 0, offset: 0>", color=blue];
+        node371 [label="s <string:0, reg: AR, spilled: 0, offset: 0>", color=blue];
+        node370 -> node371[color=blue];
         node368 -> node370[color=blue];
         node366 -> node368[color=blue];
         node361 -> node366[color=blue];

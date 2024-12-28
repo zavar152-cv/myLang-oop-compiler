@@ -24,19 +24,16 @@ ulong __castToUlongFromByte(byte b);
 ulong __castToUlongFromInt(int i);
 ulong __castToUlongFromLong(long l);
 
-//deprecated
-int __initArray(string type, string varName, int dim, int sizes ...);
-
-//memory
+//memory allocation
 void __alloc(string var, long size);
 
+//todo
 long __sizeof(string type);
 
-int __lengthof(string s);
-
-//io
+//base input
 byte __read();
 char __readChar();
 
+//base output
 void __write(byte b);
 void __writeChar(char c);

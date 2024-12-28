@@ -1,15 +1,18 @@
 digraph CallGraph {
     node [shape=ellipse, style=filled, color=lightblue];
 
+    "strlength";
     "test";
     "__readChar";
     "retString";
     "main";
     "__alloc";
     "retArr";
-    "__writeChar";
     "recursive";
+    "__writeChar";
+    "println";
 
+    "main" -> "strlength" [color=blue];
     "main" -> "recursive" [color=blue];
     "main" -> "retArr" [color=blue];
     "main" -> "__alloc" [color=blue];
@@ -20,4 +23,5 @@ digraph CallGraph {
     "retArr" -> "__alloc" [color=blue];
     "recursive" -> "recursive" [color=blue];
     "recursive" -> "__writeChar" [color=blue];
+    "println" -> "__writeChar" [color=blue];
 }
