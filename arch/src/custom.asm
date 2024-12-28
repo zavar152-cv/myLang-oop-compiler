@@ -1,6 +1,71 @@
     [section codeM]
 
   JMP main
+retString:
+
+.BB0:
+  ENTER 0
+.BB1:
+  LDI32 R0, retString_const0
+  MOV RT, R0
+  JMP .BB2
+
+.BB2:
+  LEAVE 0
+  RET
+
+retArr:
+
+.BB0:
+  ENTER 1
+.BB1:
+  LDI32 AR, retArr_const1
+  LDC64 R1, AR
+  LDI32 R0, retArr_const0
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R1
+  PUSH R0
+  POP R0
+  POP R1
+  ADD q ALR, R1
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  LD b R0, [BP, -8]
+  LDI32 R1, 6
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LDI32 R1, 0x32
+  ST q R1, R0
+  LD b R0, [BP, -8]
+  LDI32 R1, 5
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LDI32 R1, 0x6B
+  ST q R1, R0
+  LD b R0, [BP, -8]
+  MOV RT, R0
+  JMP .BB2
+
+.BB2:
+  LEAVE 1
+  RET
+
 test:
 
 .BB0:
@@ -27,9 +92,9 @@ main:
 .BB0:
   ENTER 8
 .BB1:
-  LDI32 AR, const3
+  LDI32 AR, main_const3
   LDC64 R1, AR
-  LDI32 R0, const2
+  LDI32 R0, main_const2
   MOV BR1, SP
   PUSH R0
   PUSH R1
@@ -160,9 +225,6 @@ main:
   POP R2
   POP R1
   POP R0
-  LDI32 AR, const5
-  LDC64 R1, AR
-  LDI32 R0, const4
   MOV BR1, SP
   PUSH R0
   PUSH R1
@@ -172,11 +234,7 @@ main:
   PUSH R5
   PUSH R6
   PUSH R7
-  PUSH R1
-  PUSH R0
-  POP R0
-  POP R1
-  ADD q ALR, R1
+  CALL retArr
   POP R7
   POP R6
   POP R5
@@ -185,20 +243,7 @@ main:
   POP R2
   POP R1
   POP R0
-  LD b R0, [BP, -32]
-  LDI32 R1, 6
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LDI32 R1, 0x32
-  ST q R1, R0
-  LD b R0, [BP, -32]
-  LDI32 R1, 5
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LDI32 R1, 0x6B
-  ST q R1, R0
+  ST b RT, [BP, -32]
   LD b R0, [BP, -32]
   LDI32 R1, 6
   LDI32 BR2, 8
@@ -293,7 +338,7 @@ main:
   POP R2
   POP R1
   POP R0
-  LDI32 R0, const6
+  LDI32 R0, main_const4
   ST q R0, [BP, -40]
   LD q R0, [BP, -40]
   LDI32 R1, 0
@@ -453,6 +498,154 @@ main:
   POP R2
   POP R1
   POP R0
+  LDI32 R0, 0
+  ST d R0, [BP, -56]
+  LDI32 R0, 3
+  ST d R0, [BP, -64]
+  JMP .BB18
+
+.BB7:
+  LDI32 R0, 0
+  ST d R0, [BP, -56]
+  LDI32 R0, 4
+  ST d R0, [BP, -64]
+  JMP .BB9
+
+.BB8:
+  JMP .BB12
+
+.BB9:
+  LD d R0, [BP, -56]
+  LD d R1, [BP, -64]
+  NEQ R0, R1
+  JZ .BB11
+  JNZ .BB10
+
+.BB10:
+  JMP .BB6
+
+.BB11:
+  LDI32 R0, main_const1
+  LD d R1, [BP, -56]
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LDC64 R0, R0
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R0
+  POP R0
+  MOV OUT, R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  LD d R0, [BP, -56]
+  LDI32 R1, 1
+  ADD d R0, R1
+  ST d R0, [BP, -56]
+  JMP .BB9
+
+.BB12:
+  LD d R0, [BP, -16]
+  LDI32 R1, 9
+  EQ R0, R1
+  JZ .BB14
+  JNZ .BB13
+
+.BB13:
+  JMP .BB6
+
+.BB14:
+  LDI32 R0, 0
+  ST d R0, [BP, -56]
+  LDI32 R0, 3
+  ST d R0, [BP, -64]
+  JMP .BB15
+
+.BB15:
+  LD d R0, [BP, -56]
+  LD d R1, [BP, -64]
+  NEQ R0, R1
+  JZ .BB17
+  JNZ .BB16
+
+.BB16:
+  JMP .BB13
+
+.BB17:
+  LDI32 R0, main_const0
+  LD d R1, [BP, -56]
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LDC64 R0, R0
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R0
+  POP R0
+  MOV OUT, R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  LD d R0, [BP, -56]
+  LDI32 R1, 1
+  ADD d R0, R1
+  ST d R0, [BP, -56]
+  JMP .BB15
+
+.BB18:
+  LD d R0, [BP, -56]
+  LD d R1, [BP, -64]
+  NEQ R0, R1
+  JZ .BB20
+  JNZ .BB19
+
+.BB19:
+  LDI32 R0, 0x0A
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R0
+  POP R0
+  MOV OUT, R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
   MOV BR1, SP
   PUSH R0
   PUSH R1
@@ -558,122 +751,59 @@ main:
   POP R0
   LDI32 R0, 0
   MOV RT, R0
+  JMP .BB21
+
+.BB20:
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  CALL retString
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  LD d R0, [BP, -56]
+  LDI32 BR2, 8
+  MUL q R0, BR2
+  ADD q RT, R0
+  LDC64 RT, RT
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH RT
+  POP R0
+  MOV OUT, R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  LD d R0, [BP, -56]
+  LDI32 R1, 1
+  ADD d R0, R1
+  ST d R0, [BP, -56]
   JMP .BB18
 
-.BB7:
-  LDI32 R0, 0
-  ST d R0, [BP, -56]
-  LDI32 R0, 4
-  ST d R0, [BP, -64]
-  JMP .BB9
-
-.BB8:
-  JMP .BB12
-
-.BB9:
-  LD d R0, [BP, -56]
-  LD d R1, [BP, -64]
-  NEQ R0, R1
-  JZ .BB11
-  JNZ .BB10
-
-.BB10:
-  JMP .BB6
-
-.BB11:
-  LDI32 R0, const1
-  LD d R1, [BP, -56]
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LDC64 R0, R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV OUT, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LD d R0, [BP, -56]
-  LDI32 R1, 1
-  ADD d R0, R1
-  ST d R0, [BP, -56]
-  JMP .BB9
-
-.BB12:
-  LD d R0, [BP, -16]
-  LDI32 R1, 9
-  EQ R0, R1
-  JZ .BB14
-  JNZ .BB13
-
-.BB13:
-  JMP .BB6
-
-.BB14:
-  LDI32 R0, 0
-  ST d R0, [BP, -56]
-  LDI32 R0, 3
-  ST d R0, [BP, -64]
-  JMP .BB15
-
-.BB15:
-  LD d R0, [BP, -56]
-  LD d R1, [BP, -64]
-  NEQ R0, R1
-  JZ .BB17
-  JNZ .BB16
-
-.BB16:
-  JMP .BB13
-
-.BB17:
-  LDI32 R0, const0
-  LD d R1, [BP, -56]
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LDC64 R0, R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV OUT, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LD d R0, [BP, -56]
-  LDI32 R1, 1
-  ADD d R0, R1
-  ST d R0, [BP, -56]
-  JMP .BB15
-
-.BB18:
+.BB21:
   LEAVE 8
 
   HLT
@@ -681,33 +811,38 @@ main:
     [section constantsM]
 
 
-const0:
-  dq 0x4E
-  dq 0x4F
+retString_const0:
+  dq 0x6C
+  dq 0x6F
+  dq 0x6C
   dq 0x00
-const1:
-  dq 0x59
-  dq 0x45
-  dq 0x53
-  dq 0x00
-const2:
-  dq 0x61
-  dq 0x72
-  dq 0x72
-  dq 0x00
-const3:
-  dq 4
-
-const4:
+retArr_const0:
   dq 0x61
   dq 0x72
   dq 0x72
   dq 0x32
   dq 0x00
-const5:
+retArr_const1:
   dq 8
 
-const6:
+main_const0:
+  dq 0x4E
+  dq 0x4F
+  dq 0x00
+main_const1:
+  dq 0x59
+  dq 0x45
+  dq 0x53
+  dq 0x00
+main_const2:
+  dq 0x61
+  dq 0x72
+  dq 0x72
+  dq 0x00
+main_const3:
+  dq 4
+
+main_const4:
   dq 0x48
   dq 0x65
   dq 0x6C

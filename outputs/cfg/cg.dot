@@ -1,14 +1,19 @@
 digraph CallGraph {
     node [shape=ellipse, style=filled, color=lightblue];
 
-    "__alloc";
     "test";
     "__readChar";
+    "retString";
     "__writeChar";
     "main";
+    "__alloc";
+    "retArr";
 
+    "main" -> "retArr" [color=blue];
     "main" -> "__alloc" [color=blue];
     "main" -> "test" [color=blue];
     "main" -> "__readChar" [color=blue];
+    "main" -> "retString" [color=blue];
     "main" -> "__writeChar" [color=blue];
+    "retArr" -> "__alloc" [color=blue];
 }

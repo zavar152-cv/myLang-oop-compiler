@@ -11,11 +11,7 @@ int main(string[] args) {
     __writeChar(arr[2]);
     __writeChar('\n');
 
-    char[] arr2;
-    __alloc("arr2", 8);
-
-    arr2[6] = '2';
-    arr2[5] = 'k';
+    char[] arr2 = retArr();
 
     __writeChar(arr2[6]);
     __writeChar('\n');
@@ -80,6 +76,16 @@ int main(string[] args) {
 
     __writeChar('\n'); // \n
 
+
+    i = 0;
+    l = 3;
+    while (i != l) {
+        __writeChar(retString()[i]);
+        i = i + 1;
+    }
+
+    __writeChar('\n'); // \n
+
     char in = __readChar();
     __writeChar(in);
     __writeChar('\n');
@@ -92,4 +98,17 @@ int main(string[] args) {
 int test(int a, int b, int c, int d) {
     int r = a + b + c + d;
     r;
+}
+
+char[] retArr() {
+    char[] arr2;
+    __alloc("arr2", 8);
+
+    arr2[6] = '2';
+    arr2[5] = 'k';
+    arr2;
+}
+
+string retString() {
+    "lol";
 }
