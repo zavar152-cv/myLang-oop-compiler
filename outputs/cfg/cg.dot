@@ -4,11 +4,13 @@ digraph CallGraph {
     "test";
     "__readChar";
     "retString";
-    "__writeChar";
     "main";
     "__alloc";
     "retArr";
+    "__writeChar";
+    "recursive";
 
+    "main" -> "recursive" [color=blue];
     "main" -> "retArr" [color=blue];
     "main" -> "__alloc" [color=blue];
     "main" -> "test" [color=blue];
@@ -16,4 +18,6 @@ digraph CallGraph {
     "main" -> "retString" [color=blue];
     "main" -> "__writeChar" [color=blue];
     "retArr" -> "__alloc" [color=blue];
+    "recursive" -> "recursive" [color=blue];
+    "recursive" -> "__writeChar" [color=blue];
 }

@@ -115,8 +115,8 @@
 
 void calcMaxRegs(OperationTreeNode *root, uint8_t *maxRegs);
 
-void prepareRegsAndTemps(OperationTreeNode *root);
+void prepareRegsAndTemps(OperationTreeNode *root, bool debug);
 
 void generateASMForOT(FunctionEntry *entry, OperationTreeNode *root, struct StringBuffer *buffer);
 
-void generateASMForFunction(struct StringBuffer *buffer, FunctionInfo *func, FunctionEntry *funcE, bool main);
+void generateASMForFunction(struct StringBuffer *buffer, FunctionInfo *func, FunctionEntry *funcE, bool main, bool debug);

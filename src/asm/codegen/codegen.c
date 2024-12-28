@@ -54,8 +54,18 @@ void prepareRegsAndTempsHelper(OperationTreeNode *root, StringStack *stack, bool
             printf("Index result in reg %s\n", root->reg);
     } else if (strcmp(root->label, OT_CALL) == 0) {
         uint8_t offset = 0;
+        StringStack *stackForCall = (StringStack *)malloc(sizeof(StringStack));
+        initStack(stackForCall);
+        pushStack(stackForCall, REG_R7);
+        pushStack(stackForCall, REG_R6);
+        pushStack(stackForCall, REG_R5);
+        pushStack(stackForCall, REG_R4);
+        pushStack(stackForCall, REG_R3);
+        pushStack(stackForCall, REG_R2);
+        pushStack(stackForCall, REG_R1);
+        pushStack(stackForCall, REG_R0);
         for (uint32_t i = 1; i < root->childCount; i++) {
-            prepareRegsAndTempsHelper(root->children[i], stack, stackOnly, debug);
+            prepareRegsAndTempsHelper(root->children[i], stackForCall, stackOnly, debug);
             if (stackOnly) {
                 pushStack(stack, root->children[i]->reg);
                 root->reg = root->children[i]->reg;
@@ -64,6 +74,8 @@ void prepareRegsAndTempsHelper(OperationTreeNode *root, StringStack *stack, bool
                 root->children[i]->offset = offset; 
             } 
         }
+        freeStack(stackForCall);
+        free(stackForCall);
         root->reg = strdup(REG_RT);
         if (debug)
             printf("Call result in reg %s\n", root->reg);
@@ -131,7 +143,7 @@ void prepareRegsAndTempsHelper(OperationTreeNode *root, StringStack *stack, bool
     }
 }
 
-void prepareRegsAndTemps(OperationTreeNode *root) {
+void prepareRegsAndTemps(OperationTreeNode *root, bool debug) {
     StringStack *stack = (StringStack *)malloc(sizeof(StringStack));
     initStack(stack);
     pushStack(stack, REG_R7);
@@ -149,7 +161,7 @@ void prepareRegsAndTemps(OperationTreeNode *root) {
         calcMaxRegs(root->children[2], &maxRegs);
 
         bool stackOnly = maxRegs > 8;
-        prepareRegsAndTempsHelper(root->children[2], stack, stackOnly, true);
+        prepareRegsAndTempsHelper(root->children[2], stack, stackOnly, debug);
     } else if (strcmp(root->label, SEQ_DECLARE) == 0) {
         for (uint32_t i = 0; i < root->childCount; i++) {
             if (strcmp(root->label, DECLARE) == 0 && root->childCount == 3) {
@@ -157,7 +169,7 @@ void prepareRegsAndTemps(OperationTreeNode *root) {
                 calcMaxRegs(root->children[i], &maxRegs);
 
                 bool stackOnly = maxRegs > 8;
-                prepareRegsAndTempsHelper(root->children[i], stack, stackOnly, true);
+                prepareRegsAndTempsHelper(root->children[i], stack, stackOnly, debug);
             } 
         }
     } else {
@@ -165,7 +177,7 @@ void prepareRegsAndTemps(OperationTreeNode *root) {
         calcMaxRegs(root, &maxRegs);
 
         bool stackOnly = maxRegs > 8;
-        prepareRegsAndTempsHelper(root, stack, stackOnly, true);
+        prepareRegsAndTempsHelper(root, stack, stackOnly, debug);
     }
     
 
@@ -616,7 +628,7 @@ int compareBlocks(const void *a, const void *b) {
     return (blockA->id - blockB->id);
 }
 
-void generateASMForFunction(struct StringBuffer *buffer, FunctionInfo *func, FunctionEntry *funcE, bool main) {
+void generateASMForFunction(struct StringBuffer *buffer, FunctionInfo *func, FunctionEntry *funcE, bool main, bool debug) {
     stringbuffer_append_string(buffer, func->functionName);
     stringbuffer_append_string(buffer, ":\n\n");
 

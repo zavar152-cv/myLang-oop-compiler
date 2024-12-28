@@ -250,7 +250,7 @@ int main(int argc, char *argv[]) {
             while (b != NULL) {
                 for (int i = 0; i < b->instructionCount; i++) {
                     scanOperationTreeForVars(funcE, b->instructions[i].otRoot);
-                    prepareRegsAndTemps(b->instructions[i].otRoot);
+                    prepareRegsAndTemps(b->instructions[i].otRoot, arguments.debug);
                 }
                 b = b->next;
             }
@@ -308,7 +308,7 @@ int main(int argc, char *argv[]) {
             }
             }
             bool isMain = strcmp(funcE->functionName, "main") == 0;
-            generateASMForFunction(buffer, func, funcE, isMain);
+            generateASMForFunction(buffer, func, funcE, isMain, arguments.debug);
 
         }
 
@@ -352,7 +352,8 @@ int main(int argc, char *argv[]) {
     }
 
     char *out = stringbuffer_to_string(buffer);
-    printf("%s\n\n", out);
+    if (arguments.debug)
+        printf("%s\n\n", out);
     stringbuffer_release(buffer);
 
     FILE *asmFile = fopen(arguments.asm_dir, "w");

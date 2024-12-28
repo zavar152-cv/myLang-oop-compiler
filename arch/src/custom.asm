@@ -1,6 +1,93 @@
     [section codeM]
 
   JMP main
+recursive:
+
+.BB0:
+  ENTER 0
+.BB1:
+  LD d R0, [BP, 16]
+  LDI32 R1, 8
+  LE R0, R1
+  JZ .BB3
+  JNZ .BB2
+
+.BB2:
+  LDI32 R0, 0
+  MOV RT, R0
+  JMP .BB4
+
+.BB3:
+  LDI32 R0, 0x6C
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R0
+  POP R0
+  MOV OUT, R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  LDI32 R0, 0x0A
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R0
+  POP R0
+  MOV OUT, R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  LD d R0, [BP, 16]
+  LDI32 R1, 1
+  ADD d R0, R1
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R0
+  CALL recursive
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  JMP .BB2
+
+.BB4:
+  LEAVE 0
+  RET
+
 retString:
 
 .BB0:
@@ -338,6 +425,26 @@ main:
   POP R2
   POP R1
   POP R0
+  LDI32 R0, 0
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R0
+  CALL recursive
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
   LDI32 R0, main_const4
   ST q R0, [BP, -40]
   LD q R0, [BP, -40]
@@ -382,10 +489,10 @@ main:
   POP R2
   POP R1
   POP R0
-  LDI32 R6, 1
-  LDI32 R5, 1
-  LDI32 R4, 1
   LDI32 R3, 1
+  LDI32 R2, 0
+  LDI32 R1, 0
+  LDI32 R0, 0
   MOV BR1, SP
   PUSH R0
   PUSH R1
@@ -395,10 +502,60 @@ main:
   PUSH R5
   PUSH R6
   PUSH R7
-  PUSH R6
-  PUSH R5
-  PUSH R4
   PUSH R3
+  PUSH R2
+  PUSH R1
+  PUSH R0
+  CALL test
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  LDI32 R2, 0
+  LDI32 R1, 0
+  LDI32 R0, 0
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH RT
+  PUSH R2
+  PUSH R1
+  PUSH R0
+  CALL test
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  LDI32 R2, 1
+  LDI32 R1, 1
+  LDI32 R0, 1
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH RT
+  PUSH R2
+  PUSH R1
+  PUSH R0
   CALL test
   POP R7
   POP R6

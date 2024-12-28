@@ -280,6 +280,7 @@ BasicBlock* parseWhile(MyAstNode* whileBlock, Program *program, const char* file
       conditionBlock = existingBlock;
       free(conditionBlock->name);
       conditionBlock->name = strdup("While Condition");
+      conditionBlock->type = CONDITIONAL;
     }
 
 
@@ -325,6 +326,7 @@ BasicBlock *parseIf(MyAstNode* ifBlock, Program *program, const char* filename, 
       conditionBlock = existingBlock;
       free(conditionBlock->name);
       conditionBlock->name = strdup("If Condition");
+      conditionBlock->type = CONDITIONAL;
     }
 
     BasicBlock *emptyBlock = createEmptyBasicBlock(++(*uid), UNCONDITIONAL, "Empty block");
