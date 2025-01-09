@@ -66,7 +66,7 @@ strlength:
   MUL q R1, BR2
   ADD q R0, R1
   LDC64 R0, R0
-  LDI32 R1, 0x30
+  LDI32 R1, 0x00
   EQ R0, R1
   JZ .BB7
   JNZ .BB6

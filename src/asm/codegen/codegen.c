@@ -255,6 +255,7 @@ char parseEscapedChar(const char *str) {
         case 'n':  return '\n';
         case 't':  return '\t';
         case 'r':  return '\r';
+        case '0':  return '\0';
         case '\\': return '\\';
         default:   return str[2];
     }

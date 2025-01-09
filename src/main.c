@@ -356,7 +356,7 @@ int main(int argc, char *argv[]) {
         printf("%s\n\n", out);
     stringbuffer_release(buffer);
 
-    FILE *asmFile = fopen(arguments.asm_dir, "w");
+    FILE *asmFile = fopen(arguments.asm_dir, "wa");
     fprintf(asmFile, "%s", out);
     fclose(asmFile);
     free(out);

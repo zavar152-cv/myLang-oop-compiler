@@ -24,7 +24,7 @@ int main(string[] args) {
     char c = s[0];
 
     int i = 0;
-    int l = 14;
+    int l = strlength(s);
     while (i != l) {
         __writeChar(s[i]);
         i = i + 1;
@@ -96,21 +96,5 @@ int recursive(int i) {
         __writeChar('\n');
         recursive(i + 1);
     }
-    0;
-}
-
-int strlength(string str) {
-    int len = 0;
-    while (true == true) {
-        if (str[len] == '\0') {
-            break;
-        }
-        len = len + 1;
-    }
-    len;
-}
-
-int println() {
-    __writeChar('\n');
     0;
 }

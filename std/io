@@ -1,0 +1,15 @@
+int strlength(string str) {
+    int len = 0;
+    while (true == true) {
+        if (str[len] == '\0') {
+            break;
+        }
+        len = len + 1;
+    }
+    len;
+}
+
+int println() {
+    __writeChar('\n');
+    0;
+}
