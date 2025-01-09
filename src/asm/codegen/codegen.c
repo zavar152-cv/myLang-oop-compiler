@@ -686,6 +686,8 @@ void generateASMForFunction(struct StringBuffer *buffer, FunctionInfo *func, Fun
     commandLEAVE(buffer, localsNumberBuffer);
     if(!main)
         commandRET(buffer);
+    else
+        commandHLT(buffer);
     stringbuffer_append_string(buffer, "\n");
     free(array);
 }

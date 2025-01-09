@@ -314,7 +314,6 @@ int main(int argc, char *argv[]) {
 
         funcE = funcE->next;
     }
-    commandHLT(buffer);
 
     stringbuffer_append_string(buffer, "\n    [section constantsM]\n\n");
     funcE = prog->functionTable->entry;
