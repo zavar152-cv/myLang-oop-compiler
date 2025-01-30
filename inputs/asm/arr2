@@ -1,0 +1,15 @@
+int main(string[] args) {
+
+    char[][] c2 = retArr2();
+    __writeChar(c2[0][5]);
+    0;
+}
+
+char[][] retArr2() {
+    char[][] arr3;
+    __alloc("arr3", 16);
+
+    arr3[0][6] = '2';
+    arr3[0][5] = 'k';
+    arr3;
+}

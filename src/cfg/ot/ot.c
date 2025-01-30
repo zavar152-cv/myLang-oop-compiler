@@ -735,7 +735,6 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLva
           }
         }
       }
-
       if (!isLvalue) {
         free(indexNode->label);
         indexNode->label = strdup(INDEXR);
