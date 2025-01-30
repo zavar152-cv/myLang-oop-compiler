@@ -89,7 +89,9 @@ void prepareRegsAndTempsHelper(OperationTreeNode *root, StringStack *stack, bool
                 strcmp(root->label, OP_GR) == 0 ||
                 strcmp(root->label, OP_LE) == 0 ||
                 strcmp(root->label, OP_GREQ) == 0 ||
-                strcmp(root->label, OP_LEEQ) == 0) {
+                strcmp(root->label, OP_LEEQ) == 0 ||
+                strcmp(root->label, OP_AND) == 0 ||
+                strcmp(root->label, OP_OR) == 0) {
         prepareRegsAndTempsHelper(root->children[0], stack, stackOnly, debug);
         prepareRegsAndTempsHelper(root->children[1], stack, stackOnly, debug);
         pushStack(stack, root->children[1]->reg);
@@ -216,9 +218,11 @@ void generateBuiltin(const char *name, FunctionEntry *entry, OperationTreeNode *
         commandMOV(buffer, REG_OUT, REG_R0);
     } else if (strcmp(name, "__readChar") == 0) {
         commandMOV(buffer, REG_RT, REG_IN);
-    } else if (strcmp(name, "__castToIntFromByte") == 0){
+    } else if (strcmp(name, "__toIntFromByte") == 0){
         commandCBD(buffer, REG_RT, root->children[1]->reg);
-    } else if (strcmp(name, "__lengthof") == 0){
+    } else if (strcmp(name, "__toByteFromInt") == 0){
+        commandMOVT(buffer, "d", REG_RT, root->children[1]->reg);
+    }  else if (strcmp(name, "__lengthof") == 0){
         
     } else if (strcmp(name, "__alloc") == 0){
         const char *varName = root->children[1]->children[0]->label;
@@ -443,6 +447,20 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
         generateASMForOTHelper(entry, root->children[0], buffer);
         generateASMForOTHelper(entry, root->children[1], buffer);
         commandLEEQ(buffer, root->children[0]->reg, root->children[1]->reg);
+        if (root->isSpilled) {
+            commandPUSH(buffer, root->reg);
+        }
+    } else if (strcmp(root->label, OP_AND) == 0) {
+        generateASMForOTHelper(entry, root->children[0], buffer);
+        generateASMForOTHelper(entry, root->children[1], buffer);
+        commandAND(buffer, "q", root->children[0]->reg, root->children[1]->reg);
+        if (root->isSpilled) {
+            commandPUSH(buffer, root->reg);
+        }
+    } else if (strcmp(root->label, OP_OR) == 0) {
+        generateASMForOTHelper(entry, root->children[0], buffer);
+        generateASMForOTHelper(entry, root->children[1], buffer);
+        commandOR(buffer, "q", root->children[0]->reg, root->children[1]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }

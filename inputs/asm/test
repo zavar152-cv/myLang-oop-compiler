@@ -1,5 +1,8 @@
 int main(string[] args) {
 
+    printNumber(123);
+    __writeChar('\n');
+
     char[] arr;
     __alloc("arr", 4);
 
@@ -67,7 +70,9 @@ int main(string[] args) {
     __writeChar('a');
     __writeChar('\n');
 
-    
+    char[][] c2 = retArr2();
+    __writeChar(c2[0][5]);
+    __writeChar('\n');
 
     0;
 }
@@ -84,6 +89,15 @@ char[] retArr() {
     arr2[6] = '2';
     arr2[5] = 'k';
     arr2;
+}
+
+char[][] retArr2() {
+    char[][] arr3;
+    __alloc("arr3", 16);
+
+    arr3[0][6] = '2';
+    arr3[0][5] = 'k';
+    arr3;
 }
 
 string retString() {

@@ -1,28 +1,28 @@
 //register __castToByte
-byte __castToByteFromInt(int i);
-byte __castToByteFromUint(uint ui);
-byte __castToByteFromLong(long l);
-byte __castToByteFromUlong(ulong ul);
+byte __toByteFromInt(int i);
+byte __toByteFromUint(uint ui);
+byte __toByteFromLong(long l);
+byte __toByteFromUlong(ulong ul);
 
 //register __castToInt
-int __castToIntFromByte(byte b);
-int __castToIntFromUint(uint ui);
-int __castToIntFromLong(long l);
-int __castToIntFromUlong(ulong ul);
+int __toIntFromByte(byte b);
+int __toIntFromUint(uint ui);
+int __toIntFromLong(long l);
+int __toIntFromUlong(ulong ul);
 
 //register __castToUint
-uint __castToUintFromByte(byte b);
-uint __castToUintFromInt(int i);
-uint __castToUintFromLong(long l);
-uint __castToUintFromUlong(ulong ul);
+uint __toUintFromByte(byte b);
+uint __toUintFromInt(int i);
+uint __toUintFromLong(long l);
+uint __toUintFromUlong(ulong ul);
 
 //register __castToLong
-long __castToLongFromUlong(ulong ul);
+long __toLongFromUlong(ulong ul);
 
 //register __castToUlong
-ulong __castToUlongFromByte(byte b);
-ulong __castToUlongFromInt(int i);
-ulong __castToUlongFromLong(long l);
+ulong __toUlongFromByte(byte b);
+ulong __toUlongFromInt(int i);
+ulong __toUlongFromLong(long l);
 
 //memory allocation
 void __alloc(string var, long size);

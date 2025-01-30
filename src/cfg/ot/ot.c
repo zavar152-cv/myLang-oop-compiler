@@ -191,7 +191,7 @@ bool isBinaryOperationAllowed(const char *op, const char *lType, const char *rTy
 }
 
 bool isUnaryOperationAllowed(const char *op, const char *type) {
-  return isNumericType(type) && (isArithmeticOp(op) || isLogicalOp(op));
+  return (isNumericType(type) || isLogicalType(type)) && (isArithmeticOp(op) || isLogicalOp(op));
 }
 
 void checkTypeCompatibility(OperationTreeNode *lValueExprNode, OperationTreeNode *rValueExprNode, OperationTreeErrorContainer *container, const char* filename) {

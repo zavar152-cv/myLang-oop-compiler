@@ -38,6 +38,8 @@
 #define OP_LE "<"
 #define OP_GREQ ">="
 #define OP_LEEQ "<="
+#define OP_AND "&&"
+#define OP_OR "||"
 
 #define OP_NOT "NOT"
 #define OP_NEG "NEG"
