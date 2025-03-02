@@ -2,6 +2,8 @@ digraph CallGraph {
     node [shape=ellipse, style=filled, color=lightblue];
 
     "__alloc";
+    "test";
+    "__allocRef";
     "printNumber";
     "__toIntFromByte";
     "println";
@@ -11,6 +13,8 @@ digraph CallGraph {
     "printNumber" -> "__alloc" [color=blue];
     "printNumber" -> "__writeChar" [color=blue];
     "println" -> "__writeChar" [color=blue];
+    "main" -> "test" [color=blue];
+    "main" -> "__allocRef" [color=blue];
     "main" -> "printNumber" [color=blue];
     "main" -> "__toIntFromByte" [color=blue];
     "main" -> "println" [color=blue];

@@ -246,6 +246,10 @@ void generateBuiltin(const char *name, FunctionEntry *entry, OperationTreeNode *
         }
         char offsetBuffer[1024];
         commandADD(buffer, "q", REG_ALR, REG_R1);        
+    } else if (strcmp(name, "__allocRef") == 0) {
+        commandPOP(buffer, REG_R0); //size
+        commandMOV(buffer, REG_RT, REG_ALR);
+        commandADD(buffer, "q", REG_ALR, REG_R0);  
     }
 }
 

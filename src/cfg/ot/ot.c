@@ -329,6 +329,18 @@ void checkTypeCompatibility(OperationTreeNode *lValueExprNode,
           addOperationTreeError(container, buffer);
         }
       }
+    } else if (strcmp(lValueExprNode->type->typeName, "ref") == 0) {
+      if (strcmp(rValueExprNode->type->typeName, "ref") != 0) {
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer),
+                 "Type error. Can't cast value at %s:%d:%d to ref. Ref type can be created only by compiler\n",
+                 filename, rValueExprNode->line, rValueExprNode->pos + 1);
+        if (container->error == NULL) {
+          container->error = createOperationTreeErrorInfo(buffer);
+        } else {
+          addOperationTreeError(container, buffer);
+        }
+      }
     }
   } else if (lValueExprNode->type->isArray) {
     if (rValueExprNode->type->isArray) {
@@ -346,6 +358,8 @@ void checkTypeCompatibility(OperationTreeNode *lValueExprNode,
           addOperationTreeError(container, buffer);
         }
       }
+    } else if (strcmp(rValueExprNode->type->typeName, "ref") == 0) {
+      //valid
     } else {
       if (strcmp(lValueExprNode->type->typeName,
                  rValueExprNode->type->typeName) != 0) {

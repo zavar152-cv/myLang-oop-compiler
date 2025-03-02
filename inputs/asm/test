@@ -47,6 +47,98 @@ int main(string[] args) {
     int g = __toIntFromByte(r);
     printNumber(g);
 
+    println();
+
+    int[] ar = __allocRef(4);
+    ar[0] = 1;
+    printNumber(ar[0]);
+    println();
+
+
+    int[] ar2 = __allocRef(4);
+    ar2[0] = 78978;
+    ar2[3] = 2;
+    printNumber(ar2[0]);
+    println();
+    printNumber(ar2[3]);
+    println();
+
+    int[][] ar3 = __allocRef(2);
+    ar3[0] = __allocRef(3);
+    ar3[1] = __allocRef(3);
+
+    ar3[1][0] = 410;
+
+    printNumber(ar3[1][0]);
+    println();
+
+    int[][] matrix = __allocRef(2);
+    ref l1 = __allocRef(2);
+    ref l2 = __allocRef(2);
+
+    int ch = test(1, 2, 3, 4);
+
+    println();
+    println();
+    printNumber(l1);
+    println();
+    printNumber(l2);
+    println();
+    println();
+
+    println();
+    println();
+    printNumber(matrix[0]);
+    println();
+    printNumber(matrix[1]);
+    println();
+    println();
+
+    println();
+    println();
+    printNumber(ch);
+    println();
+    println();
+
+
+    matrix[0] = l1;
+    matrix[1] = l2;
+
+    matrix[0][0] = 0;
+    matrix[0][1] = 1;
+
+    matrix[1][0] = 2;
+    matrix[1][1] = 3;
+
+    printNumber(matrix[0][0]);
+    println();
+    printNumber(matrix[0][1]);
+    println();
+    printNumber(matrix[1][0]);
+    println();
+    printNumber(matrix[1][1]);
+    println();
+
+    int i;
+    int l;
+    int ret = test(1, 2, 3, test(1, 1, 1, test(0, 0, 0, test(0, 0, 0, 1))));
+    if (ret == 10) {
+        i = 0;
+        l = 4;
+        while (i != l) {
+            __writeChar("YES"[i]);
+            i = i + 1;
+        }
+    } else if (ret == 9) {
+        i = 0;
+        l = 3;
+        while (i != l) {
+            __writeChar("NO"[i]);
+            i = i + 1;
+        }
+    }
+    println();
+
     0;
 }
 //     printNumber(123);
@@ -122,10 +214,10 @@ int main(string[] args) {
 //     0;
 // }
 
-// int test(int a, int b, int c, int d) {
-//     int r = a + b + c + d;
-//     r;
-// }
+int test(int a, int b, int c, int d) {
+    int r = a + b + c + d;
+    r;
+}
 
 // char[] retArr() {
 //     char[] arr2;

@@ -149,6 +149,7 @@ builtinType
     | ulongType
     | charType
     | stringType
+    | refType
     ;
 
 customType
@@ -289,6 +290,7 @@ longType: LONG_TYPE;
 ulongType: ULONG_TYPE;
 charType: CHAR_TYPE;
 stringType: STRING_TYPE;
+refType: REF_TYPE;
 
 MINUS_TOKEN: '-';
 EXCL_MARK_TOKEN: '!';
@@ -314,6 +316,7 @@ LONG_TYPE: 'long';
 ULONG_TYPE: 'ulong';
 CHAR_TYPE: 'char';
 STRING_TYPE: 'string';
+REF_TYPE: 'ref';
 
 BOOL_TOKEN: ('true' | 'false') ;
 IDENTIFIER_TOKEN: (('a'..'z' | 'A'..'Z') | ('_')) (('a'..'z' | 'A'..'Z') | ('_') | ('0'..'9'))* ;
