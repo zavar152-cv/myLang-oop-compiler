@@ -411,42 +411,48 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
     } else if (strcmp(root->label, OP_EQ) == 0) {
         generateASMForOTHelper(entry, root->children[0], buffer);
         generateASMForOTHelper(entry, root->children[1], buffer);
-        commandEQ(buffer, root->children[0]->reg, root->children[1]->reg);
+        commandCMP(buffer, getSizeValueByType(root->children[0]->type->typeName), root->children[0]->reg, root->children[1]->reg);
+        commandEQ(buffer, root->children[0]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
     } else if (strcmp(root->label, OP_NEQ) == 0) {
         generateASMForOTHelper(entry, root->children[0], buffer);
         generateASMForOTHelper(entry, root->children[1], buffer);
-        commandNEQ(buffer, root->children[0]->reg, root->children[1]->reg);
+        commandCMP(buffer, getSizeValueByType(root->children[0]->type->typeName), root->children[0]->reg, root->children[1]->reg);
+        commandNEQ(buffer, root->children[0]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
     } else if (strcmp(root->label, OP_GR) == 0) {
         generateASMForOTHelper(entry, root->children[0], buffer);
         generateASMForOTHelper(entry, root->children[1], buffer);
-        commandGR(buffer, root->children[0]->reg, root->children[1]->reg);
+        commandCMP(buffer, getSizeValueByType(root->children[0]->type->typeName), root->children[0]->reg, root->children[1]->reg);
+        commandGR(buffer, root->children[0]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
     } else if (strcmp(root->label, OP_LE) == 0) {
         generateASMForOTHelper(entry, root->children[0], buffer);
         generateASMForOTHelper(entry, root->children[1], buffer);
-        commandLE(buffer, root->children[0]->reg, root->children[1]->reg);
+        commandCMP(buffer, getSizeValueByType(root->children[0]->type->typeName), root->children[0]->reg, root->children[1]->reg);
+        commandLE(buffer, root->children[0]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
     } else if (strcmp(root->label, OP_GREQ) == 0) {
         generateASMForOTHelper(entry, root->children[0], buffer);
         generateASMForOTHelper(entry, root->children[1], buffer);
-        commandGREQ(buffer, root->children[0]->reg, root->children[1]->reg);
+        commandCMP(buffer, getSizeValueByType(root->children[0]->type->typeName), root->children[0]->reg, root->children[1]->reg);
+        commandGREQ(buffer, root->children[0]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
     } else if (strcmp(root->label, OP_LEEQ) == 0) {
         generateASMForOTHelper(entry, root->children[0], buffer);
         generateASMForOTHelper(entry, root->children[1], buffer);
-        commandLEEQ(buffer, root->children[0]->reg, root->children[1]->reg);
+        commandCMP(buffer, getSizeValueByType(root->children[0]->type->typeName), root->children[0]->reg, root->children[1]->reg);
+        commandLEEQ(buffer, root->children[0]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }

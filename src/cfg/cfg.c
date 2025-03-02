@@ -229,7 +229,7 @@ BasicBlock* parseDoWhile(MyAstNode* doWhileBlock, Program *program, const char* 
   assert(strcmp(doWhileBlock->label, DO_WHILE) == 0);
   BasicBlock *bodyBlock;
   if (existingBlock == NULL) {
-    bodyBlock = createBasicBlock(++(*uid), CONDITIONAL, "Do While body");
+    bodyBlock = createBasicBlock(++(*uid), UNCONDITIONAL, "Do While body");
     addBasicBlock(cfg, bodyBlock);
     addEdge(prevBlock, bodyBlock, UNCONDITIONAL_JUMP, NULL);
   } else {

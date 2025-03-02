@@ -654,48 +654,48 @@ architecture myArch {
         }
     };
 
-    instruction jeq = {0001 1110, 00, reg as reg1, reg as reg2, 00 0000 0000, imm32 as value} {
-        if (reg1 == reg2) then {
+    instruction jeq = {0001 1110, 00, 000000, 000000, 00 0000 0000, imm32 as value} {
+        if (Z == 1) then {
             IP = value;
         } else {
             IP = IP + 8;
         }
     };
 
-    instruction jneq = {0001 1111, 00, reg as reg1, reg as reg2, 00 0000 0000, imm32 as value} {
-        if (reg1 != reg2) then {
+    instruction jneq = {0001 1111, 00, 000000, 000000, 00 0000 0000, imm32 as value} {
+        if (Z == 0) then {
             IP = value;
         } else {
             IP = IP + 8;
         }
     };
 
-    instruction jgr = {0010 0000, 00, reg as reg1, reg as reg2, 00 0000 0000, imm32 as value} {
-        if (reg1 > reg2) then {
+    instruction jgr = {0010 0000, 00, 000000, 000000, 00 0000 0000, imm32 as value} {
+        if ((N == V) && !Z) then {
             IP = value;
         } else {
             IP = IP + 8;
         }
     };
 
-    instruction jle = {0010 0001, 00, reg as reg1, reg as reg2, 00 0000 0000, imm32 as value} {
-        if (reg1 < reg2) then {
+    instruction jle = {0010 0001, 00, 000000, 000000, 00 0000 0000, imm32 as value} {
+        if (N != V) then {
             IP = value;
         } else {
             IP = IP + 8;
         }
     };
 
-    instruction jgreq = {0010 0010, 00, reg as reg1, reg as reg2, 00 0000 0000, imm32 as value} {
-        if (reg1 >= reg2) then {
+    instruction jgreq = {0010 0010, 00, 000000, 000000, 00 0000 0000, imm32 as value} {
+        if (N == V) then {
             IP = value;
         } else {
             IP = IP + 8;
         }
     };
 
-    instruction jleeq = {0010 0011, 00, reg as reg1, reg as reg2, 00 0000 0000, imm32 as value} {
-        if (reg1 <= reg2) then {
+    instruction jleeq = {0010 0011, 00, 000000, 000000, 00 0000 0000, imm32 as value} {
+        if ((N != V) || Z) then {
             IP = value;
         } else {
             IP = IP + 8;
@@ -739,8 +739,8 @@ architecture myArch {
         IP = IP + 8;
     };
 
-    instruction eq = {0010 1010, 00, reg as reg1, reg as reg2, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
-        if (reg1 == reg2) then {
+    instruction eq = {0010 1010, 00, reg as reg1, 000000, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        if (Z == 1) then {
             reg1 = 1;
             Z = 1;
         } else {
@@ -750,8 +750,8 @@ architecture myArch {
         IP = IP + 8;
     };
 
-    instruction neq = {0010 1011, 00, reg as reg1, reg as reg2, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
-        if (reg1 != reg2) then {
+    instruction neq = {0010 1011, 00, reg as reg1, 000000, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        if (Z == 0) then {
             reg1 = 1;
             Z = 1;
         } else {
@@ -761,8 +761,8 @@ architecture myArch {
         IP = IP + 8;
     };
 
-    instruction gr = {0010 1100, 00, reg as reg1, reg as reg2, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
-        if (reg1 > reg2) then {
+    instruction gr = {0010 1100, 00, reg as reg1, 000000, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        if ((N == V) && !Z) then {
             reg1 = 1;
             Z = 1;
         } else {
@@ -772,8 +772,8 @@ architecture myArch {
         IP = IP + 8;
     };
 
-    instruction le = {0010 1101, 00, reg as reg1, reg as reg2, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
-        if (reg1 < reg2) then {
+    instruction le = {0010 1101, 00, reg as reg1, 000000, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {       
+        if (N != V) then {
             reg1 = 1;
             Z = 1;
         } else {
@@ -783,8 +783,8 @@ architecture myArch {
         IP = IP + 8;
     };
 
-    instruction greq = {0010 1110, 00, reg as reg1, reg as reg2, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
-        if (reg1 >= reg2) then {
+    instruction greq = {0010 1110, 00, reg as reg1, 000000, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        if (N == V) then {
             reg1 = 1;
             Z = 1;
         } else {
@@ -794,8 +794,8 @@ architecture myArch {
         IP = IP + 8;
     };
 
-    instruction leeq = {0010 1111, 00, reg as reg1, reg as reg2, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
-        if (reg1 <= reg2) then {
+    instruction leeq = {0010 1111, 00, reg as reg1, 000000, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        if ((N != V) || Z) then {
             reg1 = 1;
             Z = 1;
         } else {
@@ -841,6 +841,34 @@ architecture myArch {
             let res = dataM:8[addr];
             to = res & 0xffffffffffffffff;
         }
+        IP = IP + 8;
+    };
+
+    instruction cmp = {0011 0010, sequence size, reg as reg1, reg as reg2, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        let result = reg1 - reg2;
+
+        when sz8 then {
+            Z = (result == 0);
+            N = (result & (1 << 7)) != 0;
+            V = (((reg1 ^ reg2) & (reg1 ^ result)) >> 7) & 1;
+            C = (reg1 < reg2);
+        } else when sz16 then {
+            Z = (result == 0);
+            N = (result & (1 << 15)) != 0;
+            V = (((reg1 ^ reg2) & (reg1 ^ result)) >> 15) & 1;
+            C = (reg1 < reg2);
+        } else when sz32 then {
+            Z = (result == 0);
+            N = (result & (1 << 31)) != 0;
+            V = (((reg1 ^ reg2) & (reg1 ^ result)) >> 31) & 1;
+            C = (reg1 < reg2);
+        } else when sz64 then {
+            Z = (result == 0);
+            N = (result & (1 << 63)) != 0;
+            V = (((reg1 ^ reg2) & (reg1 ^ result)) >> 63) & 1;
+            C = (reg1 < reg2);
+        }
+
         IP = IP + 8;
     };
 
@@ -939,22 +967,27 @@ architecture myArch {
                     for OR(reg1, reg2) "d {1}, {2}" when sz32,
                     for OR(reg1, reg2) "q {1}, {2}" when sz64; 
 
-        mnemonic EQ for eq(reg1, reg2) plain2;
-        mnemonic NEQ for neq(reg1, reg2) plain2;
-        mnemonic GR for gr(reg1, reg2) plain2;
-        mnemonic LE for le(reg1, reg2) plain2;
-        mnemonic GREQ for greq(reg1, reg2) plain2;
-        mnemonic LEEQ for leeq(reg1, reg2) plain2;
+        mnemonic EQ for eq(reg1) plain1;
+        mnemonic NEQ for neq(reg1) plain1;
+        mnemonic GR for gr(reg1) plain1;
+        mnemonic LE for le(reg1) plain1;
+        mnemonic GREQ for greq(reg1) plain1;
+        mnemonic LEEQ for leeq(reg1) plain1;
 
         mnemonic JMP for jmp(value) plain1;
         mnemonic JZ for jz(value) plain1;
         mnemonic JNZ for jnz(value) plain1;
-        mnemonic JEQ for jeq(reg1, reg2, value) plain3;
-        mnemonic JNEQ for jneq(reg1, reg2, value) plain3;
-        mnemonic JGR for jgr(reg1, reg2, value) plain3;
-        mnemonic JLE for jle(reg1, reg2, value) plain3;
-        mnemonic JGREQ for jgreq(reg1, reg2, value) plain3;
-        mnemonic JLEEQ for jleeq(reg1, reg2, value) plain3;
+        mnemonic JEQ for jeq(value) plain1;
+        mnemonic JNEQ for jneq(value) plain1;
+        mnemonic JGR for jgr(value) plain1;
+        mnemonic JLE for jle(value) plain1;
+        mnemonic JGREQ for jgreq(value) plain1;
+        mnemonic JLEEQ for jleeq(value) plain1;
+
+        mnemonic CMP for cmp(reg1, reg2) "b {1}, {2}" when sz8,
+                     for cmp(reg1, reg2) "w {1}, {2}" when sz16,
+                     for cmp(reg1, reg2) "d {1}, {2}" when sz32,
+                     for cmp(reg1, reg2) "q {1}, {2}" when sz64; 
 
         mnemonic CALL for call(value) plain1;
         mnemonic ENTER for enter(value) plain1;

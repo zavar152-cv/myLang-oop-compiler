@@ -1,101 +1,144 @@
 int main(string[] args) {
 
-    printNumber(123);
-    __writeChar('\n');
+    // int i = 0;
+    // do {
+    //     printNumber(-123);
+    //     println();
+    //     i = i + 1;
+    // } while(i != 7);
 
-    char[] arr;
-    __alloc("arr", 4);
+    // if (-1 < 0) {
+    //     __writeChar('a');
+    //     println();
+    // } else {
+    //     __writeChar('b');
+    //     println();
+    // }
 
-    arr[1] = '1';
-    arr[2] = 'h';
+    int a = 0;
+    int b = -8;
+    a = -b;
 
-    __writeChar(arr[1]);
-    __writeChar('\n');
-    __writeChar(arr[2]);
-    __writeChar('\n');
-
-    char[] arr2 = retArr();
-
-    __writeChar(arr2[6]);
-    __writeChar('\n');
-    __writeChar(arr2[5]);
-    __writeChar('\n');
-
-    recursive(0);
-
-    string s = "Hello, World!";
-    char c = s[0];
-
-    int i = 0;
-    int l = strlength(s);
-    while (i != l) {
-        __writeChar(s[i]);
-        i = i + 1;
+    if (b < a) {
+        __writeChar('{');
+        printNumber(-123);
+        println();
     }
+
+    if (2 >= 2) {
+        __writeChar('2');
+    }
+
+    if (2 <= 2) {
+        __writeChar('3');
+    }
+
+    if (3 != 2) {
+        __writeChar('4');
+    }
+
+    if (3 == 3) {
+        __writeChar('5');
+    }
+
+    0;
+}
+//     printNumber(123);
+//     __writeChar('\n');
+
+//     char[] arr;
+//     __alloc("arr", 4);
+
+//     arr[1] = '1';
+//     arr[2] = 'h';
+
+//     __writeChar(arr[1]);
+//     __writeChar('\n');
+//     __writeChar(arr[2]);
+//     __writeChar('\n');
+
+//     char[] arr2 = retArr();
+
+//     __writeChar(arr2[6]);
+//     __writeChar('\n');
+//     __writeChar(arr2[5]);
+//     __writeChar('\n');
+
+//     recursive(0);
+
+//     string s = "Hello, World!";
+//     char c = s[0];
+
+//     int i = 0;
+//     int l = strlength(s);
+//     while (i != l) {
+//         __writeChar(s[i]);
+//         i = i + 1;
+//     }
     
-    __writeChar('\n');
+//     __writeChar('\n');
 
-    int ret = test(1, 2, 3, test(1, 1, 1, test(0, 0, 0, test(0, 0, 0, 1))));
-    if (ret == 10) {
-        i = 0;
-        l = 4;
-        while (i != l) {
-            __writeChar("YES"[i]);
-            i = i + 1;
-        }
-    } else if (ret == 9) {
-        i = 0;
-        l = 3;
-        while (i != l) {
-            __writeChar("NO"[i]);
-            i = i + 1;
-        }
-    }
+//     int ret = test(1, 2, 3, test(1, 1, 1, test(0, 0, 0, test(0, 0, 0, 1))));
+//     if (ret == 10) {
+//         i = 0;
+//         l = 4;
+//         while (i != l) {
+//             __writeChar("YES"[i]);
+//             i = i + 1;
+//         }
+//     } else if (ret == 9) {
+//         i = 0;
+//         l = 3;
+//         while (i != l) {
+//             __writeChar("NO"[i]);
+//             i = i + 1;
+//         }
+//     }
 
-    __writeChar('\n'); // \n
+//     __writeChar('\n'); // \n
 
 
-    i = 0;
-    l = 3;
-    while (i != l) {
-        __writeChar(retString()[i]);
-        i = i + 1;
-    }
+//     i = 0;
+//     l = 3;
+//     while (i != l) {
+//         __writeChar(retString()[i]);
+//         i = i + 1;
+//     }
 
-    __writeChar('\n'); // \n
+//     __writeChar('\n'); // \n
 
-    char in = __readChar();
-    __writeChar(in);
-    __writeChar('\n');
-    __writeChar('a');
-    __writeChar('\n');
+//     char in = __readChar();
+//     __writeChar(in);
+//     __writeChar('\n');
+//     __writeChar('a');
+//     __writeChar('\n');
 
-    0;
-}
+//     0;
+// }
 
-int test(int a, int b, int c, int d) {
-    int r = a + b + c + d;
-    r;
-}
+// int test(int a, int b, int c, int d) {
+//     int r = a + b + c + d;
+//     r;
+// }
 
-char[] retArr() {
-    char[] arr2;
-    __alloc("arr2", 8);
+// char[] retArr() {
+//     char[] arr2;
+//     __alloc("arr2", 8);
 
-    arr2[6] = '2';
-    arr2[5] = 'k';
-    arr2;
-}
+//     arr2[6] = '2';
+//     arr2[5] = 'k';
+//     arr2;
+// }
 
-string retString() {
-    "lol";
-}
+// string retString() {
+//     "lol";
+// }
 
-int recursive(int i) {
-    if (i < 8) {
-        __writeChar('l');
-        __writeChar('\n');
-        recursive(i + 1);
-    }
-    0;
-}
+// int recursive(int i) {
+//     if (i < 8) {
+//         __writeChar('l');
+//         __writeChar('\n');
+//         recursive(i + 1);
+//     }
+//     0;
+// }

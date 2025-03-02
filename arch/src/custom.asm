@@ -1,185 +1,59 @@
     [section codeM]
 
   JMP main
-recursive:
-
-.BB0:
-  ENTER 0
-.BB1:
-  LD d R0, [BP, 16]
-  LDI32 R1, 8
-  LE R0, R1
-  JZ .BB3
-  JNZ .BB2
-
-.BB2:
-  LDI32 R0, 0
-  MOV RT, R0
-  JMP .BB4
-
-.BB3:
-  LDI32 R0, 0x6C
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV OUT, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LDI32 R0, 0x0A
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV OUT, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LD d R0, [BP, 16]
-  LDI32 R1, 1
-  ADD d R0, R1
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  CALL recursive
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  JMP .BB2
-
-.BB4:
-  LEAVE 0
-  RET
-
-retString:
-
-.BB0:
-  ENTER 0
-.BB1:
-  LDI32 R0, retString_const0
-  MOV RT, R0
-  JMP .BB2
-
-.BB2:
-  LEAVE 0
-  RET
-
-retArr:
-
-.BB0:
-  ENTER 1
-.BB1:
-  LDI32 AR, retArr_const1
-  LDC64 R1, AR
-  LDI32 R0, retArr_const0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R1
-  PUSH R0
-  POP R0
-  POP R1
-  ADD q ALR, R1
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LD b R0, [BP, -8]
-  LDI32 R1, 6
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LDI32 R1, 0x32
-  ST q R1, R0
-  LD b R0, [BP, -8]
-  LDI32 R1, 5
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LDI32 R1, 0x6B
-  ST q R1, R0
-  LD b R0, [BP, -8]
-  MOV RT, R0
-  JMP .BB2
-
-.BB2:
-  LEAVE 1
-  RET
-
-test:
-
-.BB0:
-  ENTER 1
-.BB1:
-  LD d R0, [BP, 16]
-  LD d R1, [BP, 24]
-  ADD d R0, R1
-  LD d R1, [BP, 32]
-  ADD d R0, R1
-  LD d R1, [BP, 40]
-  ADD d R0, R1
-  ST d R0, [BP, -8]
-  LD d R0, [BP, -8]
-  MOV RT, R0
-  JMP .BB2
-
-.BB2:
-  LEAVE 1
-  RET
-
 main:
 
 .BB0:
-  ENTER 8
+  ENTER 2
 .BB1:
-  LDI32 R0, 123
+  LDI32 R0, 0
+  ST d R0, [BP, -8]
+  LDI32 R0, -8
+  ST d R0, [BP, -16]
+  LD d R0, [BP, -16]
+  NEG d R0
+  ST d R0, [BP, -8]
+  JMP .BB2
+
+.BB2:
+  LD d R0, [BP, -16]
+  LD d R1, [BP, -8]
+  CMP d R0, R1
+  LE R0
+  JZ .BB4
+  JNZ .BB3
+
+.BB3:
+  LDI32 R0, 2
+  LDI32 R1, 2
+  CMP d R0, R1
+  GREQ R0
+  JZ .BB6
+  JNZ .BB5
+
+.BB4:
+  LDI32 R0, 0x7B
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R0
+  POP R0
+  MOV OUT, R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  LDI32 R0, -123
   MOV BR1, SP
   PUSH R0
   PUSH R1
@@ -199,7 +73,6 @@ main:
   POP R2
   POP R1
   POP R0
-  LDI32 R0, 0x0A
   MOV BR1, SP
   PUSH R0
   PUSH R1
@@ -209,9 +82,7 @@ main:
   PUSH R5
   PUSH R6
   PUSH R7
-  PUSH R0
-  POP R0
-  MOV OUT, R0
+  CALL println
   POP R7
   POP R6
   POP R5
@@ -220,481 +91,18 @@ main:
   POP R2
   POP R1
   POP R0
-  LDI32 AR, main_const3
-  LDC64 R1, AR
-  LDI32 R0, main_const2
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R1
-  PUSH R0
-  POP R0
-  POP R1
-  ADD q ALR, R1
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LD b R0, [BP, -24]
-  LDI32 R1, 1
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LDI32 R1, 0x31
-  ST q R1, R0
-  LD b R0, [BP, -24]
-  LDI32 R1, 2
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LDI32 R1, 0x68
-  ST q R1, R0
-  LD b R0, [BP, -24]
-  LDI32 R1, 1
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LD q R0, R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV OUT, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LDI32 R0, 0x0A
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV OUT, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LD b R0, [BP, -24]
-  LDI32 R1, 2
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LD q R0, R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV OUT, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LDI32 R0, 0x0A
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV OUT, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  CALL retArr
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  ST b RT, [BP, -32]
-  LD b R0, [BP, -32]
-  LDI32 R1, 6
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LD q R0, R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV OUT, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LDI32 R0, 0x0A
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV OUT, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LD b R0, [BP, -32]
-  LDI32 R1, 5
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LD q R0, R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV OUT, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LDI32 R0, 0x0A
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV OUT, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LDI32 R0, 0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  CALL recursive
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LDI32 R0, main_const4
-  ST q R0, [BP, -40]
-  LD q R0, [BP, -40]
-  LDI32 R1, 0
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LDC64 R0, R0
-  ST b R0, [BP, -48]
-  LDI32 R0, 0
-  ST d R0, [BP, -56]
-  LD q R0, [BP, -40]
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  CALL strlength
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  ST d RT, [BP, -64]
-  JMP .BB2
-
-.BB2:
-  LD d R0, [BP, -56]
-  LD d R1, [BP, -64]
-  NEQ R0, R1
-  JZ .BB4
-  JNZ .BB3
-
-.BB3:
-  LDI32 R0, 0x0A
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV OUT, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LDI32 R3, 1
-  LDI32 R2, 0
-  LDI32 R1, 0
-  LDI32 R0, 0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R3
-  PUSH R2
-  PUSH R1
-  PUSH R0
-  CALL test
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LDI32 R2, 0
-  LDI32 R1, 0
-  LDI32 R0, 0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH RT
-  PUSH R2
-  PUSH R1
-  PUSH R0
-  CALL test
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LDI32 R2, 1
-  LDI32 R1, 1
-  LDI32 R0, 1
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH RT
-  PUSH R2
-  PUSH R1
-  PUSH R0
-  CALL test
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LDI32 R2, 3
-  LDI32 R1, 2
-  LDI32 R0, 1
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH RT
-  PUSH R2
-  PUSH R1
-  PUSH R0
-  CALL test
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  ST d RT, [BP, -16]
-  JMP .BB5
-
-.BB4:
-  LD q R0, [BP, -40]
-  LD d R1, [BP, -56]
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LDC64 R0, R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV OUT, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LD d R0, [BP, -56]
-  LDI32 R1, 1
-  ADD d R0, R1
-  ST d R0, [BP, -56]
-  JMP .BB2
+  JMP .BB3
 
 .BB5:
-  LD d R0, [BP, -16]
-  LDI32 R1, 10
-  EQ R0, R1
-  JZ .BB7
-  JNZ .BB8
+  LDI32 R0, 2
+  LDI32 R1, 2
+  CMP d R0, R1
+  LEEQ R0
+  JZ .BB8
+  JNZ .BB7
 
 .BB6:
-  LDI32 R0, 0x0A
+  LDI32 R0, 0x32
   MOV BR1, SP
   PUSH R0
   PUSH R1
@@ -715,39 +123,50 @@ main:
   POP R2
   POP R1
   POP R0
-  LDI32 R0, 0
-  ST d R0, [BP, -56]
-  LDI32 R0, 3
-  ST d R0, [BP, -64]
-  JMP .BB18
+  JMP .BB5
 
 .BB7:
-  LDI32 R0, 0
-  ST d R0, [BP, -56]
-  LDI32 R0, 4
-  ST d R0, [BP, -64]
-  JMP .BB9
+  LDI32 R0, 3
+  LDI32 R1, 2
+  CMP d R0, R1
+  NEQ R0
+  JZ .BB10
+  JNZ .BB9
 
 .BB8:
-  JMP .BB12
+  LDI32 R0, 0x33
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R0
+  POP R0
+  MOV OUT, R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  JMP .BB7
 
 .BB9:
-  LD d R0, [BP, -56]
-  LD d R1, [BP, -64]
-  NEQ R0, R1
-  JZ .BB11
-  JNZ .BB10
+  LDI32 R0, 3
+  LDI32 R1, 3
+  CMP d R0, R1
+  EQ R0
+  JZ .BB12
+  JNZ .BB11
 
 .BB10:
-  JMP .BB6
-
-.BB11:
-  LDI32 R0, main_const1
-  LD d R1, [BP, -56]
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LDC64 R0, R0
+  LDI32 R0, 0x34
   MOV BR1, SP
   PUSH R0
   PUSH R1
@@ -768,209 +187,15 @@ main:
   POP R2
   POP R1
   POP R0
-  LD d R0, [BP, -56]
-  LDI32 R1, 1
-  ADD d R0, R1
-  ST d R0, [BP, -56]
   JMP .BB9
 
-.BB12:
-  LD d R0, [BP, -16]
-  LDI32 R1, 9
-  EQ R0, R1
-  JZ .BB14
-  JNZ .BB13
-
-.BB13:
-  JMP .BB6
-
-.BB14:
-  LDI32 R0, 0
-  ST d R0, [BP, -56]
-  LDI32 R0, 3
-  ST d R0, [BP, -64]
-  JMP .BB15
-
-.BB15:
-  LD d R0, [BP, -56]
-  LD d R1, [BP, -64]
-  NEQ R0, R1
-  JZ .BB17
-  JNZ .BB16
-
-.BB16:
-  JMP .BB13
-
-.BB17:
-  LDI32 R0, main_const0
-  LD d R1, [BP, -56]
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LDC64 R0, R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV OUT, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LD d R0, [BP, -56]
-  LDI32 R1, 1
-  ADD d R0, R1
-  ST d R0, [BP, -56]
-  JMP .BB15
-
-.BB18:
-  LD d R0, [BP, -56]
-  LD d R1, [BP, -64]
-  NEQ R0, R1
-  JZ .BB20
-  JNZ .BB19
-
-.BB19:
-  LDI32 R0, 0x0A
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV OUT, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  MOV RT, IN
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  ST b RT, [BP, -8]
-  LD b R0, [BP, -8]
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV OUT, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LDI32 R0, 0x0A
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV OUT, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LDI32 R0, 0x61
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV OUT, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LDI32 R0, 0x0A
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV OUT, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
+.BB11:
   LDI32 R0, 0
   MOV RT, R0
-  JMP .BB21
+  JMP .BB13
 
-.BB20:
+.BB12:
+  LDI32 R0, 0x35
   MOV BR1, SP
   PUSH R0
   PUSH R1
@@ -980,30 +205,7 @@ main:
   PUSH R5
   PUSH R6
   PUSH R7
-  CALL retString
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LD d R0, [BP, -56]
-  LDI32 BR2, 8
-  MUL q R0, BR2
-  ADD q RT, R0
-  LDC64 RT, RT
-  MOV BR1, SP
   PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH RT
   POP R0
   MOV OUT, R0
   POP R7
@@ -1014,14 +216,10 @@ main:
   POP R2
   POP R1
   POP R0
-  LD d R0, [BP, -56]
-  LDI32 R1, 1
-  ADD d R0, R1
-  ST d R0, [BP, -56]
-  JMP .BB18
+  JMP .BB11
 
-.BB21:
-  LEAVE 8
+.BB13:
+  LEAVE 2
   HLT
 
 printNumber:
@@ -1036,14 +234,16 @@ printNumber:
 .BB2:
   LD d R0, [BP, -24]
   LDI32 R1, 0
-  LE R0, R1
+  CMP d R0, R1
+  LE R0
   JZ .BB4
   JNZ .BB3
 
 .BB3:
   LD d R0, [BP, -24]
   LDI32 R1, 0
-  EQ R0, R1
+  CMP d R0, R1
+  EQ R0
   JZ .BB6
   JNZ .BB7
 
@@ -1136,7 +336,8 @@ printNumber:
 .BB8:
   LD d R0, [BP, -24]
   LDI32 R1, 0
-  GR R0, R1
+  CMP d R0, R1
+  GR R0
   JZ .BB10
   JNZ .BB9
 
@@ -1172,7 +373,8 @@ printNumber:
 .BB11:
   LD d R0, [BP, -16]
   LDI32 R1, -1
-  NEQ R0, R1
+  CMP d R0, R1
+  NEQ R0
   JZ .BB13
   JNZ .BB12
 
@@ -1262,7 +464,8 @@ strlength:
 .BB2:
   LDI32 R0, 1
   LDI32 R1, 1
-  EQ R0, R1
+  CMP q R0, R1
+  EQ R0
   JZ .BB4
   JNZ .BB3
 
@@ -1282,7 +485,8 @@ strlength:
   ADD q R0, R1
   LDC64 R0, R0
   LDI32 R1, 0x00
-  EQ R0, R1
+  CMP b R0, R1
+  EQ R0
   JZ .BB7
   JNZ .BB6
 
@@ -1304,52 +508,6 @@ strlength:
     [section constantsM]
 
 
-retString_const0:
-  dq 0x6C
-  dq 0x6F
-  dq 0x6C
-  dq 0x00
-retArr_const0:
-  dq 0x61
-  dq 0x72
-  dq 0x72
-  dq 0x32
-  dq 0x00
-retArr_const1:
-  dq 8
-
-main_const0:
-  dq 0x4E
-  dq 0x4F
-  dq 0x00
-main_const1:
-  dq 0x59
-  dq 0x45
-  dq 0x53
-  dq 0x00
-main_const2:
-  dq 0x61
-  dq 0x72
-  dq 0x72
-  dq 0x00
-main_const3:
-  dq 4
-
-main_const4:
-  dq 0x48
-  dq 0x65
-  dq 0x6C
-  dq 0x6C
-  dq 0x6F
-  dq 0x2C
-  dq 0x20
-  dq 0x57
-  dq 0x6F
-  dq 0x72
-  dq 0x6C
-  dq 0x64
-  dq 0x21
-  dq 0x00
 printNumber_const0:
   dq 0x62
   dq 0x75
