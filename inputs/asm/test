@@ -41,6 +41,12 @@ int main(string[] args) {
         __writeChar('5');
     }
 
+    println();
+
+    byte r = -9;
+    int g = __toIntFromByte(r);
+    printNumber(g);
+
     0;
 }
 //     printNumber(123);

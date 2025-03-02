@@ -15,33 +15,29 @@ int println() {
 }
 
 int printNumber(int num) {
-    // Обработка отрицательных чисел
     int temp = num;
     if (temp < 0) {
-        __writeChar('-');  // Выводим знак минуса
-        temp = -temp;    // Преобразуем в положительное
+        __writeChar('-');
+        temp = -temp;
     }
 
-    // Обработка числа 0
     if (temp == 0) {
-        __writeChar('0');  // Выводим 0 и выходим
+        __writeChar('0');
     } else {
-        // Извлечение цифр в обратном порядке
-        char[] buffer;  // Буфер для хранения цифр числа
+        char[] buffer;
         __alloc("buffer", 10);
         int index = 0;
 
         while (temp > 0) {
-            buffer[index] = (temp % 10) || 0x30;  // Сохраняем символ цифры
-            index = index + 1;                // Явное увеличение индекса
-            temp = temp / 10;                   // Переходим к следующей цифре
+            buffer[index] = (temp % 10) || 0x30;
+            index = index + 1;
+            temp = temp / 10;
         }
 
-        // Вывод цифр в правильном порядке
-        index = index - 1;  // Начинаем с последнего сохранённого индекса
+        index = index - 1;
         while (index != -1) {
             __writeChar(buffer[index]);
-            index = index - 1;  // Явное уменьшение индекса
+            index = index - 1;
         }
     }
     0;

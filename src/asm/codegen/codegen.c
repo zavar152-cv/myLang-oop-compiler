@@ -222,8 +222,6 @@ void generateBuiltin(const char *name, FunctionEntry *entry, OperationTreeNode *
         commandCBD(buffer, REG_RT, root->children[1]->reg);
     } else if (strcmp(name, "__toByteFromInt") == 0){
         commandMOVT(buffer, "d", REG_RT, root->children[1]->reg);
-    }  else if (strcmp(name, "__lengthof") == 0){
-        
     } else if (strcmp(name, "__alloc") == 0){
         const char *varName = root->children[1]->children[0]->label;
         commandPOP(buffer, REG_R0); //pointer to varName, useless

@@ -1,36 +1,18 @@
 digraph CallGraph {
     node [shape=ellipse, style=filled, color=lightblue];
 
-    "println";
-    "strlength";
-    "test";
-    "__readChar";
-    "retString";
-    "main";
-    "__write";
-    "__toByteFromInt";
-    "printNumber";
     "__alloc";
-    "retArr";
+    "printNumber";
+    "__toIntFromByte";
+    "println";
     "__writeChar";
-    "recursive";
+    "main";
 
-    "println" -> "__writeChar" [color=blue];
-    "main" -> "strlength" [color=blue];
-    "main" -> "recursive" [color=blue];
-    "main" -> "retArr" [color=blue];
-    "main" -> "__alloc" [color=blue];
-    "main" -> "__write" [color=blue];
-    "main" -> "__toByteFromInt" [color=blue];
-    "main" -> "test" [color=blue];
-    "main" -> "__readChar" [color=blue];
-    "main" -> "retString" [color=blue];
-    "main" -> "__writeChar" [color=blue];
     "printNumber" -> "__alloc" [color=blue];
     "printNumber" -> "__writeChar" [color=blue];
-    "printNumber" -> "__write" [color=blue];
-    "printNumber" -> "__toByteFromInt" [color=blue];
-    "retArr" -> "__alloc" [color=blue];
-    "recursive" -> "recursive" [color=blue];
-    "recursive" -> "__writeChar" [color=blue];
+    "println" -> "__writeChar" [color=blue];
+    "main" -> "printNumber" [color=blue];
+    "main" -> "__toIntFromByte" [color=blue];
+    "main" -> "println" [color=blue];
+    "main" -> "__writeChar" [color=blue];
 }

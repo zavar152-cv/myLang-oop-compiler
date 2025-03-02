@@ -4,20 +4,20 @@
 main:
 
 .BB0:
-  ENTER 2
+  ENTER 4
 .BB1:
   LDI32 R0, 0
-  ST d R0, [BP, -8]
+  ST d R0, [BP, -24]
   LDI32 R0, -8
-  ST d R0, [BP, -16]
-  LD d R0, [BP, -16]
+  ST d R0, [BP, -32]
+  LD d R0, [BP, -32]
   NEG d R0
-  ST d R0, [BP, -8]
+  ST d R0, [BP, -24]
   JMP .BB2
 
 .BB2:
-  LD d R0, [BP, -16]
-  LD d R1, [BP, -8]
+  LD d R0, [BP, -32]
+  LD d R1, [BP, -24]
   CMP d R0, R1
   LE R0
   JZ .BB4
@@ -190,6 +190,67 @@ main:
   JMP .BB9
 
 .BB11:
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  CALL println
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  LDI32 R0, -9
+  ST b R0, [BP, -8]
+  LD b R0, [BP, -8]
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R0
+  CBD RT, R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  ST d RT, [BP, -16]
+  LD d R0, [BP, -16]
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH R0
+  CALL printNumber
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
   LDI32 R0, 0
   MOV RT, R0
   JMP .BB13
@@ -219,7 +280,7 @@ main:
   JMP .BB11
 
 .BB13:
-  LEAVE 2
+  LEAVE 4
   HLT
 
 printNumber:

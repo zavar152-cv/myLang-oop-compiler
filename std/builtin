@@ -17,11 +17,15 @@ uint __toUintFromLong(long l);
 uint __toUintFromUlong(ulong ul);
 
 //register __castToLong
+long __toLongFromByte(byte ul);
+long __toLongFromInt(int ul);
+long __toLongFromUint(uint ul);
 long __toLongFromUlong(ulong ul);
 
 //register __castToUlong
 ulong __toUlongFromByte(byte b);
 ulong __toUlongFromInt(int i);
+ulong __toUlongFromUint(uint l);
 ulong __toUlongFromLong(long l);
 
 //memory allocation
