@@ -89,7 +89,7 @@ bool isLiteral(const char *label) {
 bool isNumericType(const char *type) {
   return strcmp(type, "byte") == 0 || strcmp(type, "int") == 0 ||
          strcmp(type, "uint") == 0 || strcmp(type, "long") == 0 ||
-         strcmp(type, "ulong") == 0;
+         strcmp(type, "ulong") == 0 || strcmp(type, "ref") == 0;
 }
 
 bool isLogicalType(const char *type) { return strcmp(type, "bool") == 0; }
@@ -209,7 +209,8 @@ void checkTypeCompatibility(OperationTreeNode *lValueExprNode,
       }
     } else if (strcmp(lValueExprNode->type->typeName, "int") == 0) {
       if (strcmp(rValueExprNode->type->typeName, "char") != 0 &&
-          strcmp(rValueExprNode->type->typeName, "int") != 0) {
+          strcmp(rValueExprNode->type->typeName, "int") != 0 &&
+          strcmp(rValueExprNode->type->typeName, "ref") != 0) {
         char buffer[1024];
         snprintf(buffer, sizeof(buffer),
                  "Type error. Can't cast value at %s:%d:%d to int\n", filename,

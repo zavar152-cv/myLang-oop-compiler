@@ -31,7 +31,10 @@ void prepareRegsAndTempsHelper(OperationTreeNode *root, StringStack *stack, bool
         if (root->children[0]->childCount == 0) {
             root->children[0]->reg = strdup(REG_AR);
         } else {
+            char *reg = popStack(stack);
+            root->children[0]->reg = reg;
             prepareRegsAndTempsHelper(root->children[0], stack, stackOnly, debug);
+            free(reg);
         }
         prepareRegsAndTempsHelper(root->children[1], stack, stackOnly, debug);
     } else if (strcmp(root->label, INDEX) == 0 || strcmp(root->label, INDEXR) == 0) {
@@ -190,7 +193,7 @@ void prepareRegsAndTemps(OperationTreeNode *root, bool debug) {
 char* getSizeValueByType(const char* type) {
     if (strcmp(type, "char") == 0 || strcmp(type, "byte") == 0 || strcmp(type, "boolean") == 0) {
         return "b";
-    } else if (strcmp(type, "int") == 0 || strcmp(type, "uint") == 0) {
+    } else if (strcmp(type, "int") == 0 || strcmp(type, "uint") == 0 || strcmp(type, "ref") == 0) {
         return "d";
     } else {
         return "q";
@@ -200,7 +203,7 @@ char* getSizeValueByType(const char* type) {
 uint8_t getSizeByType(const char* type) {
     if (strcmp(type, "char") == 0 || strcmp(type, "byte") == 0 || strcmp(type, "boolean") == 0) {
         return 8;
-    } else if (strcmp(type, "int") == 0 || strcmp(type, "uint") == 0) {
+    } else if (strcmp(type, "int") == 0 || strcmp(type, "uint") == 0 || strcmp(type, "ref") == 0) {
         return 32;
     } else {
         return 64;
@@ -209,12 +212,12 @@ uint8_t getSizeByType(const char* type) {
 
 void generateBuiltin(const char *name, FunctionEntry *entry, OperationTreeNode *root, struct StringBuffer *buffer) {
     if (strcmp(name, "__write") == 0) {
-        commandPOP(buffer, REG_R0);
+        commandLDoffset(buffer, "q", REG_R0, REG_SP, "0");
         commandMOV(buffer, REG_OUT, REG_R0);
     } else if (strcmp(name, "__read") == 0) {
         commandMOV(buffer, REG_RT, REG_IN);
     } else if (strcmp(name, "__writeChar") == 0) {
-        commandPOP(buffer, REG_R0);
+        commandLDoffset(buffer, "q", REG_R0, REG_SP, "0");
         commandMOV(buffer, REG_OUT, REG_R0);
     } else if (strcmp(name, "__readChar") == 0) {
         commandMOV(buffer, REG_RT, REG_IN);
@@ -247,9 +250,13 @@ void generateBuiltin(const char *name, FunctionEntry *entry, OperationTreeNode *
         char offsetBuffer[1024];
         commandADD(buffer, "q", REG_ALR, REG_R1);        
     } else if (strcmp(name, "__allocRef") == 0) {
-        commandPOP(buffer, REG_R0); //size
+        commandLDoffset(buffer, "q", REG_R0, REG_SP, "0"); //size
         commandMOV(buffer, REG_RT, REG_ALR);
         commandADD(buffer, "q", REG_ALR, REG_R0);  
+    } else if (strcmp(name, "__lastALR") == 0) {
+        commandMOV(buffer, REG_RT, REG_ALR);
+    } else if (strcmp(name, "__lastSP") == 0) {
+        commandMOV(buffer, REG_RT, REG_SP);
     }
 }
 
@@ -281,6 +288,7 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
                         char offsetBuffer[1024];
                         snprintf(offsetBuffer, sizeof(offsetBuffer), "%ld", offset);
                         //commandLD(buffer, getSizeValueByType(root->children[0]->type->typeName), root->children[0]->reg, REG_BP);
+                        commentVar(buffer, root->children[0]->label);
                         commandSToffset(buffer, getSizeValueByType(root->type->typeName), root->children[1]->reg, REG_BP, offsetBuffer);
                         found = true;
                         break;
@@ -324,7 +332,7 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
             commandPUSH(buffer, root->reg);
         }
     } else if (strcmp(root->label, OT_CALL) == 0) {
-        for (uint32_t i = root->childCount - 1; i > 0; i--) {
+        for (uint32_t i = 1; i <= root->childCount - 1; i++) {
             generateASMForOTHelper(entry, root->children[i], buffer);
         }
 
@@ -345,8 +353,10 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
                 char offsetBuffer[1024];
                 snprintf(offsetBuffer, sizeof(offsetBuffer), "%d", root->children[i]->offset - 8);
                 commandLDoffset(buffer, getSizeValueByType(root->children[i]->type->typeName), root->children[i]->reg, REG_BR1, offsetBuffer);                
+                commentVar(buffer, root->children[i]->children[0]->label);
                 commandPUSH(buffer, root->children[i]->reg);
             } else {
+                commentVar(buffer, root->children[i]->children[0]->label);
                 commandPUSH(buffer, root->children[i]->reg);
             }
         }
@@ -356,6 +366,12 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
         } else {
             commandCALL(buffer, root->children[0]->label);
         }
+
+        for (uint32_t i = 1; i <= root->childCount - 1; i++) {
+            commentVar(buffer, root->children[i]->children[0]->label);
+            commandPOP(buffer, root->children[i]->reg);
+        }
+
         if (wasSpilled) {
             char countBuffer[1024];
             snprintf(countBuffer, sizeof(countBuffer), "%u", (root->childCount - 1) * 8);
@@ -540,6 +556,7 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
                     char offsetBuffer[1024];
                     snprintf(offsetBuffer, sizeof(offsetBuffer), "%ld", offset);
                     //commandLD(buffer, getSizeValueByType(root->children[0]->type->typeName), root->children[0]->reg, REG_BP);
+                    commentVar(buffer, root->children[0]->label);
                     if (strcmp(((LocalVar *)node->value)->typeName, "string") == 0) {
                         commandLDoffset(buffer, getSizeValueByType(root->type->typeName), root->reg, REG_BP, offsetBuffer);
                         //commandLDC64(buffer, root->reg, root->reg);
@@ -563,6 +580,7 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
                         char offsetBuffer[1024];
                         snprintf(offsetBuffer, sizeof(offsetBuffer), "%ld", arg->offset);
                         //commandLD(buffer, getSizeValueByType(root->children[0]->type->typeName), root->children[0]->reg, REG_BP);
+                        commentVar(buffer, root->children[0]->label);
                         commandLDoffset(buffer, getSizeValueByType(root->type->typeName), root->reg, REG_BP, offsetBuffer);
                         found = true;
                         break;
@@ -583,6 +601,7 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
 }
 
 void generateASMForOT(FunctionEntry *entry, OperationTreeNode *root, struct StringBuffer *buffer) {
+    commentOTPosition(buffer, root->line, root->pos);
     if (strcmp(root->label, DECLARE) == 0 && root->childCount == 3) {
         generateASMForOTHelper(entry, root->children[2], buffer);
     } else if (strcmp(root->label, SEQ_DECLARE) == 0) {

@@ -199,6 +199,15 @@ int main(int argc, char *argv[]) {
         if (!result->isValid && arguments.debug) {
             printErrors(&result->errorContext);
         } 
+
+        char* gramOut = concat(arguments.input_files[i], "_gram.dot");
+        int err = generateDotFileFromMyTree(result->tree, gramOut, arguments.debug);
+
+        if (err == FILE_ERROR) {
+          fprintf(stderr, "Error opening file %s for writing.\n", gramOut);
+        }
+        free(gramOut);
+
         files.result[i] = result;
     }
 

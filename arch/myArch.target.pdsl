@@ -21,36 +21,6 @@ architecture myArch {
         view R6 = R6_S;
         view R7 = R7_S;        
 
-        /*-----32 bit-----*/
-        view ER0 = R0_S[0..31];
-        view ER1 = R1_S[0..31];
-        view ER2 = R2_S[0..31];
-        view ER3 = R3_S[0..31];
-        view ER4 = R4_S[0..31];
-        view ER5 = R5_S[0..31];
-        view ER6 = R6_S[0..31];
-        view ER7 = R7_S[0..31];  
-
-        /*-----8 bit (H)-----*/
-        view R0H = R0_S[8..15];
-        view R1H = R1_S[8..15];
-        view R2H = R2_S[8..15];
-        view R3H = R3_S[8..15];
-        view R4H = R4_S[8..15];
-        view R5H = R5_S[8..15];
-        view R6H = R6_S[8..15];
-        view R7H = R7_S[8..15];
-
-        /*-----8 bit (L)-----*/
-        view R0L = R0_S[0..7];
-        view R1L = R1_S[0..7];
-        view R2L = R2_S[0..7];
-        view R3L = R3_S[0..7];
-        view R4L = R4_S[0..7];
-        view R5L = R5_S[0..7];
-        view R6L = R6_S[0..7];
-        view R7L = R7_S[0..7];
-
         /*------------------INSTRUCTION AND ADDRESS POINTERS-------------------------*/
         storage IP_S [32];
         storage AR_S [32];

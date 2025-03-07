@@ -1,0 +1,253 @@
+int main(string[] args) {
+
+    int[][] matrix = __allocRef(32);
+    // ref l1 = __allocRef(2);
+    // ref l2 = __allocRef(2);
+
+    // println();
+    // printNumber(l1);
+    // println();
+    // printNumber(l2);
+    // println();
+
+    // println();
+    // printNumber(matrix[0]);
+    // println();
+    // printNumber(matrix[1]);
+    // println();
+
+    // matrix[0] = l1;
+    // matrix[1] = l2;
+
+
+
+    matrix[0] = __allocRef(16);
+    matrix[1] = __allocRef(16);
+    matrix[2] = __allocRef(16);
+    matrix[3] = __allocRef(16);
+
+    matrix[0][0] = 0;
+    matrix[0][1] = 10;
+
+    matrix[1][0] = 20;
+    matrix[1][1] = 21;
+
+    matrix[2][0] = 40;
+    matrix[2][1] = 50;
+
+    matrix[3][0] = 60;
+    matrix[3][1] = 701;
+
+
+    // test(1);
+    // test(1);
+    // test(1);
+    // test(1);
+    // test(1);
+    // test(1);
+    // test(1);
+    // test(1);
+    // test(1);
+    // test(1);
+
+    ref buffer = __allocRef(80);
+
+    // int y = 0;
+
+    // int[] a = __allocRef(16);
+    // a[0] = 123;
+    // a[1] = 456;
+
+
+    // int[] b = __allocRef(16);
+    // b[0] = 1238;
+    // b[1] = 4568;
+
+    // printlnNumber(matrix[0], buffer);
+    // printlnNumber(b, buffer);
+
+    // int k = 991;
+    // int l = 410;
+
+    // if (buffer == 96) {
+    //     __writeChar('a');
+    // }
+
+    // int v = matrix[2][0];
+    // printlnNumber(v, buffer);
+    // if (buffer == 96) {
+    //     __writeChar('a');
+    // }
+    // v = matrix[2][0];
+    // printlnNumber(v, buffer);
+
+    test(4, 5);
+
+    // while (y <= 100) {
+    //     // printlnNumber(k, buffer);
+    //     // printlnNumber(k, buffer);
+    //     // printlnNumber(l, buffer);
+    //     // printlnNumber(l, buffer);
+    //     printlnNumber(matrix[0], buffer);
+    //     test(l, k);
+    //     test(l, k);
+    //     test(l, k);
+    //     test(l, k);
+    //     printlnNumber(matrix[0], buffer);  
+    //     // test(l, k);
+    //     // test(l, k);
+    //     // test(l, k);
+    //     // test(l, k);
+    //     // test(l, k);
+    //     // test(l, k);
+    //     // test(l, k);
+    //     // test(l, k);
+    //     // test(l, k);
+    //     // test(l, k);
+    //     // printlnNumber(l, buffer); 
+    //     // printlnNumber(k, buffer);  
+    //     // if (matrix[0] == 32) {
+    //     //     __writeChar('f');
+    //     // } else {
+    //     //    __writeChar('i'); 
+    //     // }
+    //     println(); 
+    //     y = y + 1;
+    // }
+
+    // printlnNumber(b, buffer);
+    // printlnNumber(matrix[0], buffer);
+
+    int v = matrix[0][0];
+    printlnNumber(v, buffer);
+    println();
+
+    v = matrix[0][1];
+    printlnNumber(v, buffer);
+    println();
+    
+    v = matrix[1][0];
+    printlnNumber(v, buffer);
+    println();
+    
+    v = matrix[1][1];
+    printlnNumber(v, buffer);
+    println();
+    
+    v = matrix[2][0];
+    printlnNumber(v, buffer);
+    println();
+    
+    v = matrix[2][1];
+    printlnNumber(v, buffer);
+    println();
+    
+    v = matrix[3][0];
+    printlnNumber(v, buffer);
+    println();
+    
+    v = matrix[3][1];
+    printlnNumber(v, buffer);
+    println();
+
+    // printlnNumber(matrix[0][0]);
+    // printlnNumber(matrix[0][1]);
+    
+
+    // int[] a = __allocRef(16);
+    // a[0] = 123;
+    // a[1] = 456;
+
+    // int[] b = __allocRef(16);
+    // b[0] = 1238;
+    // b[1] = 4568;
+
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+    // test(1);
+    // __allocRef(80);
+
+    // int y = 0;
+
+    // ref buffer = __allocRef(80);
+
+    // while (y <= 1000) {
+    //     printNumber(y, buffer);
+    //     println();
+    //     y = y + 1;
+    // }
+
+
+
+
+    0;
+}
+
+int test(int y, int x) {
+
+    if (x == 0) {
+        __writeChar('k');
+    }
+
+    0;
+}

@@ -42,3 +42,7 @@ char __readChar();
 //base output
 void __write(byte b);
 void __writeChar(char c);
+
+//service, debug
+ref __lastALR();
+ref __lastSP();

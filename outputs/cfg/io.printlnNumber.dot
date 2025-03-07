@@ -1,0 +1,54 @@
+digraph CFG {
+    compound=true;
+    graph [splines=true];
+    node [shape=rectangle];
+
+    BB2 [label=<<B>BB2: END</B><BR ALIGN="CENTER"/>>];
+    BB1 [label=<<B>BB1: Base block</B><BR ALIGN="CENTER"/>FUNC_CALL<BR ALIGN="CENTER"/>FUNC_CALL<BR ALIGN="CENTER"/>DEC<BR ALIGN="CENTER"/>>];
+    subgraph cluster_instruction0 {
+        label = "OT of BB1:0";
+        style=rounded;
+        color=blue;
+        entry0 [shape=point, style=invis];
+        node0 [label="call <int:0, reg: RT, spilled: 0, offset: 0>", color=blue];
+        node1 [label="printNumber <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node0 -> node1[color=blue];
+        node2 [label="read <int:0, reg: R0, spilled: 0, offset: 0>", color=blue];
+        node3 [label="num <int:0, reg: AR, spilled: 0, offset: 0>", color=blue];
+        node2 -> node3[color=blue];
+        node0 -> node2[color=blue];
+        node4 [label="read <ref:0, reg: R1, spilled: 0, offset: 0>", color=blue];
+        node5 [label="bufferRef <ref:0, reg: AR, spilled: 0, offset: 0>", color=blue];
+        node4 -> node5[color=blue];
+        node0 -> node4[color=blue];
+    }
+    BB1 -> entry0 [lhead=cluster_instruction0, color=blue];
+    subgraph cluster_instruction1 {
+        label = "OT of BB1:1";
+        style=rounded;
+        color=blue;
+        entry1 [shape=point, style=invis];
+        node6 [label="call <int:0, reg: RT, spilled: 0, offset: 0>", color=blue];
+        node7 [label="println <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node6 -> node7[color=blue];
+    }
+    BB1 -> entry1 [lhead=cluster_instruction1, color=blue];
+    subgraph cluster_instruction2 {
+        label = "OT of BB1:2";
+        style=rounded;
+        color=blue;
+        entry2 [shape=point, style=invis];
+        node8 [label="return <int:0, reg: RT, spilled: 0, offset: 0>", color=blue];
+        node9 [label="litRead <int:0, reg: R0, spilled: 0, offset: 0>", color=blue];
+        node10 [label="DEC", color=blue];
+        node9 -> node10[color=blue];
+        node11 [label="0 <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node9 -> node11[color=blue];
+        node8 -> node9[color=blue];
+    }
+    BB1 -> entry2 [lhead=cluster_instruction2, color=blue];
+    BB0 [label=<<B>BB0: START</B><BR ALIGN="CENTER"/>>];
+
+    BB1 -> BB2;
+    BB0 -> BB1;
+}

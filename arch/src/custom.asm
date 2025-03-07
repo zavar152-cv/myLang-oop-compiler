@@ -4,126 +4,1010 @@
 test:
 
 .BB0:
-  ENTER 1
+  ENTER 2
 .BB1:
-  LD d R0, [BP, 16]
-  LD d R1, [BP, 24]
-  ADD d R0, R1
-  LD d R1, [BP, 32]
-  ADD d R0, R1
-  LD d R1, [BP, 40]
-  ADD d R0, R1
+
+  ;OT at 56:9
+  LDI32 R0, 9
+  ;var l
   ST d R0, [BP, -8]
+
+  ;OT at 57:9
+  LDI32 R0, 8
+  ;var l
+  LD d R1, [BP, -8]
+  LDI32 R2, 7
+  MUL d R1, R2
+  ADD d R0, R1
+  ;var b
+  ST d R0, [BP, -16]
+
+  ;OT at 58:5
+  ;var l
   LD d R0, [BP, -8]
   MOV RT, R0
   JMP .BB2
 
 .BB2:
-  LEAVE 1
+  LEAVE 2
   RET
 
 main:
 
 .BB0:
-  ENTER 14
+  ENTER 7
 .BB1:
+
+  ;OT at 2:9
+
+  ;OT at 4:10
+  LDI32 R0, 0x69
+  ;var c
+  ST b R0, [BP, -16]
+
+  ;OT at 9:12
+  LDI32 R0, main_const0
+  ;var s
+  ST q R0, [BP, -24]
+
+  ;OT at 0:1
+  LDI32 AR, main_const1
+  LDC64 R0, AR
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  ;var DEC
+  PUSH R0
+  LD q R0, [SP, 0]
+  MOV RT, ALR
+  ADD q ALR, R0
+  ;var DEC
+  POP R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  ;var matrix
+  ST d RT, [BP, -32]
+
+  ;OT at 15:15
+  ;var matrix
+  LD d R1, [BP, -32]
+  LDI32 R2, 0
+  LDI32 BR2, 8
+  MUL q R2, BR2
+  ADD q R1, R2
+  LDI32 AR, main_const2
+  LDC64 R0, AR
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  ;var DEC
+  PUSH R0
+  LD q R0, [SP, 0]
+  MOV RT, ALR
+  ADD q ALR, R0
+  ;var DEC
+  POP R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  ST q RT, R1
+
+  ;OT at 16:15
+  ;var matrix
+  LD d R1, [BP, -32]
+  LDI32 R2, 1
+  LDI32 BR2, 8
+  MUL q R2, BR2
+  ADD q R1, R2
+  LDI32 AR, main_const2
+  LDC64 R0, AR
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  ;var DEC
+  PUSH R0
+  LD q R0, [SP, 0]
+  MOV RT, ALR
+  ADD q ALR, R0
+  ;var DEC
+  POP R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  ST q RT, R1
+
+  ;OT at 17:15
+  ;var matrix
+  LD d R1, [BP, -32]
+  LDI32 R2, 2
+  LDI32 BR2, 8
+  MUL q R2, BR2
+  ADD q R1, R2
+  LDI32 AR, main_const2
+  LDC64 R0, AR
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  ;var DEC
+  PUSH R0
+  LD q R0, [SP, 0]
+  MOV RT, ALR
+  ADD q ALR, R0
+  ;var DEC
+  POP R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  ST q RT, R1
+
+  ;OT at 18:15
+  ;var matrix
+  LD d R1, [BP, -32]
+  LDI32 R2, 3
+  LDI32 BR2, 8
+  MUL q R2, BR2
+  ADD q R1, R2
+  LDI32 AR, main_const2
+  LDC64 R0, AR
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  ;var DEC
+  PUSH R0
+  LD q R0, [SP, 0]
+  MOV RT, ALR
+  ADD q ALR, R0
+  ;var DEC
+  POP R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  ST q RT, R1
+
+  ;OT at 20:18
+  ;var matrix
+  LD d R1, [BP, -32]
+  LDI32 R2, 0
+  LDI32 BR2, 8
+  MUL q R2, BR2
+  ADD q R1, R2
+  LD q R1, R1
+  LDI32 R2, 0
+  LDI32 BR2, 8
+  MUL q R2, BR2
+  ADD q R1, R2
+  LDI32 R2, 0
+  ST q R2, R1
+
+  ;OT at 21:18
+  ;var matrix
+  LD d R1, [BP, -32]
+  LDI32 R2, 0
+  LDI32 BR2, 8
+  MUL q R2, BR2
+  ADD q R1, R2
+  LD q R1, R1
+  LDI32 R2, 1
+  LDI32 BR2, 8
+  MUL q R2, BR2
+  ADD q R1, R2
+  LDI32 R2, 10
+  ST q R2, R1
+
+  ;OT at 23:18
+  ;var matrix
+  LD d R1, [BP, -32]
+  LDI32 R2, 1
+  LDI32 BR2, 8
+  MUL q R2, BR2
+  ADD q R1, R2
+  LD q R1, R1
+  LDI32 R2, 0
+  LDI32 BR2, 8
+  MUL q R2, BR2
+  ADD q R1, R2
+  LDI32 R2, 20
+  ST q R2, R1
+
+  ;OT at 24:18
+  ;var matrix
+  LD d R1, [BP, -32]
+  LDI32 R2, 1
+  LDI32 BR2, 8
+  MUL q R2, BR2
+  ADD q R1, R2
+  LD q R1, R1
+  LDI32 R2, 1
+  LDI32 BR2, 8
+  MUL q R2, BR2
+  ADD q R1, R2
+  LDI32 R2, 21
+  ST q R2, R1
+
+  ;OT at 26:18
+  ;var matrix
+  LD d R1, [BP, -32]
+  LDI32 R2, 2
+  LDI32 BR2, 8
+  MUL q R2, BR2
+  ADD q R1, R2
+  LD q R1, R1
+  LDI32 R2, 0
+  LDI32 BR2, 8
+  MUL q R2, BR2
+  ADD q R1, R2
+  LDI32 R2, 40
+  ST q R2, R1
+
+  ;OT at 27:18
+  ;var matrix
+  LD d R1, [BP, -32]
+  LDI32 R2, 2
+  LDI32 BR2, 8
+  MUL q R2, BR2
+  ADD q R1, R2
+  LD q R1, R1
+  LDI32 R2, 1
+  LDI32 BR2, 8
+  MUL q R2, BR2
+  ADD q R1, R2
+  LDI32 R2, 50
+  ST q R2, R1
+
+  ;OT at 29:18
+  ;var matrix
+  LD d R1, [BP, -32]
+  LDI32 R2, 3
+  LDI32 BR2, 8
+  MUL q R2, BR2
+  ADD q R1, R2
+  LD q R1, R1
+  LDI32 R2, 0
+  LDI32 BR2, 8
+  MUL q R2, BR2
+  ADD q R1, R2
+  LDI32 R2, 60
+  ST q R2, R1
+
+  ;OT at 30:18
+  ;var matrix
+  LD d R1, [BP, -32]
+  LDI32 R2, 3
+  LDI32 BR2, 8
+  MUL q R2, BR2
+  ADD q R1, R2
+  LD q R1, R1
+  LDI32 R2, 1
+  LDI32 BR2, 8
+  MUL q R2, BR2
+  ADD q R1, R2
+  LDI32 R2, 701
+  ST q R2, R1
+
+  ;OT at 32:9
+  LDI32 AR, main_const3
+  LDC64 R0, AR
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  ;var DEC
+  PUSH R0
+  LD q R0, [SP, 0]
+  MOV RT, ALR
+  ADD q ALR, R0
+  ;var DEC
+  POP R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  ;var buffer
+  ST d RT, [BP, -40]
+
+  ;OT at 34:9
+  ;var buffer
+  LD d R0, [BP, -40]
+  ;var b
+  ST d R0, [BP, -48]
+
+  ;OT at 35:5
+  ;var b
+  LD d R0, [BP, -48]
+  ;var buffer
+  LD d R1, [BP, -40]
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  ;var buffer
+  PUSH R1
+  ;var b
+  PUSH R0
+  CALL printlnNumber
+  ;var b
+  POP R0
+  ;var buffer
+  POP R1
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+
+  ;OT at 36:5
+  ;var matrix
+  LD d R0, [BP, -32]
+  LDI32 R1, 3
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  LDI32 R1, 1
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  ;var buffer
+  LD d R1, [BP, -40]
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  ;var buffer
+  PUSH R1
+  ;var indexr
+  PUSH R0
+  CALL printlnNumber
+  ;var indexr
+  POP R0
+  ;var buffer
+  POP R1
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+
+  ;OT at 37:5
+  ;var matrix
+  LD d R0, [BP, -32]
+  LDI32 R1, 3
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  LDI32 R1, 1
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  ;var buffer
+  LD d R1, [BP, -40]
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  ;var buffer
+  PUSH R1
+  ;var indexr
+  PUSH R0
+  CALL printlnNumber
+  ;var indexr
+  POP R0
+  ;var buffer
+  POP R1
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+
+  ;OT at 38:5
+  ;var matrix
+  LD d R0, [BP, -32]
+  LDI32 R1, 3
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  LDI32 R1, 1
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  ;var buffer
+  LD d R1, [BP, -40]
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  ;var buffer
+  PUSH R1
+  ;var indexr
+  PUSH R0
+  CALL printlnNumber
+  ;var indexr
+  POP R0
+  ;var buffer
+  POP R1
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+
+  ;OT at 39:5
+  ;var matrix
+  LD d R0, [BP, -32]
+  LDI32 R1, 3
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  LDI32 R1, 1
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  ;var buffer
+  LD d R1, [BP, -40]
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  ;var buffer
+  PUSH R1
+  ;var indexr
+  PUSH R0
+  CALL printlnNumber
+  ;var indexr
+  POP R0
+  ;var buffer
+  POP R1
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+
+  ;OT at 40:5
+  ;var matrix
+  LD d R0, [BP, -32]
+  LDI32 R1, 3
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  LDI32 R1, 1
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  ;var buffer
+  LD d R1, [BP, -40]
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  ;var buffer
+  PUSH R1
+  ;var indexr
+  PUSH R0
+  CALL printlnNumber
+  ;var indexr
+  POP R0
+  ;var buffer
+  POP R1
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+
+  ;OT at 41:5
+  ;var matrix
+  LD d R0, [BP, -32]
+  LDI32 R1, 3
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  LDI32 R1, 1
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  ;var buffer
+  LD d R1, [BP, -40]
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  ;var buffer
+  PUSH R1
+  ;var indexr
+  PUSH R0
+  CALL printlnNumber
+  ;var indexr
+  POP R0
+  ;var buffer
+  POP R1
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+
+  ;OT at 42:5
+  ;var matrix
+  LD d R0, [BP, -32]
+  LDI32 R1, 3
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  LDI32 R1, 1
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  ;var buffer
+  LD d R1, [BP, -40]
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  ;var buffer
+  PUSH R1
+  ;var indexr
+  PUSH R0
+  CALL printlnNumber
+  ;var indexr
+  POP R0
+  ;var buffer
+  POP R1
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+
+  ;OT at 43:5
+  ;var matrix
+  LD d R0, [BP, -32]
+  LDI32 R1, 3
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  LDI32 R1, 1
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  ;var buffer
+  LD d R1, [BP, -40]
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  ;var buffer
+  PUSH R1
+  ;var indexr
+  PUSH R0
+  CALL printlnNumber
+  ;var indexr
+  POP R0
+  ;var buffer
+  POP R1
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+
+  ;OT at 44:5
+  ;var matrix
+  LD d R0, [BP, -32]
+  LDI32 R1, 3
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  LDI32 R1, 1
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  ;var buffer
+  LD d R1, [BP, -40]
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  ;var buffer
+  PUSH R1
+  ;var indexr
+  PUSH R0
+  CALL printlnNumber
+  ;var indexr
+  POP R0
+  ;var buffer
+  POP R1
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+
+  ;OT at 45:5
+  ;var matrix
+  LD d R0, [BP, -32]
+  LDI32 R1, 3
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  LDI32 R1, 1
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  ;var buffer
+  LD d R1, [BP, -40]
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  ;var buffer
+  PUSH R1
+  ;var indexr
+  PUSH R0
+  CALL printlnNumber
+  ;var indexr
+  POP R0
+  ;var buffer
+  POP R1
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+
+  ;OT at 46:5
+  ;var matrix
+  LD d R0, [BP, -32]
+  LDI32 R1, 3
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  LDI32 R1, 1
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  ;var buffer
+  LD d R1, [BP, -40]
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  ;var buffer
+  PUSH R1
+  ;var indexr
+  PUSH R0
+  CALL printlnNumber
+  ;var indexr
+  POP R0
+  ;var buffer
+  POP R1
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+
+  ;OT at 47:5
+  ;var matrix
+  LD d R0, [BP, -32]
+  LDI32 R1, 3
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  LDI32 R1, 1
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  ;var buffer
+  LD d R1, [BP, -40]
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  ;var buffer
+  PUSH R1
+  ;var indexr
+  PUSH R0
+  CALL printlnNumber
+  ;var indexr
+  POP R0
+  ;var buffer
+  POP R1
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+
+  ;OT at 49:9
+  ;var matrix
+  LD d R0, [BP, -32]
+  LDI32 R1, 0
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  LDI32 R1, 0
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LD q R0, R0
+  ;var v
+  ST d R0, [BP, -56]
+
+  ;OT at 50:5
+  ;var v
+  LD d R0, [BP, -56]
+  ;var buffer
+  LD d R1, [BP, -40]
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  ;var buffer
+  PUSH R1
+  ;var v
+  PUSH R0
+  CALL printlnNumber
+  ;var v
+  POP R0
+  ;var buffer
+  POP R1
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+
+  ;OT at 52:5
   LDI32 R0, 0
-  ST d R0, [BP, -104]
-  LDI32 R0, -8
-  ST d R0, [BP, -112]
-  LD d R0, [BP, -112]
-  NEG d R0
-  ST d R0, [BP, -104]
+  MOV RT, R0
   JMP .BB2
 
 .BB2:
-  LD d R0, [BP, -112]
-  LD d R1, [BP, -104]
-  CMP d R0, R1
-  LE R0
-  JZ .BB4
-  JNZ .BB3
+  LEAVE 7
+  HLT
 
-.BB3:
-  LDI32 R0, 2
-  LDI32 R1, 2
-  CMP d R0, R1
-  GREQ R0
-  JZ .BB6
-  JNZ .BB5
+printlnNumber:
 
-.BB4:
-  LDI32 R0, 0x7B
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV OUT, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LDI32 R0, -123
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  CALL printNumber
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  CALL println
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  JMP .BB3
+.BB0:
+  ENTER 0
+.BB1:
 
-.BB5:
-  LDI32 R0, 2
-  LDI32 R1, 2
-  CMP d R0, R1
-  LEEQ R0
-  JZ .BB8
-  JNZ .BB7
+  ;OT at 62:5
+  ;var num
+  LD d R0, [BP, 16]
+  ;var bufferRef
+  LD d R1, [BP, 24]
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  ;var bufferRef
+  PUSH R1
+  ;var num
+  PUSH R0
+  CALL printNumber
+  ;var num
+  POP R0
+  ;var bufferRef
+  POP R1
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
 
-.BB6:
-  LDI32 R0, 0x32
+  ;OT at 63:5
   MOV BR1, SP
   PUSH R0
   PUSH R1
@@ -133,9 +1017,7 @@ main:
   PUSH R5
   PUSH R6
   PUSH R7
-  PUSH R0
-  POP R0
-  MOV OUT, R0
+  CALL println
   POP R7
   POP R6
   POP R5
@@ -144,1496 +1026,39 @@ main:
   POP R2
   POP R1
   POP R0
-  JMP .BB5
 
-.BB7:
-  LDI32 R0, 3
-  LDI32 R1, 2
-  CMP d R0, R1
-  NEQ R0
-  JZ .BB10
-  JNZ .BB9
-
-.BB8:
-  LDI32 R0, 0x33
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV OUT, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  JMP .BB7
-
-.BB9:
-  LDI32 R0, 3
-  LDI32 R1, 3
-  CMP d R0, R1
-  EQ R0
-  JZ .BB12
-  JNZ .BB11
-
-.BB10:
-  LDI32 R0, 0x34
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV OUT, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  JMP .BB9
-
-.BB11:
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  CALL println
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LDI32 R0, -9
-  ST b R0, [BP, -8]
-  LD b R0, [BP, -8]
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  CBD RT, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  ST d RT, [BP, -16]
-  LD d R0, [BP, -16]
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  CALL printNumber
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  CALL println
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LDI32 AR, main_const2
-  LDC64 R0, AR
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV RT, ALR
-  ADD q ALR, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  ST d RT, [BP, -24]
-  LD d R0, [BP, -24]
-  LDI32 R1, 0
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LDI32 R1, 1
-  ST q R1, R0
-  LD d R0, [BP, -24]
-  LDI32 R1, 0
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LD q R0, R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  CALL printNumber
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  CALL println
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LDI32 AR, main_const2
-  LDC64 R0, AR
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV RT, ALR
-  ADD q ALR, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  ST d RT, [BP, -32]
-  LD d R0, [BP, -32]
-  LDI32 R1, 0
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LDI32 R1, 78978
-  ST q R1, R0
-  LD d R0, [BP, -32]
-  LDI32 R1, 3
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LDI32 R1, 2
-  ST q R1, R0
-  LD d R0, [BP, -32]
-  LDI32 R1, 0
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LD q R0, R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  CALL printNumber
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  CALL println
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LD d R0, [BP, -32]
-  LDI32 R1, 3
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LD q R0, R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  CALL printNumber
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  CALL println
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LDI32 AR, main_const3
-  LDC64 R0, AR
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV RT, ALR
-  ADD q ALR, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  ST d RT, [BP, -40]
-  LD d R0, [BP, -40]
-  LDI32 R1, 0
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LDI32 AR, main_const4
-  LDC64 R0, AR
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV RT, ALR
-  ADD q ALR, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  ST q RT, R0
-  LD d R0, [BP, -40]
-  LDI32 R1, 1
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LDI32 AR, main_const4
-  LDC64 R0, AR
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV RT, ALR
-  ADD q ALR, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  ST q RT, R0
-  LD d R0, [BP, -40]
-  LDI32 R1, 1
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LD q R0, R0
-  LDI32 R1, 0
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LDI32 R1, 410
-  ST q R1, R0
-  LD d R0, [BP, -40]
-  LDI32 R1, 1
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LD q R0, R0
-  LDI32 R1, 0
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LD q R0, R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  CALL printNumber
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  CALL println
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LDI32 AR, main_const3
-  LDC64 R0, AR
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV RT, ALR
-  ADD q ALR, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  ST d RT, [BP, -48]
-  LDI32 AR, main_const3
-  LDC64 R0, AR
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV RT, ALR
-  ADD q ALR, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  ST q RT, [BP, -56]
-  LDI32 AR, main_const3
-  LDC64 R0, AR
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV RT, ALR
-  ADD q ALR, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  ST q RT, [BP, -64]
-  LDI32 R3, 4
-  LDI32 R2, 3
-  LDI32 R1, 2
-  LDI32 R0, 1
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R3
-  PUSH R2
-  PUSH R1
-  PUSH R0
-  CALL test
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  ST d RT, [BP, -72]
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  CALL println
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  CALL println
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LD q R0, [BP, -56]
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  CALL printNumber
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  CALL println
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LD q R0, [BP, -64]
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  CALL printNumber
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  CALL println
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  CALL println
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  CALL println
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  CALL println
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LD d R0, [BP, -48]
-  LDI32 R1, 0
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LD q R0, R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  CALL printNumber
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  CALL println
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LD d R0, [BP, -48]
-  LDI32 R1, 1
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LD q R0, R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  CALL printNumber
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  CALL println
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  CALL println
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  CALL println
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  CALL println
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LD d R0, [BP, -72]
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  CALL printNumber
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  CALL println
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  CALL println
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LD d R0, [BP, -48]
-  LDI32 R1, 0
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LD q R1, [BP, -56]
-  ST q R1, R0
-  LD d R0, [BP, -48]
-  LDI32 R1, 1
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LD q R1, [BP, -64]
-  ST q R1, R0
-  LD d R0, [BP, -48]
-  LDI32 R1, 0
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LD q R0, R0
-  LDI32 R1, 0
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LDI32 R1, 0
-  ST q R1, R0
-  LD d R0, [BP, -48]
-  LDI32 R1, 0
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LD q R0, R0
-  LDI32 R1, 1
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LDI32 R1, 1
-  ST q R1, R0
-  LD d R0, [BP, -48]
-  LDI32 R1, 1
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LD q R0, R0
-  LDI32 R1, 0
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LDI32 R1, 2
-  ST q R1, R0
-  LD d R0, [BP, -48]
-  LDI32 R1, 1
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LD q R0, R0
-  LDI32 R1, 1
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LDI32 R1, 3
-  ST q R1, R0
-  LD d R0, [BP, -48]
-  LDI32 R1, 0
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LD q R0, R0
-  LDI32 R1, 0
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LD q R0, R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  CALL printNumber
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  CALL println
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LD d R0, [BP, -48]
-  LDI32 R1, 0
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LD q R0, R0
-  LDI32 R1, 1
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LD q R0, R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  CALL printNumber
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  CALL println
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LD d R0, [BP, -48]
-  LDI32 R1, 1
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LD q R0, R0
-  LDI32 R1, 0
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LD q R0, R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  CALL printNumber
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  CALL println
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LD d R0, [BP, -48]
-  LDI32 R1, 1
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LD q R0, R0
-  LDI32 R1, 1
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LD q R0, R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  CALL printNumber
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  CALL println
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LDI32 R3, 1
-  LDI32 R2, 0
-  LDI32 R1, 0
-  LDI32 R0, 0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R3
-  PUSH R2
-  PUSH R1
-  PUSH R0
-  CALL test
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LDI32 R2, 0
-  LDI32 R1, 0
-  LDI32 R0, 0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH RT
-  PUSH R2
-  PUSH R1
-  PUSH R0
-  CALL test
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LDI32 R2, 1
-  LDI32 R1, 1
-  LDI32 R0, 1
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH RT
-  PUSH R2
-  PUSH R1
-  PUSH R0
-  CALL test
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LDI32 R2, 3
-  LDI32 R1, 2
-  LDI32 R0, 1
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH RT
-  PUSH R2
-  PUSH R1
-  PUSH R0
-  CALL test
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  ST d RT, [BP, -96]
-  JMP .BB13
-
-.BB12:
-  LDI32 R0, 0x35
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV OUT, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  JMP .BB11
-
-.BB13:
-  LD d R0, [BP, -96]
-  LDI32 R1, 10
-  CMP d R0, R1
-  EQ R0
-  JZ .BB15
-  JNZ .BB16
-
-.BB14:
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  CALL println
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
+  ;OT at 64:5
   LDI32 R0, 0
   MOV RT, R0
-  JMP .BB26
+  JMP .BB2
 
-.BB15:
-  LDI32 R0, 0
-  ST d R0, [BP, -80]
-  LDI32 R0, 4
-  ST d R0, [BP, -88]
-  JMP .BB17
-
-.BB16:
-  JMP .BB20
-
-.BB17:
-  LD d R0, [BP, -80]
-  LD d R1, [BP, -88]
-  CMP d R0, R1
-  NEQ R0
-  JZ .BB19
-  JNZ .BB18
-
-.BB18:
-  JMP .BB14
-
-.BB19:
-  LDI32 R0, main_const1
-  LD d R1, [BP, -80]
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LDC64 R0, R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV OUT, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LD d R0, [BP, -80]
-  LDI32 R1, 1
-  ADD d R0, R1
-  ST d R0, [BP, -80]
-  JMP .BB17
-
-.BB20:
-  LD d R0, [BP, -96]
-  LDI32 R1, 9
-  CMP d R0, R1
-  EQ R0
-  JZ .BB22
-  JNZ .BB21
-
-.BB21:
-  JMP .BB14
-
-.BB22:
-  LDI32 R0, 0
-  ST d R0, [BP, -80]
-  LDI32 R0, 3
-  ST d R0, [BP, -88]
-  JMP .BB23
-
-.BB23:
-  LD d R0, [BP, -80]
-  LD d R1, [BP, -88]
-  CMP d R0, R1
-  NEQ R0
-  JZ .BB25
-  JNZ .BB24
-
-.BB24:
-  JMP .BB21
-
-.BB25:
-  LDI32 R0, main_const0
-  LD d R1, [BP, -80]
-  LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LDC64 R0, R0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R0
-  POP R0
-  MOV OUT, R0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  LD d R0, [BP, -80]
-  LDI32 R1, 1
-  ADD d R0, R1
-  ST d R0, [BP, -80]
-  JMP .BB23
-
-.BB26:
-  LEAVE 14
-  HLT
+.BB2:
+  LEAVE 0
+  RET
 
 printNumber:
 
 .BB0:
   ENTER 3
 .BB1:
+
+  ;OT at 0:1
+  ;var bufferRef
+  LD d R0, [BP, 24]
+  ;var buffer
+  ST b R0, [BP, -16]
+
+  ;OT at 35:9
+  ;var num
   LD d R0, [BP, 16]
+  ;var temp
   ST d R0, [BP, -24]
   JMP .BB2
 
 .BB2:
+
+  ;OT at 36:14
+  ;var temp
   LD d R0, [BP, -24]
   LDI32 R1, 0
   CMP d R0, R1
@@ -1642,6 +1067,9 @@ printNumber:
   JNZ .BB3
 
 .BB3:
+
+  ;OT at 41:14
+  ;var temp
   LD d R0, [BP, -24]
   LDI32 R1, 0
   CMP d R0, R1
@@ -1650,6 +1078,8 @@ printNumber:
   JNZ .BB7
 
 .BB4:
+
+  ;OT at 37:9
   LDI32 R0, 0x2D
   MOV BR1, SP
   PUSH R0
@@ -1660,9 +1090,12 @@ printNumber:
   PUSH R5
   PUSH R6
   PUSH R7
+  ;var SYMB
   PUSH R0
-  POP R0
+  LD q R0, [SP, 0]
   MOV OUT, R0
+  ;var SYMB
+  POP R0
   POP R7
   POP R6
   POP R5
@@ -1671,17 +1104,25 @@ printNumber:
   POP R2
   POP R1
   POP R0
+
+  ;OT at 38:14
+  ;var temp
   LD d R0, [BP, -24]
   NEG d R0
+  ;var temp
   ST d R0, [BP, -24]
   JMP .BB3
 
 .BB5:
+
+  ;OT at 58:5
   LDI32 R0, 0
   MOV RT, R0
   JMP .BB14
 
 .BB6:
+
+  ;OT at 42:9
   LDI32 R0, 0x30
   MOV BR1, SP
   PUSH R0
@@ -1692,9 +1133,12 @@ printNumber:
   PUSH R5
   PUSH R6
   PUSH R7
+  ;var SYMB
   PUSH R0
-  POP R0
+  LD q R0, [SP, 0]
   MOV OUT, R0
+  ;var SYMB
+  POP R0
   POP R7
   POP R6
   POP R5
@@ -1706,36 +1150,17 @@ printNumber:
   JMP .BB5
 
 .BB7:
-  LDI32 AR, printNumber_const1
-  LDC64 R1, AR
-  LDI32 R0, printNumber_const0
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH R1
-  PUSH R0
-  POP R0
-  POP R1
-  ADD q ALR, R1
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
+
+  ;OT at 44:13
   LDI32 R0, 0
-  ST d R0, [BP, -16]
+  ;var index
+  ST d R0, [BP, -8]
   JMP .BB8
 
 .BB8:
+
+  ;OT at 46:21
+  ;var temp
   LD d R0, [BP, -24]
   LDI32 R1, 0
   CMP d R0, R1
@@ -1744,36 +1169,56 @@ printNumber:
   JNZ .BB9
 
 .BB9:
-  LD d R0, [BP, -16]
+
+  ;OT at 52:15
+  ;var index
+  LD d R0, [BP, -8]
   LDI32 R1, 1
   SUB d R0, R1
-  ST d R0, [BP, -16]
+  ;var index
+  ST d R0, [BP, -8]
   JMP .BB11
 
 .BB10:
-  LD b R0, [BP, -8]
-  LD d R1, [BP, -16]
+
+  ;OT at 47:27
+  ;var buffer
+  LD b R1, [BP, -16]
+  ;var index
+  LD d R2, [BP, -8]
   LDI32 BR2, 8
-  MUL q R1, BR2
-  ADD q R0, R1
-  LD d R1, [BP, -24]
-  LDI32 R2, 10
-  MOD d R1, R2
-  LDI32 R2, 48
-  OR q R1, R2
-  ST q R1, R0
-  LD d R0, [BP, -16]
+  MUL q R2, BR2
+  ADD q R1, R2
+  ;var temp
+  LD d R2, [BP, -24]
+  LDI32 R3, 10
+  MOD d R2, R3
+  LDI32 R3, 48
+  OR q R2, R3
+  ST q R2, R1
+
+  ;OT at 48:19
+  ;var index
+  LD d R0, [BP, -8]
   LDI32 R1, 1
   ADD d R0, R1
-  ST d R0, [BP, -16]
+  ;var index
+  ST d R0, [BP, -8]
+
+  ;OT at 49:18
+  ;var temp
   LD d R0, [BP, -24]
   LDI32 R1, 10
   DIV d R0, R1
+  ;var temp
   ST d R0, [BP, -24]
   JMP .BB8
 
 .BB11:
-  LD d R0, [BP, -16]
+
+  ;OT at 53:22
+  ;var index
+  LD d R0, [BP, -8]
   LDI32 R1, -1
   CMP d R0, R1
   NEQ R0
@@ -1784,8 +1229,12 @@ printNumber:
   JMP .BB5
 
 .BB13:
-  LD b R0, [BP, -8]
-  LD d R1, [BP, -16]
+
+  ;OT at 54:13
+  ;var buffer
+  LD b R0, [BP, -16]
+  ;var index
+  LD d R1, [BP, -8]
   LDI32 BR2, 8
   MUL q R1, BR2
   ADD q R0, R1
@@ -1799,9 +1248,12 @@ printNumber:
   PUSH R5
   PUSH R6
   PUSH R7
+  ;var read
   PUSH R0
-  POP R0
+  LD q R0, [SP, 0]
   MOV OUT, R0
+  ;var read
+  POP R0
   POP R7
   POP R6
   POP R5
@@ -1810,14 +1262,186 @@ printNumber:
   POP R2
   POP R1
   POP R0
-  LD d R0, [BP, -16]
+
+  ;OT at 55:19
+  ;var index
+  LD d R0, [BP, -8]
   LDI32 R1, 1
   SUB d R0, R1
-  ST d R0, [BP, -16]
+  ;var index
+  ST d R0, [BP, -8]
   JMP .BB11
 
 .BB14:
   LEAVE 3
+  RET
+
+printlnString:
+
+.BB0:
+  ENTER 0
+.BB1:
+
+  ;OT at 28:5
+  ;var s
+  LD q R0, [BP, 16]
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  ;var s
+  PUSH R0
+  CALL printString
+  ;var s
+  POP R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+
+  ;OT at 29:5
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  CALL println
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+
+  ;OT at 30:5
+  LDI32 R0, 0
+  MOV RT, R0
+  JMP .BB2
+
+.BB2:
+  LEAVE 0
+  RET
+
+printString:
+
+.BB0:
+  ENTER 2
+.BB1:
+
+  ;OT at 18:9
+  LDI32 R0, 0
+  ;var i
+  ST d R0, [BP, -8]
+
+  ;OT at 19:9
+  ;var s
+  LD q R0, [BP, 16]
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  ;var s
+  PUSH R0
+  CALL strlength
+  ;var s
+  POP R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  ;var l
+  ST d RT, [BP, -16]
+  JMP .BB2
+
+.BB2:
+
+  ;OT at 20:14
+  ;var i
+  LD d R0, [BP, -8]
+  ;var l
+  LD d R1, [BP, -16]
+  CMP d R0, R1
+  NEQ R0
+  JZ .BB4
+  JNZ .BB3
+
+.BB3:
+
+  ;OT at 24:5
+  LDI32 R0, 0
+  MOV RT, R0
+  JMP .BB5
+
+.BB4:
+
+  ;OT at 21:9
+  ;var s
+  LD q R0, [BP, 16]
+  ;var i
+  LD d R1, [BP, -8]
+  LDI32 BR2, 8
+  MUL q R1, BR2
+  ADD q R0, R1
+  LDC64 R0, R0
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  ;var read
+  PUSH R0
+  LD q R0, [SP, 0]
+  MOV OUT, R0
+  ;var read
+  POP R0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+
+  ;OT at 22:11
+  ;var i
+  LD d R0, [BP, -8]
+  LDI32 R1, 1
+  ADD d R0, R1
+  ;var i
+  ST d R0, [BP, -8]
+  JMP .BB2
+
+.BB5:
+  LEAVE 2
   RET
 
 println:
@@ -1825,6 +1449,8 @@ println:
 .BB0:
   ENTER 0
 .BB1:
+
+  ;OT at 13:5
   LDI32 R0, 0x0A
   MOV BR1, SP
   PUSH R0
@@ -1835,9 +1461,12 @@ println:
   PUSH R5
   PUSH R6
   PUSH R7
+  ;var SYMB
   PUSH R0
-  POP R0
+  LD q R0, [SP, 0]
   MOV OUT, R0
+  ;var SYMB
+  POP R0
   POP R7
   POP R6
   POP R5
@@ -1846,6 +1475,8 @@ println:
   POP R2
   POP R1
   POP R0
+
+  ;OT at 14:5
   LDI32 R0, 0
   MOV RT, R0
   JMP .BB2
@@ -1859,11 +1490,16 @@ strlength:
 .BB0:
   ENTER 1
 .BB1:
+
+  ;OT at 2:9
   LDI32 R0, 0
+  ;var len
   ST d R0, [BP, -8]
   JMP .BB2
 
 .BB2:
+
+  ;OT at 3:17
   LDI32 R0, 1
   LDI32 R1, 1
   CMP q R0, R1
@@ -1872,6 +1508,9 @@ strlength:
   JNZ .BB3
 
 .BB3:
+
+  ;OT at 9:5
+  ;var len
   LD d R0, [BP, -8]
   MOV RT, R0
   JMP .BB8
@@ -1880,7 +1519,11 @@ strlength:
   JMP .BB5
 
 .BB5:
+
+  ;OT at 4:22
+  ;var str
   LD q R0, [BP, 16]
+  ;var len
   LD d R1, [BP, -8]
   LDI32 BR2, 8
   MUL q R1, BR2
@@ -1893,13 +1536,19 @@ strlength:
   JNZ .BB6
 
 .BB6:
+
+  ;OT at 7:13
+  ;var len
   LD d R0, [BP, -8]
   LDI32 R1, 1
   ADD d R0, R1
+  ;var len
   ST d R0, [BP, -8]
   JMP .BB2
 
 .BB7:
+
+  ;OT at 5:13
   JMP .BB3
 
 .BB8:
@@ -1911,30 +1560,17 @@ strlength:
 
 
 main_const0:
-  dq 0x4E
-  dq 0x4F
+  dq 0x48
+  dq 0x65
+  dq 0x6C
+  dq 0x6C
+  dq 0x6F
   dq 0x00
 main_const1:
-  dq 0x59
-  dq 0x45
-  dq 0x53
-  dq 0x00
+  dq 32
+
 main_const2:
-  dq 4
+  dq 16
 
 main_const3:
-  dq 2
-
-main_const4:
-  dq 3
-
-printNumber_const0:
-  dq 0x62
-  dq 0x75
-  dq 0x66
-  dq 0x66
-  dq 0x65
-  dq 0x72
-  dq 0x00
-printNumber_const1:
-  dq 10
+  dq 80

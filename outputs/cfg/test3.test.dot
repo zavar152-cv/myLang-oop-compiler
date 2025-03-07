@@ -1,0 +1,90 @@
+digraph CFG {
+    compound=true;
+    graph [splines=true];
+    node [shape=rectangle];
+
+    BB2 [label=<<B>BB2: END</B><BR ALIGN="CENTER"/>>];
+    BB1 [label=<<B>BB1: Base block</B><BR ALIGN="CENTER"/>VAR<BR ALIGN="CENTER"/>VAR<BR ALIGN="CENTER"/>IDENTIFIER<BR ALIGN="CENTER"/>>];
+    subgraph cluster_instruction0 {
+        label = "OT of BB1:0";
+        style=rounded;
+        color=blue;
+        entry0 [shape=point, style=invis];
+        node0 [label="declare", color=blue];
+        node1 [label="withType", color=blue];
+        node2 [label="int", color=blue];
+        node1 -> node2[color=blue];
+        node3 [label="builtin", color=blue];
+        node1 -> node3[color=blue];
+        node0 -> node1[color=blue];
+        node4 [label="l <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node0 -> node4[color=blue];
+        node5 [label="write <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node6 [label="l <int:0, reg: AR, spilled: 0, offset: 0>", color=blue];
+        node5 -> node6[color=blue];
+        node7 [label="litRead <int:0, reg: R0, spilled: 0, offset: 0>", color=blue];
+        node8 [label="DEC", color=blue];
+        node7 -> node8[color=blue];
+        node9 [label="9 <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node7 -> node9[color=blue];
+        node5 -> node7[color=blue];
+        node0 -> node5[color=blue];
+    }
+    BB1 -> entry0 [lhead=cluster_instruction0, color=blue];
+    subgraph cluster_instruction1 {
+        label = "OT of BB1:1";
+        style=rounded;
+        color=blue;
+        entry1 [shape=point, style=invis];
+        node10 [label="declare", color=blue];
+        node11 [label="withType", color=blue];
+        node12 [label="int", color=blue];
+        node11 -> node12[color=blue];
+        node13 [label="builtin", color=blue];
+        node11 -> node13[color=blue];
+        node10 -> node11[color=blue];
+        node14 [label="b <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node10 -> node14[color=blue];
+        node15 [label="write <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node16 [label="b <int:0, reg: AR, spilled: 0, offset: 0>", color=blue];
+        node15 -> node16[color=blue];
+        node17 [label="+ <int:0, reg: R0, spilled: 0, offset: 0>", color=blue];
+        node18 [label="litRead <int:0, reg: R0, spilled: 0, offset: 0>", color=blue];
+        node19 [label="DEC", color=blue];
+        node18 -> node19[color=blue];
+        node20 [label="8 <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node18 -> node20[color=blue];
+        node17 -> node18[color=blue];
+        node21 [label="* <int:0, reg: R1, spilled: 0, offset: 0>", color=blue];
+        node22 [label="read <int:0, reg: R1, spilled: 0, offset: 0>", color=blue];
+        node23 [label="l <int:0, reg: AR, spilled: 0, offset: 0>", color=blue];
+        node22 -> node23[color=blue];
+        node21 -> node22[color=blue];
+        node24 [label="litRead <int:0, reg: R2, spilled: 0, offset: 0>", color=blue];
+        node25 [label="DEC", color=blue];
+        node24 -> node25[color=blue];
+        node26 [label="7 <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node24 -> node26[color=blue];
+        node21 -> node24[color=blue];
+        node17 -> node21[color=blue];
+        node15 -> node17[color=blue];
+        node10 -> node15[color=blue];
+    }
+    BB1 -> entry1 [lhead=cluster_instruction1, color=blue];
+    subgraph cluster_instruction2 {
+        label = "OT of BB1:2";
+        style=rounded;
+        color=blue;
+        entry2 [shape=point, style=invis];
+        node27 [label="return <int:0, reg: RT, spilled: 0, offset: 0>", color=blue];
+        node28 [label="read <int:0, reg: R0, spilled: 0, offset: 0>", color=blue];
+        node29 [label="l <int:0, reg: AR, spilled: 0, offset: 0>", color=blue];
+        node28 -> node29[color=blue];
+        node27 -> node28[color=blue];
+    }
+    BB1 -> entry2 [lhead=cluster_instruction2, color=blue];
+    BB0 [label=<<B>BB0: START</B><BR ALIGN="CENTER"/>>];
+
+    BB1 -> BB2;
+    BB0 -> BB1;
+}

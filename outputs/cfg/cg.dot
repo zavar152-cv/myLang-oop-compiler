@@ -1,22 +1,24 @@
 digraph CallGraph {
     node [shape=ellipse, style=filled, color=lightblue];
 
-    "__alloc";
-    "test";
-    "__allocRef";
-    "printNumber";
-    "__toIntFromByte";
-    "println";
+    "strlength";
+    "printString";
+    "printlnString";
     "__writeChar";
+    "println";
+    "printNumber";
+    "printlnNumber";
+    "__allocRef";
     "main";
 
-    "printNumber" -> "__alloc" [color=blue];
-    "printNumber" -> "__writeChar" [color=blue];
+    "printString" -> "strlength" [color=blue];
+    "printString" -> "__writeChar" [color=blue];
+    "printlnString" -> "println" [color=blue];
+    "printlnString" -> "printString" [color=blue];
     "println" -> "__writeChar" [color=blue];
-    "main" -> "test" [color=blue];
+    "printNumber" -> "__writeChar" [color=blue];
+    "printlnNumber" -> "println" [color=blue];
+    "printlnNumber" -> "printNumber" [color=blue];
+    "main" -> "printlnNumber" [color=blue];
     "main" -> "__allocRef" [color=blue];
-    "main" -> "printNumber" [color=blue];
-    "main" -> "__toIntFromByte" [color=blue];
-    "main" -> "println" [color=blue];
-    "main" -> "__writeChar" [color=blue];
 }

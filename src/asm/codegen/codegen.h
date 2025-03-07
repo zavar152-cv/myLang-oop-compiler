@@ -44,6 +44,8 @@
 #define OP_NOT "NOT"
 #define OP_NEG "NEG"
 
+#define commentOTPosition(buffer, line, pos) ({stringbuffer_append_string(buffer, "\n  "); stringbuffer_append_string(buffer, ";OT at "); stringbuffer_append_long(buffer, line); stringbuffer_append_string(buffer, ":"); stringbuffer_append_long(buffer, pos + 1); stringbuffer_append_string(buffer, "\n");})
+#define commentVar(buffer, name) ({stringbuffer_append_string(buffer, "  "); stringbuffer_append_string(buffer, ";var "); stringbuffer_append_string(buffer, name); stringbuffer_append_string(buffer, "\n");})
 #define plain0(buffer, command) ({stringbuffer_append_string(buffer, "  "); stringbuffer_append_string(buffer, command); stringbuffer_append_string(buffer, "\n");})
 #define plain1(buffer, command, arg1) ({stringbuffer_append_string(buffer, "  "); stringbuffer_append_string(buffer, command); stringbuffer_append_string(buffer, " "); stringbuffer_append_string(buffer, arg1); stringbuffer_append_string(buffer, "\n");})
 #define plain2(buffer, command, arg1, arg2) ({stringbuffer_append_string(buffer, "  "); stringbuffer_append_string(buffer, command); stringbuffer_append_string(buffer, " "); stringbuffer_append_string(buffer, arg1); stringbuffer_append_string(buffer, ", "); stringbuffer_append_string(buffer, arg2); stringbuffer_append_string(buffer, "\n");})
