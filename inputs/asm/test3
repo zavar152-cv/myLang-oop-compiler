@@ -33,13 +33,13 @@ int main(string[] args) {
 
     int b = buffer;
     printlnNumber(b, buffer);
-    printlnNumber(matrix[3][1], buffer);
-    printlnNumber(matrix[3][1], buffer);
-    printlnNumber(matrix[3][1], buffer);
-    printlnNumber(matrix[3][1], buffer);
-    printlnNumber(matrix[3][1], buffer);
-    printlnNumber(matrix[3][1], buffer);
-    printlnNumber(matrix[3][1], buffer);
+    printlnNumber(matrix[0][0], buffer);
+    printlnNumber(matrix[0][1], buffer);
+    printlnNumber(matrix[1][0], buffer);
+    printlnNumber(matrix[1][1], buffer);
+    printlnNumber(matrix[2][0], buffer);
+    printlnNumber(matrix[2][1], buffer);
+    printlnNumber(matrix[3][0], buffer);
     printlnNumber(matrix[3][1], buffer);
     printlnNumber(matrix[3][1], buffer);
     printlnNumber(matrix[3][1], buffer);

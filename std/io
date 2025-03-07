@@ -32,6 +32,7 @@ int printlnString(string s) {
 
 int printNumber(int num, ref bufferRef) {
     char[] buffer = bufferRef;
+
     int temp = num;
     if (temp < 0) {
         __writeChar('-');

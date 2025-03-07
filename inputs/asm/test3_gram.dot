@@ -536,7 +536,7 @@ digraph Tree {
     node_266 -> node_267;
     node_267 [label="DEC"]
     node_267 -> node_268;
-    node_268 [label="1"]
+    node_268 [label="0"]
     node_265 -> node_269;
     node_269 [label="INDEXING"]
     node_269 -> node_270;
@@ -544,7 +544,7 @@ digraph Tree {
     node_270 -> node_271;
     node_271 [label="DEC"]
     node_271 -> node_272;
-    node_272 [label="3"]
+    node_272 [label="0"]
     node_269 -> node_273;
     node_273 [label="IDENTIFIER"]
     node_273 -> node_274;
@@ -578,7 +578,7 @@ digraph Tree {
     node_287 -> node_288;
     node_288 [label="DEC"]
     node_288 -> node_289;
-    node_289 [label="3"]
+    node_289 [label="0"]
     node_286 -> node_290;
     node_290 [label="IDENTIFIER"]
     node_290 -> node_291;
@@ -604,7 +604,7 @@ digraph Tree {
     node_300 -> node_301;
     node_301 [label="DEC"]
     node_301 -> node_302;
-    node_302 [label="1"]
+    node_302 [label="0"]
     node_299 -> node_303;
     node_303 [label="INDEXING"]
     node_303 -> node_304;
@@ -612,7 +612,7 @@ digraph Tree {
     node_304 -> node_305;
     node_305 [label="DEC"]
     node_305 -> node_306;
-    node_306 [label="3"]
+    node_306 [label="1"]
     node_303 -> node_307;
     node_307 [label="IDENTIFIER"]
     node_307 -> node_308;
@@ -646,7 +646,7 @@ digraph Tree {
     node_321 -> node_322;
     node_322 [label="DEC"]
     node_322 -> node_323;
-    node_323 [label="3"]
+    node_323 [label="1"]
     node_320 -> node_324;
     node_324 [label="IDENTIFIER"]
     node_324 -> node_325;
@@ -672,7 +672,7 @@ digraph Tree {
     node_334 -> node_335;
     node_335 [label="DEC"]
     node_335 -> node_336;
-    node_336 [label="1"]
+    node_336 [label="0"]
     node_333 -> node_337;
     node_337 [label="INDEXING"]
     node_337 -> node_338;
@@ -680,7 +680,7 @@ digraph Tree {
     node_338 -> node_339;
     node_339 [label="DEC"]
     node_339 -> node_340;
-    node_340 [label="3"]
+    node_340 [label="2"]
     node_337 -> node_341;
     node_341 [label="IDENTIFIER"]
     node_341 -> node_342;
@@ -714,7 +714,7 @@ digraph Tree {
     node_355 -> node_356;
     node_356 [label="DEC"]
     node_356 -> node_357;
-    node_357 [label="3"]
+    node_357 [label="2"]
     node_354 -> node_358;
     node_358 [label="IDENTIFIER"]
     node_358 -> node_359;
@@ -740,7 +740,7 @@ digraph Tree {
     node_368 -> node_369;
     node_369 [label="DEC"]
     node_369 -> node_370;
-    node_370 [label="1"]
+    node_370 [label="0"]
     node_367 -> node_371;
     node_371 [label="INDEXING"]
     node_371 -> node_372;

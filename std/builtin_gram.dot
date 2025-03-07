@@ -568,13 +568,13 @@ digraph Tree {
     node_282 -> node_283;
     node_283 [label="TYPEREF"]
     node_283 -> node_284;
-    node_284 [label="CUSTOM_TYPE"]
+    node_284 [label="BUILTIN_TYPE"]
     node_284 -> node_285;
-    node_285 [label="void"]
+    node_285 [label="ref"]
     node_282 -> node_286;
     node_286 [label="NAME"]
     node_286 -> node_287;
-    node_287 [label="__alloc"]
+    node_287 [label="__allocRef"]
     node_282 -> node_288;
     node_288 [label="ARGDEF_LIST"]
     node_288 -> node_289;
@@ -584,197 +584,157 @@ digraph Tree {
     node_290 -> node_291;
     node_291 [label="BUILTIN_TYPE"]
     node_291 -> node_292;
-    node_292 [label="string"]
+    node_292 [label="long"]
     node_289 -> node_293;
     node_293 [label="IDENTIFIER"]
     node_293 -> node_294;
-    node_294 [label="var"]
-    node_288 -> node_295;
-    node_295 [label="ARGDEF"]
+    node_294 [label="size"]
+    node_0 -> node_295;
+    node_295 [label="FUNC_DEF"]
     node_295 -> node_296;
-    node_296 [label="TYPEREF"]
+    node_296 [label="FUNC_SIGNATURE"]
     node_296 -> node_297;
-    node_297 [label="BUILTIN_TYPE"]
+    node_297 [label="TYPEREF"]
     node_297 -> node_298;
-    node_298 [label="long"]
-    node_295 -> node_299;
-    node_299 [label="IDENTIFIER"]
-    node_299 -> node_300;
-    node_300 [label="size"]
-    node_0 -> node_301;
-    node_301 [label="FUNC_DEF"]
-    node_301 -> node_302;
-    node_302 [label="FUNC_SIGNATURE"]
+    node_298 [label="BUILTIN_TYPE"]
+    node_298 -> node_299;
+    node_299 [label="long"]
+    node_296 -> node_300;
+    node_300 [label="NAME"]
+    node_300 -> node_301;
+    node_301 [label="__sizeof"]
+    node_296 -> node_302;
+    node_302 [label="ARGDEF_LIST"]
     node_302 -> node_303;
-    node_303 [label="TYPEREF"]
+    node_303 [label="ARGDEF"]
     node_303 -> node_304;
-    node_304 [label="BUILTIN_TYPE"]
+    node_304 [label="TYPEREF"]
     node_304 -> node_305;
-    node_305 [label="ref"]
-    node_302 -> node_306;
-    node_306 [label="NAME"]
-    node_306 -> node_307;
-    node_307 [label="__allocRef"]
-    node_302 -> node_308;
-    node_308 [label="ARGDEF_LIST"]
-    node_308 -> node_309;
-    node_309 [label="ARGDEF"]
+    node_305 [label="BUILTIN_TYPE"]
+    node_305 -> node_306;
+    node_306 [label="string"]
+    node_303 -> node_307;
+    node_307 [label="IDENTIFIER"]
+    node_307 -> node_308;
+    node_308 [label="type"]
+    node_0 -> node_309;
+    node_309 [label="FUNC_DEF"]
     node_309 -> node_310;
-    node_310 [label="TYPEREF"]
+    node_310 [label="FUNC_SIGNATURE"]
     node_310 -> node_311;
-    node_311 [label="BUILTIN_TYPE"]
+    node_311 [label="TYPEREF"]
     node_311 -> node_312;
-    node_312 [label="long"]
-    node_309 -> node_313;
-    node_313 [label="IDENTIFIER"]
-    node_313 -> node_314;
-    node_314 [label="size"]
-    node_0 -> node_315;
-    node_315 [label="FUNC_DEF"]
-    node_315 -> node_316;
-    node_316 [label="FUNC_SIGNATURE"]
-    node_316 -> node_317;
-    node_317 [label="TYPEREF"]
+    node_312 [label="BUILTIN_TYPE"]
+    node_312 -> node_313;
+    node_313 [label="byte"]
+    node_310 -> node_314;
+    node_314 [label="NAME"]
+    node_314 -> node_315;
+    node_315 [label="__read"]
+    node_310 -> node_316;
+    node_316 [label="ARGDEF_LIST"]
+    node_0 -> node_317;
+    node_317 [label="FUNC_DEF"]
     node_317 -> node_318;
-    node_318 [label="BUILTIN_TYPE"]
+    node_318 [label="FUNC_SIGNATURE"]
     node_318 -> node_319;
-    node_319 [label="long"]
-    node_316 -> node_320;
-    node_320 [label="NAME"]
+    node_319 [label="TYPEREF"]
+    node_319 -> node_320;
+    node_320 [label="BUILTIN_TYPE"]
     node_320 -> node_321;
-    node_321 [label="__sizeof"]
-    node_316 -> node_322;
-    node_322 [label="ARGDEF_LIST"]
+    node_321 [label="char"]
+    node_318 -> node_322;
+    node_322 [label="NAME"]
     node_322 -> node_323;
-    node_323 [label="ARGDEF"]
-    node_323 -> node_324;
-    node_324 [label="TYPEREF"]
-    node_324 -> node_325;
-    node_325 [label="BUILTIN_TYPE"]
+    node_323 [label="__readChar"]
+    node_318 -> node_324;
+    node_324 [label="ARGDEF_LIST"]
+    node_0 -> node_325;
+    node_325 [label="FUNC_DEF"]
     node_325 -> node_326;
-    node_326 [label="string"]
-    node_323 -> node_327;
-    node_327 [label="IDENTIFIER"]
+    node_326 [label="FUNC_SIGNATURE"]
+    node_326 -> node_327;
+    node_327 [label="TYPEREF"]
     node_327 -> node_328;
-    node_328 [label="type"]
-    node_0 -> node_329;
-    node_329 [label="FUNC_DEF"]
-    node_329 -> node_330;
-    node_330 [label="FUNC_SIGNATURE"]
+    node_328 [label="CUSTOM_TYPE"]
+    node_328 -> node_329;
+    node_329 [label="void"]
+    node_326 -> node_330;
+    node_330 [label="NAME"]
     node_330 -> node_331;
-    node_331 [label="TYPEREF"]
-    node_331 -> node_332;
-    node_332 [label="BUILTIN_TYPE"]
+    node_331 [label="__write"]
+    node_326 -> node_332;
+    node_332 [label="ARGDEF_LIST"]
     node_332 -> node_333;
-    node_333 [label="byte"]
-    node_330 -> node_334;
-    node_334 [label="NAME"]
+    node_333 [label="ARGDEF"]
+    node_333 -> node_334;
+    node_334 [label="TYPEREF"]
     node_334 -> node_335;
-    node_335 [label="__read"]
-    node_330 -> node_336;
-    node_336 [label="ARGDEF_LIST"]
-    node_0 -> node_337;
-    node_337 [label="FUNC_DEF"]
+    node_335 [label="BUILTIN_TYPE"]
+    node_335 -> node_336;
+    node_336 [label="byte"]
+    node_333 -> node_337;
+    node_337 [label="IDENTIFIER"]
     node_337 -> node_338;
-    node_338 [label="FUNC_SIGNATURE"]
-    node_338 -> node_339;
-    node_339 [label="TYPEREF"]
+    node_338 [label="b"]
+    node_0 -> node_339;
+    node_339 [label="FUNC_DEF"]
     node_339 -> node_340;
-    node_340 [label="BUILTIN_TYPE"]
+    node_340 [label="FUNC_SIGNATURE"]
     node_340 -> node_341;
-    node_341 [label="char"]
-    node_338 -> node_342;
-    node_342 [label="NAME"]
+    node_341 [label="TYPEREF"]
+    node_341 -> node_342;
+    node_342 [label="CUSTOM_TYPE"]
     node_342 -> node_343;
-    node_343 [label="__readChar"]
-    node_338 -> node_344;
-    node_344 [label="ARGDEF_LIST"]
-    node_0 -> node_345;
-    node_345 [label="FUNC_DEF"]
-    node_345 -> node_346;
-    node_346 [label="FUNC_SIGNATURE"]
+    node_343 [label="void"]
+    node_340 -> node_344;
+    node_344 [label="NAME"]
+    node_344 -> node_345;
+    node_345 [label="__writeChar"]
+    node_340 -> node_346;
+    node_346 [label="ARGDEF_LIST"]
     node_346 -> node_347;
-    node_347 [label="TYPEREF"]
+    node_347 [label="ARGDEF"]
     node_347 -> node_348;
-    node_348 [label="CUSTOM_TYPE"]
+    node_348 [label="TYPEREF"]
     node_348 -> node_349;
-    node_349 [label="void"]
-    node_346 -> node_350;
-    node_350 [label="NAME"]
-    node_350 -> node_351;
-    node_351 [label="__write"]
-    node_346 -> node_352;
-    node_352 [label="ARGDEF_LIST"]
-    node_352 -> node_353;
-    node_353 [label="ARGDEF"]
+    node_349 [label="BUILTIN_TYPE"]
+    node_349 -> node_350;
+    node_350 [label="char"]
+    node_347 -> node_351;
+    node_351 [label="IDENTIFIER"]
+    node_351 -> node_352;
+    node_352 [label="c"]
+    node_0 -> node_353;
+    node_353 [label="FUNC_DEF"]
     node_353 -> node_354;
-    node_354 [label="TYPEREF"]
+    node_354 [label="FUNC_SIGNATURE"]
     node_354 -> node_355;
-    node_355 [label="BUILTIN_TYPE"]
+    node_355 [label="TYPEREF"]
     node_355 -> node_356;
-    node_356 [label="byte"]
-    node_353 -> node_357;
-    node_357 [label="IDENTIFIER"]
-    node_357 -> node_358;
-    node_358 [label="b"]
-    node_0 -> node_359;
-    node_359 [label="FUNC_DEF"]
-    node_359 -> node_360;
-    node_360 [label="FUNC_SIGNATURE"]
-    node_360 -> node_361;
-    node_361 [label="TYPEREF"]
+    node_356 [label="BUILTIN_TYPE"]
+    node_356 -> node_357;
+    node_357 [label="ref"]
+    node_354 -> node_358;
+    node_358 [label="NAME"]
+    node_358 -> node_359;
+    node_359 [label="__lastALR"]
+    node_354 -> node_360;
+    node_360 [label="ARGDEF_LIST"]
+    node_0 -> node_361;
+    node_361 [label="FUNC_DEF"]
     node_361 -> node_362;
-    node_362 [label="CUSTOM_TYPE"]
+    node_362 [label="FUNC_SIGNATURE"]
     node_362 -> node_363;
-    node_363 [label="void"]
-    node_360 -> node_364;
-    node_364 [label="NAME"]
+    node_363 [label="TYPEREF"]
+    node_363 -> node_364;
+    node_364 [label="BUILTIN_TYPE"]
     node_364 -> node_365;
-    node_365 [label="__writeChar"]
-    node_360 -> node_366;
-    node_366 [label="ARGDEF_LIST"]
+    node_365 [label="ref"]
+    node_362 -> node_366;
+    node_366 [label="NAME"]
     node_366 -> node_367;
-    node_367 [label="ARGDEF"]
-    node_367 -> node_368;
-    node_368 [label="TYPEREF"]
-    node_368 -> node_369;
-    node_369 [label="BUILTIN_TYPE"]
-    node_369 -> node_370;
-    node_370 [label="char"]
-    node_367 -> node_371;
-    node_371 [label="IDENTIFIER"]
-    node_371 -> node_372;
-    node_372 [label="c"]
-    node_0 -> node_373;
-    node_373 [label="FUNC_DEF"]
-    node_373 -> node_374;
-    node_374 [label="FUNC_SIGNATURE"]
-    node_374 -> node_375;
-    node_375 [label="TYPEREF"]
-    node_375 -> node_376;
-    node_376 [label="BUILTIN_TYPE"]
-    node_376 -> node_377;
-    node_377 [label="ref"]
-    node_374 -> node_378;
-    node_378 [label="NAME"]
-    node_378 -> node_379;
-    node_379 [label="__lastALR"]
-    node_374 -> node_380;
-    node_380 [label="ARGDEF_LIST"]
-    node_0 -> node_381;
-    node_381 [label="FUNC_DEF"]
-    node_381 -> node_382;
-    node_382 [label="FUNC_SIGNATURE"]
-    node_382 -> node_383;
-    node_383 [label="TYPEREF"]
-    node_383 -> node_384;
-    node_384 [label="BUILTIN_TYPE"]
-    node_384 -> node_385;
-    node_385 [label="ref"]
-    node_382 -> node_386;
-    node_386 [label="NAME"]
-    node_386 -> node_387;
-    node_387 [label="__lastSP"]
-    node_382 -> node_388;
-    node_388 [label="ARGDEF_LIST"]
+    node_367 [label="__lastSP"]
+    node_362 -> node_368;
+    node_368 [label="ARGDEF_LIST"]
 }

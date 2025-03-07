@@ -29,7 +29,6 @@ ulong __toUlongFromUint(uint l);
 ulong __toUlongFromLong(long l);
 
 //memory allocation
-void __alloc(string var, long size);
 ref __allocRef(long size);
 
 //todo

@@ -190,7 +190,12 @@ void prepareRegsAndTemps(OperationTreeNode *root, bool debug) {
     free(stack);
 }
 
-char* getSizeValueByType(const char* type) {
+char* getSizeValueByType(const char* type, uint32_t arrayDim) {
+    if (arrayDim > 0) {
+        return "q";
+    }
+
+
     if (strcmp(type, "char") == 0 || strcmp(type, "byte") == 0 || strcmp(type, "boolean") == 0) {
         return "b";
     } else if (strcmp(type, "int") == 0 || strcmp(type, "uint") == 0 || strcmp(type, "ref") == 0) {
@@ -211,13 +216,14 @@ uint8_t getSizeByType(const char* type) {
 }
 
 void generateBuiltin(const char *name, FunctionEntry *entry, OperationTreeNode *root, struct StringBuffer *buffer) {
+    commandENTER(buffer, "0");
     if (strcmp(name, "__write") == 0) {
-        commandLDoffset(buffer, "q", REG_R0, REG_SP, "0");
+        commandLDoffset(buffer, "q", REG_R0, REG_BP, "8");
         commandMOV(buffer, REG_OUT, REG_R0);
     } else if (strcmp(name, "__read") == 0) {
         commandMOV(buffer, REG_RT, REG_IN);
     } else if (strcmp(name, "__writeChar") == 0) {
-        commandLDoffset(buffer, "q", REG_R0, REG_SP, "0");
+        commandLDoffset(buffer, "q", REG_R0, REG_BP, "8");
         commandMOV(buffer, REG_OUT, REG_R0);
     } else if (strcmp(name, "__readChar") == 0) {
         commandMOV(buffer, REG_RT, REG_IN);
@@ -225,32 +231,8 @@ void generateBuiltin(const char *name, FunctionEntry *entry, OperationTreeNode *
         commandCBD(buffer, REG_RT, root->children[1]->reg);
     } else if (strcmp(name, "__toByteFromInt") == 0){
         commandMOVT(buffer, "d", REG_RT, root->children[1]->reg);
-    } else if (strcmp(name, "__alloc") == 0){
-        const char *varName = root->children[1]->children[0]->label;
-        commandPOP(buffer, REG_R0); //pointer to varName, useless
-        commandPOP(buffer, REG_R1); //size
-        bool found = false;
-        for (int i = 0; i < entry->locals->size; i++) {
-            HashNode *node = entry->locals->buckets[i];
-            while (node) {
-                if (strcmp(((LocalVar *)node->value)->name, varName) == 0) {
-                    uint32_t index = ((LocalVar *)node->value)->index;
-                    int64_t offset = ((int32_t)index + 1) * -8;
-                    char offsetBuffer[1024];
-                    snprintf(offsetBuffer, sizeof(offsetBuffer), "%ld", offset);
-                    commandSToffset(buffer, getSizeValueByType(root->type->typeName), REG_ALR, REG_BP, offsetBuffer);
-                    found = true;
-                    break;
-                }
-                node = node->next;
-            }
-            if (found)
-                break;
-        }
-        char offsetBuffer[1024];
-        commandADD(buffer, "q", REG_ALR, REG_R1);        
     } else if (strcmp(name, "__allocRef") == 0) {
-        commandLDoffset(buffer, "q", REG_R0, REG_SP, "0"); //size
+        commandLDoffset(buffer, "q", REG_R0, REG_BP, "8"); //size
         commandMOV(buffer, REG_RT, REG_ALR);
         commandADD(buffer, "q", REG_ALR, REG_R0);  
     } else if (strcmp(name, "__lastALR") == 0) {
@@ -258,6 +240,7 @@ void generateBuiltin(const char *name, FunctionEntry *entry, OperationTreeNode *
     } else if (strcmp(name, "__lastSP") == 0) {
         commandMOV(buffer, REG_RT, REG_SP);
     }
+    commandLEAVE(buffer, "0");
 }
 
 char parseEscapedChar(const char *str) {
@@ -289,7 +272,7 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
                         snprintf(offsetBuffer, sizeof(offsetBuffer), "%ld", offset);
                         //commandLD(buffer, getSizeValueByType(root->children[0]->type->typeName), root->children[0]->reg, REG_BP);
                         commentVar(buffer, root->children[0]->label);
-                        commandSToffset(buffer, getSizeValueByType(root->type->typeName), root->children[1]->reg, REG_BP, offsetBuffer);
+                        commandSToffset(buffer, getSizeValueByType(root->type->typeName, root->type->arrayDim), root->children[1]->reg, REG_BP, offsetBuffer);
                         found = true;
                         break;
                     }
@@ -352,7 +335,7 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
                 wasSpilled = true;
                 char offsetBuffer[1024];
                 snprintf(offsetBuffer, sizeof(offsetBuffer), "%d", root->children[i]->offset - 8);
-                commandLDoffset(buffer, getSizeValueByType(root->children[i]->type->typeName), root->children[i]->reg, REG_BR1, offsetBuffer);                
+                commandLDoffset(buffer, getSizeValueByType(root->children[i]->type->typeName, root->children[i]->type->arrayDim), root->children[i]->reg, REG_BR1, offsetBuffer);                
                 commentVar(buffer, root->children[i]->children[0]->label);
                 commandPUSH(buffer, root->children[i]->reg);
             } else {
@@ -394,42 +377,42 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
     } else if (strcmp(root->label, OP_PLUS) == 0) {
         generateASMForOTHelper(entry, root->children[0], buffer);
         generateASMForOTHelper(entry, root->children[1], buffer);
-        commandADD(buffer, getSizeValueByType(root->type->typeName), root->children[0]->reg, root->children[1]->reg);
+        commandADD(buffer, getSizeValueByType(root->type->typeName, root->type->arrayDim), root->children[0]->reg, root->children[1]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
     } else if (strcmp(root->label, OP_MINUS) == 0) {
         generateASMForOTHelper(entry, root->children[0], buffer);
         generateASMForOTHelper(entry, root->children[1], buffer);
-        commandSUB(buffer, getSizeValueByType(root->type->typeName), root->children[0]->reg, root->children[1]->reg);
+        commandSUB(buffer, getSizeValueByType(root->type->typeName, root->type->arrayDim), root->children[0]->reg, root->children[1]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
     } else if (strcmp(root->label, OP_DIV) == 0) {
         generateASMForOTHelper(entry, root->children[0], buffer);
         generateASMForOTHelper(entry, root->children[1], buffer);
-        commandDIV(buffer, getSizeValueByType(root->type->typeName), root->children[0]->reg, root->children[1]->reg);
+        commandDIV(buffer, getSizeValueByType(root->type->typeName, root->type->arrayDim), root->children[0]->reg, root->children[1]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
     } else if (strcmp(root->label, OP_MUL) == 0) {
         generateASMForOTHelper(entry, root->children[0], buffer);
         generateASMForOTHelper(entry, root->children[1], buffer);
-        commandMUL(buffer, getSizeValueByType(root->type->typeName), root->children[0]->reg, root->children[1]->reg);
+        commandMUL(buffer, getSizeValueByType(root->type->typeName, root->type->arrayDim), root->children[0]->reg, root->children[1]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
     } else if (strcmp(root->label, OP_MOD) == 0) {
         generateASMForOTHelper(entry, root->children[0], buffer);
         generateASMForOTHelper(entry, root->children[1], buffer);
-        commandMOD(buffer, getSizeValueByType(root->type->typeName), root->children[0]->reg, root->children[1]->reg);
+        commandMOD(buffer, getSizeValueByType(root->type->typeName, root->type->arrayDim), root->children[0]->reg, root->children[1]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
     } else if (strcmp(root->label, OP_EQ) == 0) {
         generateASMForOTHelper(entry, root->children[0], buffer);
         generateASMForOTHelper(entry, root->children[1], buffer);
-        commandCMP(buffer, getSizeValueByType(root->children[0]->type->typeName), root->children[0]->reg, root->children[1]->reg);
+        commandCMP(buffer, getSizeValueByType(root->children[0]->type->typeName, root->children[0]->type->arrayDim), root->children[0]->reg, root->children[1]->reg);
         commandEQ(buffer, root->children[0]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
@@ -437,7 +420,7 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
     } else if (strcmp(root->label, OP_NEQ) == 0) {
         generateASMForOTHelper(entry, root->children[0], buffer);
         generateASMForOTHelper(entry, root->children[1], buffer);
-        commandCMP(buffer, getSizeValueByType(root->children[0]->type->typeName), root->children[0]->reg, root->children[1]->reg);
+        commandCMP(buffer, getSizeValueByType(root->children[0]->type->typeName, root->children[0]->type->arrayDim), root->children[0]->reg, root->children[1]->reg);
         commandNEQ(buffer, root->children[0]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
@@ -445,7 +428,7 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
     } else if (strcmp(root->label, OP_GR) == 0) {
         generateASMForOTHelper(entry, root->children[0], buffer);
         generateASMForOTHelper(entry, root->children[1], buffer);
-        commandCMP(buffer, getSizeValueByType(root->children[0]->type->typeName), root->children[0]->reg, root->children[1]->reg);
+        commandCMP(buffer, getSizeValueByType(root->children[0]->type->typeName, root->children[0]->type->arrayDim), root->children[0]->reg, root->children[1]->reg);
         commandGR(buffer, root->children[0]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
@@ -453,7 +436,7 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
     } else if (strcmp(root->label, OP_LE) == 0) {
         generateASMForOTHelper(entry, root->children[0], buffer);
         generateASMForOTHelper(entry, root->children[1], buffer);
-        commandCMP(buffer, getSizeValueByType(root->children[0]->type->typeName), root->children[0]->reg, root->children[1]->reg);
+        commandCMP(buffer, getSizeValueByType(root->children[0]->type->typeName, root->children[0]->type->arrayDim), root->children[0]->reg, root->children[1]->reg);
         commandLE(buffer, root->children[0]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
@@ -461,7 +444,7 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
     } else if (strcmp(root->label, OP_GREQ) == 0) {
         generateASMForOTHelper(entry, root->children[0], buffer);
         generateASMForOTHelper(entry, root->children[1], buffer);
-        commandCMP(buffer, getSizeValueByType(root->children[0]->type->typeName), root->children[0]->reg, root->children[1]->reg);
+        commandCMP(buffer, getSizeValueByType(root->children[0]->type->typeName, root->children[0]->type->arrayDim), root->children[0]->reg, root->children[1]->reg);
         commandGREQ(buffer, root->children[0]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
@@ -469,7 +452,7 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
     } else if (strcmp(root->label, OP_LEEQ) == 0) {
         generateASMForOTHelper(entry, root->children[0], buffer);
         generateASMForOTHelper(entry, root->children[1], buffer);
-        commandCMP(buffer, getSizeValueByType(root->children[0]->type->typeName), root->children[0]->reg, root->children[1]->reg);
+        commandCMP(buffer, getSizeValueByType(root->children[0]->type->typeName, root->children[0]->type->arrayDim), root->children[0]->reg, root->children[1]->reg);
         commandLEEQ(buffer, root->children[0]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
@@ -490,13 +473,13 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
         }
     } else if (strcmp(root->label, OP_NOT) == 0) {
         generateASMForOTHelper(entry, root->children[0], buffer);
-        commandNOT(buffer, getSizeValueByType(root->type->typeName), root->children[0]->reg);
+        commandNOT(buffer, getSizeValueByType(root->type->typeName, root->type->arrayDim), root->children[0]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
     } else if (strcmp(root->label, OP_NEG) == 0) {
         generateASMForOTHelper(entry, root->children[0], buffer);
-        commandNEG(buffer, getSizeValueByType(root->type->typeName), root->children[0]->reg);
+        commandNEG(buffer, getSizeValueByType(root->type->typeName, root->type->arrayDim), root->children[0]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
@@ -558,10 +541,10 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
                     //commandLD(buffer, getSizeValueByType(root->children[0]->type->typeName), root->children[0]->reg, REG_BP);
                     commentVar(buffer, root->children[0]->label);
                     if (strcmp(((LocalVar *)node->value)->typeName, "string") == 0) {
-                        commandLDoffset(buffer, getSizeValueByType(root->type->typeName), root->reg, REG_BP, offsetBuffer);
+                        commandLDoffset(buffer, getSizeValueByType(root->type->typeName, root->type->arrayDim), root->reg, REG_BP, offsetBuffer);
                         //commandLDC64(buffer, root->reg, root->reg);
                     } else {
-                        commandLDoffset(buffer, getSizeValueByType(root->type->typeName), root->reg, REG_BP, offsetBuffer);
+                        commandLDoffset(buffer, getSizeValueByType(root->type->typeName, root->type->arrayDim), root->reg, REG_BP, offsetBuffer);
                     }
                     found = true;
                     break;
@@ -581,7 +564,7 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
                         snprintf(offsetBuffer, sizeof(offsetBuffer), "%ld", arg->offset);
                         //commandLD(buffer, getSizeValueByType(root->children[0]->type->typeName), root->children[0]->reg, REG_BP);
                         commentVar(buffer, root->children[0]->label);
-                        commandLDoffset(buffer, getSizeValueByType(root->type->typeName), root->reg, REG_BP, offsetBuffer);
+                        commandLDoffset(buffer, getSizeValueByType(root->type->typeName, root->type->arrayDim), root->reg, REG_BP, offsetBuffer);
                         found = true;
                         break;
                     }

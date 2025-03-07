@@ -64,9 +64,11 @@ main:
   PUSH R7
   ;var DEC
   PUSH R0
-  LD q R0, [SP, 0]
+  ENTER 0
+  LD q R0, [BP, 8]
   MOV RT, ALR
   ADD q ALR, R0
+  LEAVE 0
   ;var DEC
   POP R0
   POP R7
@@ -78,11 +80,11 @@ main:
   POP R1
   POP R0
   ;var matrix
-  ST d RT, [BP, -32]
+  ST q RT, [BP, -32]
 
   ;OT at 15:15
   ;var matrix
-  LD d R1, [BP, -32]
+  LD q R1, [BP, -32]
   LDI32 R2, 0
   LDI32 BR2, 8
   MUL q R2, BR2
@@ -100,9 +102,11 @@ main:
   PUSH R7
   ;var DEC
   PUSH R0
-  LD q R0, [SP, 0]
+  ENTER 0
+  LD q R0, [BP, 8]
   MOV RT, ALR
   ADD q ALR, R0
+  LEAVE 0
   ;var DEC
   POP R0
   POP R7
@@ -117,7 +121,7 @@ main:
 
   ;OT at 16:15
   ;var matrix
-  LD d R1, [BP, -32]
+  LD q R1, [BP, -32]
   LDI32 R2, 1
   LDI32 BR2, 8
   MUL q R2, BR2
@@ -135,9 +139,11 @@ main:
   PUSH R7
   ;var DEC
   PUSH R0
-  LD q R0, [SP, 0]
+  ENTER 0
+  LD q R0, [BP, 8]
   MOV RT, ALR
   ADD q ALR, R0
+  LEAVE 0
   ;var DEC
   POP R0
   POP R7
@@ -152,7 +158,7 @@ main:
 
   ;OT at 17:15
   ;var matrix
-  LD d R1, [BP, -32]
+  LD q R1, [BP, -32]
   LDI32 R2, 2
   LDI32 BR2, 8
   MUL q R2, BR2
@@ -170,9 +176,11 @@ main:
   PUSH R7
   ;var DEC
   PUSH R0
-  LD q R0, [SP, 0]
+  ENTER 0
+  LD q R0, [BP, 8]
   MOV RT, ALR
   ADD q ALR, R0
+  LEAVE 0
   ;var DEC
   POP R0
   POP R7
@@ -187,7 +195,7 @@ main:
 
   ;OT at 18:15
   ;var matrix
-  LD d R1, [BP, -32]
+  LD q R1, [BP, -32]
   LDI32 R2, 3
   LDI32 BR2, 8
   MUL q R2, BR2
@@ -205,9 +213,11 @@ main:
   PUSH R7
   ;var DEC
   PUSH R0
-  LD q R0, [SP, 0]
+  ENTER 0
+  LD q R0, [BP, 8]
   MOV RT, ALR
   ADD q ALR, R0
+  LEAVE 0
   ;var DEC
   POP R0
   POP R7
@@ -222,7 +232,7 @@ main:
 
   ;OT at 20:18
   ;var matrix
-  LD d R1, [BP, -32]
+  LD q R1, [BP, -32]
   LDI32 R2, 0
   LDI32 BR2, 8
   MUL q R2, BR2
@@ -237,7 +247,7 @@ main:
 
   ;OT at 21:18
   ;var matrix
-  LD d R1, [BP, -32]
+  LD q R1, [BP, -32]
   LDI32 R2, 0
   LDI32 BR2, 8
   MUL q R2, BR2
@@ -252,7 +262,7 @@ main:
 
   ;OT at 23:18
   ;var matrix
-  LD d R1, [BP, -32]
+  LD q R1, [BP, -32]
   LDI32 R2, 1
   LDI32 BR2, 8
   MUL q R2, BR2
@@ -267,7 +277,7 @@ main:
 
   ;OT at 24:18
   ;var matrix
-  LD d R1, [BP, -32]
+  LD q R1, [BP, -32]
   LDI32 R2, 1
   LDI32 BR2, 8
   MUL q R2, BR2
@@ -282,7 +292,7 @@ main:
 
   ;OT at 26:18
   ;var matrix
-  LD d R1, [BP, -32]
+  LD q R1, [BP, -32]
   LDI32 R2, 2
   LDI32 BR2, 8
   MUL q R2, BR2
@@ -297,7 +307,7 @@ main:
 
   ;OT at 27:18
   ;var matrix
-  LD d R1, [BP, -32]
+  LD q R1, [BP, -32]
   LDI32 R2, 2
   LDI32 BR2, 8
   MUL q R2, BR2
@@ -312,7 +322,7 @@ main:
 
   ;OT at 29:18
   ;var matrix
-  LD d R1, [BP, -32]
+  LD q R1, [BP, -32]
   LDI32 R2, 3
   LDI32 BR2, 8
   MUL q R2, BR2
@@ -327,7 +337,7 @@ main:
 
   ;OT at 30:18
   ;var matrix
-  LD d R1, [BP, -32]
+  LD q R1, [BP, -32]
   LDI32 R2, 3
   LDI32 BR2, 8
   MUL q R2, BR2
@@ -354,9 +364,11 @@ main:
   PUSH R7
   ;var DEC
   PUSH R0
-  LD q R0, [SP, 0]
+  ENTER 0
+  LD q R0, [BP, 8]
   MOV RT, ALR
   ADD q ALR, R0
+  LEAVE 0
   ;var DEC
   POP R0
   POP R7
@@ -410,13 +422,13 @@ main:
 
   ;OT at 36:5
   ;var matrix
-  LD d R0, [BP, -32]
-  LDI32 R1, 3
+  LD q R0, [BP, -32]
+  LDI32 R1, 0
   LDI32 BR2, 8
   MUL q R1, BR2
   ADD q R0, R1
   LD q R0, R0
-  LDI32 R1, 1
+  LDI32 R1, 0
   LDI32 BR2, 8
   MUL q R1, BR2
   ADD q R0, R1
@@ -452,8 +464,8 @@ main:
 
   ;OT at 37:5
   ;var matrix
-  LD d R0, [BP, -32]
-  LDI32 R1, 3
+  LD q R0, [BP, -32]
+  LDI32 R1, 0
   LDI32 BR2, 8
   MUL q R1, BR2
   ADD q R0, R1
@@ -494,13 +506,13 @@ main:
 
   ;OT at 38:5
   ;var matrix
-  LD d R0, [BP, -32]
-  LDI32 R1, 3
+  LD q R0, [BP, -32]
+  LDI32 R1, 1
   LDI32 BR2, 8
   MUL q R1, BR2
   ADD q R0, R1
   LD q R0, R0
-  LDI32 R1, 1
+  LDI32 R1, 0
   LDI32 BR2, 8
   MUL q R1, BR2
   ADD q R0, R1
@@ -536,8 +548,8 @@ main:
 
   ;OT at 39:5
   ;var matrix
-  LD d R0, [BP, -32]
-  LDI32 R1, 3
+  LD q R0, [BP, -32]
+  LDI32 R1, 1
   LDI32 BR2, 8
   MUL q R1, BR2
   ADD q R0, R1
@@ -578,13 +590,13 @@ main:
 
   ;OT at 40:5
   ;var matrix
-  LD d R0, [BP, -32]
-  LDI32 R1, 3
+  LD q R0, [BP, -32]
+  LDI32 R1, 2
   LDI32 BR2, 8
   MUL q R1, BR2
   ADD q R0, R1
   LD q R0, R0
-  LDI32 R1, 1
+  LDI32 R1, 0
   LDI32 BR2, 8
   MUL q R1, BR2
   ADD q R0, R1
@@ -620,8 +632,8 @@ main:
 
   ;OT at 41:5
   ;var matrix
-  LD d R0, [BP, -32]
-  LDI32 R1, 3
+  LD q R0, [BP, -32]
+  LDI32 R1, 2
   LDI32 BR2, 8
   MUL q R1, BR2
   ADD q R0, R1
@@ -662,13 +674,13 @@ main:
 
   ;OT at 42:5
   ;var matrix
-  LD d R0, [BP, -32]
+  LD q R0, [BP, -32]
   LDI32 R1, 3
   LDI32 BR2, 8
   MUL q R1, BR2
   ADD q R0, R1
   LD q R0, R0
-  LDI32 R1, 1
+  LDI32 R1, 0
   LDI32 BR2, 8
   MUL q R1, BR2
   ADD q R0, R1
@@ -704,7 +716,7 @@ main:
 
   ;OT at 43:5
   ;var matrix
-  LD d R0, [BP, -32]
+  LD q R0, [BP, -32]
   LDI32 R1, 3
   LDI32 BR2, 8
   MUL q R1, BR2
@@ -746,7 +758,7 @@ main:
 
   ;OT at 44:5
   ;var matrix
-  LD d R0, [BP, -32]
+  LD q R0, [BP, -32]
   LDI32 R1, 3
   LDI32 BR2, 8
   MUL q R1, BR2
@@ -788,7 +800,7 @@ main:
 
   ;OT at 45:5
   ;var matrix
-  LD d R0, [BP, -32]
+  LD q R0, [BP, -32]
   LDI32 R1, 3
   LDI32 BR2, 8
   MUL q R1, BR2
@@ -830,7 +842,7 @@ main:
 
   ;OT at 46:5
   ;var matrix
-  LD d R0, [BP, -32]
+  LD q R0, [BP, -32]
   LDI32 R1, 3
   LDI32 BR2, 8
   MUL q R1, BR2
@@ -872,7 +884,7 @@ main:
 
   ;OT at 47:5
   ;var matrix
-  LD d R0, [BP, -32]
+  LD q R0, [BP, -32]
   LDI32 R1, 3
   LDI32 BR2, 8
   MUL q R1, BR2
@@ -914,7 +926,7 @@ main:
 
   ;OT at 49:9
   ;var matrix
-  LD d R0, [BP, -32]
+  LD q R0, [BP, -32]
   LDI32 R1, 0
   LDI32 BR2, 8
   MUL q R1, BR2
@@ -975,7 +987,7 @@ printlnNumber:
   ENTER 0
 .BB1:
 
-  ;OT at 62:5
+  ;OT at 63:5
   ;var num
   LD d R0, [BP, 16]
   ;var bufferRef
@@ -1007,7 +1019,7 @@ printlnNumber:
   POP R1
   POP R0
 
-  ;OT at 63:5
+  ;OT at 64:5
   MOV BR1, SP
   PUSH R0
   PUSH R1
@@ -1027,7 +1039,7 @@ printlnNumber:
   POP R1
   POP R0
 
-  ;OT at 64:5
+  ;OT at 65:5
   LDI32 R0, 0
   MOV RT, R0
   JMP .BB2
@@ -1046,9 +1058,9 @@ printNumber:
   ;var bufferRef
   LD d R0, [BP, 24]
   ;var buffer
-  ST b R0, [BP, -16]
+  ST q R0, [BP, -16]
 
-  ;OT at 35:9
+  ;OT at 36:9
   ;var num
   LD d R0, [BP, 16]
   ;var temp
@@ -1057,7 +1069,7 @@ printNumber:
 
 .BB2:
 
-  ;OT at 36:14
+  ;OT at 37:14
   ;var temp
   LD d R0, [BP, -24]
   LDI32 R1, 0
@@ -1068,7 +1080,7 @@ printNumber:
 
 .BB3:
 
-  ;OT at 41:14
+  ;OT at 42:14
   ;var temp
   LD d R0, [BP, -24]
   LDI32 R1, 0
@@ -1079,7 +1091,7 @@ printNumber:
 
 .BB4:
 
-  ;OT at 37:9
+  ;OT at 38:9
   LDI32 R0, 0x2D
   MOV BR1, SP
   PUSH R0
@@ -1092,8 +1104,10 @@ printNumber:
   PUSH R7
   ;var SYMB
   PUSH R0
-  LD q R0, [SP, 0]
+  ENTER 0
+  LD q R0, [BP, 8]
   MOV OUT, R0
+  LEAVE 0
   ;var SYMB
   POP R0
   POP R7
@@ -1105,7 +1119,7 @@ printNumber:
   POP R1
   POP R0
 
-  ;OT at 38:14
+  ;OT at 39:14
   ;var temp
   LD d R0, [BP, -24]
   NEG d R0
@@ -1115,14 +1129,14 @@ printNumber:
 
 .BB5:
 
-  ;OT at 58:5
+  ;OT at 59:5
   LDI32 R0, 0
   MOV RT, R0
   JMP .BB14
 
 .BB6:
 
-  ;OT at 42:9
+  ;OT at 43:9
   LDI32 R0, 0x30
   MOV BR1, SP
   PUSH R0
@@ -1135,8 +1149,10 @@ printNumber:
   PUSH R7
   ;var SYMB
   PUSH R0
-  LD q R0, [SP, 0]
+  ENTER 0
+  LD q R0, [BP, 8]
   MOV OUT, R0
+  LEAVE 0
   ;var SYMB
   POP R0
   POP R7
@@ -1151,7 +1167,7 @@ printNumber:
 
 .BB7:
 
-  ;OT at 44:13
+  ;OT at 45:13
   LDI32 R0, 0
   ;var index
   ST d R0, [BP, -8]
@@ -1159,7 +1175,7 @@ printNumber:
 
 .BB8:
 
-  ;OT at 46:21
+  ;OT at 47:21
   ;var temp
   LD d R0, [BP, -24]
   LDI32 R1, 0
@@ -1170,7 +1186,7 @@ printNumber:
 
 .BB9:
 
-  ;OT at 52:15
+  ;OT at 53:15
   ;var index
   LD d R0, [BP, -8]
   LDI32 R1, 1
@@ -1181,9 +1197,9 @@ printNumber:
 
 .BB10:
 
-  ;OT at 47:27
+  ;OT at 48:27
   ;var buffer
-  LD b R1, [BP, -16]
+  LD q R1, [BP, -16]
   ;var index
   LD d R2, [BP, -8]
   LDI32 BR2, 8
@@ -1197,7 +1213,7 @@ printNumber:
   OR q R2, R3
   ST q R2, R1
 
-  ;OT at 48:19
+  ;OT at 49:19
   ;var index
   LD d R0, [BP, -8]
   LDI32 R1, 1
@@ -1205,7 +1221,7 @@ printNumber:
   ;var index
   ST d R0, [BP, -8]
 
-  ;OT at 49:18
+  ;OT at 50:18
   ;var temp
   LD d R0, [BP, -24]
   LDI32 R1, 10
@@ -1216,7 +1232,7 @@ printNumber:
 
 .BB11:
 
-  ;OT at 53:22
+  ;OT at 54:22
   ;var index
   LD d R0, [BP, -8]
   LDI32 R1, -1
@@ -1230,9 +1246,9 @@ printNumber:
 
 .BB13:
 
-  ;OT at 54:13
+  ;OT at 55:13
   ;var buffer
-  LD b R0, [BP, -16]
+  LD q R0, [BP, -16]
   ;var index
   LD d R1, [BP, -8]
   LDI32 BR2, 8
@@ -1250,8 +1266,10 @@ printNumber:
   PUSH R7
   ;var read
   PUSH R0
-  LD q R0, [SP, 0]
+  ENTER 0
+  LD q R0, [BP, 8]
   MOV OUT, R0
+  LEAVE 0
   ;var read
   POP R0
   POP R7
@@ -1263,7 +1281,7 @@ printNumber:
   POP R1
   POP R0
 
-  ;OT at 55:19
+  ;OT at 56:19
   ;var index
   LD d R0, [BP, -8]
   LDI32 R1, 1
@@ -1418,8 +1436,10 @@ printString:
   PUSH R7
   ;var read
   PUSH R0
-  LD q R0, [SP, 0]
+  ENTER 0
+  LD q R0, [BP, 8]
   MOV OUT, R0
+  LEAVE 0
   ;var read
   POP R0
   POP R7
@@ -1463,8 +1483,10 @@ println:
   PUSH R7
   ;var SYMB
   PUSH R0
-  LD q R0, [SP, 0]
+  ENTER 0
+  LD q R0, [BP, 8]
   MOV OUT, R0
+  LEAVE 0
   ;var SYMB
   POP R0
   POP R7
