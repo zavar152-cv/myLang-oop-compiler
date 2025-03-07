@@ -31,6 +31,12 @@ int main(string[] args) {
 
     ref buffer = __allocRef(80);
 
+    bool f = __cmpRef(buffer, 97);
+
+    if (f == false) {
+        __writeChar('m');
+    }
+
     int b = buffer;
     printlnNumber(b, buffer);
     printlnNumber(matrix[0][0], buffer);
@@ -48,6 +54,22 @@ int main(string[] args) {
 
     int v = matrix[0][0];
     printlnNumber(v, buffer);
+
+    int y = -2;
+
+    byte u = __toByteFromInt(y);
+
+    if (u == 254) {
+        __writeChar('r');
+    }
+
+    int k = -1;
+
+    uint k1 = __toUintFromInt(k);
+
+    if (k1 == 4294967295) {
+        __writeChar('q');
+    }
 
     0;
 }

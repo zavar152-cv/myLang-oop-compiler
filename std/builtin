@@ -30,9 +30,7 @@ ulong __toUlongFromLong(long l);
 
 //memory allocation
 ref __allocRef(long size);
-
-//todo
-long __sizeof(string type);
+bool __cmpRef(ref current, int expected);
 
 //base input
 byte __read();

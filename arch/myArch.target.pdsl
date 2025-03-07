@@ -549,6 +549,12 @@ architecture myArch {
             reg1 = (~res) & 0xffffffffffffffff;
         }
 
+        if (reg1 == 0x0) then {
+            Z = 1;
+        } else {
+            Z = 0;
+        }
+
         IP = IP + 8;
     };
 

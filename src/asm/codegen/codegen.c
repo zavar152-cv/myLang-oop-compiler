@@ -194,8 +194,6 @@ char* getSizeValueByType(const char* type, uint32_t arrayDim) {
     if (arrayDim > 0) {
         return "q";
     }
-
-
     if (strcmp(type, "char") == 0 || strcmp(type, "byte") == 0 || strcmp(type, "boolean") == 0) {
         return "b";
     } else if (strcmp(type, "int") == 0 || strcmp(type, "uint") == 0 || strcmp(type, "ref") == 0) {
@@ -215,26 +213,66 @@ uint8_t getSizeByType(const char* type) {
     }   
 }
 
+bool contains(const char *str, const char *substr) {
+    return strstr(str, substr) != NULL;
+}
+
 void generateBuiltin(const char *name, FunctionEntry *entry, OperationTreeNode *root, struct StringBuffer *buffer) {
     commandENTER(buffer, "0");
     if (strcmp(name, "__write") == 0) {
         commandLDoffset(buffer, "q", REG_R0, REG_BP, "8");
         commandMOV(buffer, REG_OUT, REG_R0);
+        commandLDI32(buffer, REG_RT, "0");
     } else if (strcmp(name, "__read") == 0) {
         commandMOV(buffer, REG_RT, REG_IN);
     } else if (strcmp(name, "__writeChar") == 0) {
         commandLDoffset(buffer, "q", REG_R0, REG_BP, "8");
         commandMOV(buffer, REG_OUT, REG_R0);
+        commandLDI32(buffer, REG_RT, "0");
     } else if (strcmp(name, "__readChar") == 0) {
         commandMOV(buffer, REG_RT, REG_IN);
-    } else if (strcmp(name, "__toIntFromByte") == 0){
-        commandCBD(buffer, REG_RT, root->children[1]->reg);
-    } else if (strcmp(name, "__toByteFromInt") == 0){
-        commandMOVT(buffer, "d", REG_RT, root->children[1]->reg);
+    } else if (contains(name, "__toByteFrom")) {
+        commandLDoffset(buffer, "q", REG_R0, REG_BP, "8");
+        commandMOVT(buffer, "b", REG_RT, REG_R0);
+    } else if (strcmp(name, "__toIntFromByte") == 0) {
+        commandLDoffset(buffer, "b", REG_R0, REG_BP, "8");
+        commandCBD(buffer, REG_RT, REG_R0);
+    } else if (contains(name, "__toIntFrom")) {
+        commandLDoffset(buffer, "q", REG_R0, REG_BP, "8");
+        commandMOVT(buffer, "d", REG_RT, REG_R0);
+    } else if (strcmp(name, "__toUintFromByte") == 0) {
+        commandLDoffset(buffer, "b", REG_R0, REG_BP, "8");
+        commandMOVZX(buffer, "d", REG_RT, REG_R0);
+    } else if (contains(name, "__toUintFrom")) {
+        commandLDoffset(buffer, "q", REG_R0, REG_BP, "8");
+        commandMOVT(buffer, "d", REG_RT, REG_R0);
+    } else if (strcmp(name, "__toLongFromByte") == 0) {
+        commandLDoffset(buffer, "b", REG_R0, REG_BP, "8");
+        commandCBQ(buffer, REG_RT, REG_R0);
+    } else if (strcmp(name, "__toLongFromInt") == 0) {
+        commandLDoffset(buffer, "d", REG_R0, REG_BP, "8");
+        commandCDQ(buffer, REG_RT, REG_R0);
+    } else if (strcmp(name, "__toLongFromUint") == 0) {
+        commandLDoffset(buffer, "d", REG_R0, REG_BP, "8");
+        commandMOVZX(buffer, "q", REG_RT, REG_R0);
+    } else if (strcmp(name, "__toLongFromUlong") == 0) {
+        commandLDoffset(buffer, "q", REG_R0, REG_BP, "8");
+        commandMOVT(buffer, "q", REG_RT, REG_R0);
+    } else if (strcmp(name, "__toUlongFromLong") == 0) {
+        commandLDoffset(buffer, "q", REG_R0, REG_BP, "8");
+        commandMOVT(buffer, "q", REG_RT, REG_R0);
+    } else if (contains(name, "__toUlongFrom")) {
+        commandLDoffset(buffer, "q", REG_R0, REG_BP, "8");
+        commandMOVZX(buffer, "q", REG_RT, REG_R0);
     } else if (strcmp(name, "__allocRef") == 0) {
-        commandLDoffset(buffer, "q", REG_R0, REG_BP, "8"); //size
+        commandLDoffset(buffer, "q", REG_R0, REG_BP, "8");
         commandMOV(buffer, REG_RT, REG_ALR);
         commandADD(buffer, "q", REG_ALR, REG_R0);  
+    } else if (strcmp(name, "__cmpRef") == 0) {
+        commandLDoffset(buffer, "d", REG_R0, REG_BP, "8");
+        commandLDoffset(buffer, "d", REG_R1, REG_BP, "16");
+        commandCMP(buffer, "d", REG_R0, REG_R1);
+        commandEQ(buffer, REG_RT);
     } else if (strcmp(name, "__lastALR") == 0) {
         commandMOV(buffer, REG_RT, REG_ALR);
     } else if (strcmp(name, "__lastSP") == 0) {
