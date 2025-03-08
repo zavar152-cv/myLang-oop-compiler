@@ -4,11 +4,11 @@ int main(string[] args) {
     char c = 'i';
 
     
-    // printlnNumber(123, buffer);
+    // printlnInt(123, buffer);
 
     string s = "Hello";
 
-    //printlnNumber(test(), buffer);
+    //printlnInt(test(), buffer);
 
     int[][] matrix = __allocRef(32);
 
@@ -38,28 +38,28 @@ int main(string[] args) {
     }
 
     int b = buffer;
-    printlnNumber(b, buffer);
-    printlnNumber(matrix[0][0], buffer);
-    printlnNumber(matrix[0][1], buffer);
-    printlnNumber(matrix[1][0], buffer);
-    printlnNumber(matrix[1][1], buffer);
-    printlnNumber(matrix[2][0], buffer);
-    printlnNumber(matrix[2][1], buffer);
-    printlnNumber(matrix[3][0], buffer);
-    printlnNumber(matrix[3][1], buffer);
-    printlnNumber(matrix[3][1], buffer);
-    printlnNumber(matrix[3][1], buffer);
-    printlnNumber(matrix[3][1], buffer);
-    printlnNumber(matrix[3][1], buffer);
+    printlnInt(b, buffer);
+    printlnInt(matrix[0][0], buffer);
+    printlnInt(matrix[0][1], buffer);
+    printlnInt(matrix[1][0], buffer);
+    printlnInt(matrix[1][1], buffer);
+    printlnInt(matrix[2][0], buffer);
+    printlnInt(matrix[2][1], buffer);
+    printlnInt(matrix[3][0], buffer);
+    printlnInt(matrix[3][1], buffer);
+    printlnInt(matrix[3][1], buffer);
+    printlnInt(matrix[3][1], buffer);
+    printlnInt(matrix[3][1], buffer);
+    printlnInt(matrix[3][1], buffer);
 
     int v = matrix[0][0];
-    printlnNumber(v, buffer);
+    printlnInt(v, buffer);
 
     int y = -2;
 
     byte u = __toByteFromInt(y);
 
-    if (u == 254) {
+    if (u == __toByteFromInt(254)) {
         __writeChar('r');
     }
 
@@ -69,6 +69,21 @@ int main(string[] args) {
 
     if (k1 == 4294967295) {
         __writeChar('q');
+    }
+
+    // long p = 9223372036854775807;
+
+    char[] longBuffer = __allocRef(longBufferSize() * __toLongFromInt(8));
+    // printLong(p, longBuffer);
+    // println();
+
+    long p = 9223372036854775807;
+
+    long res = p - __toLongFromInt(3);
+
+    if (res == 9223372036854775804) {
+        printLong(res, longBuffer);
+        println();
     }
 
     0;

@@ -14,6 +14,28 @@ int println() {
     0;
 }
 
+int printByte(byte toOut) {
+    __write(toOut);
+    0;
+}
+
+int printlnByte(byte toOut) {
+    printByte(toOut);
+    println();
+    0;
+}
+
+int printChar(char toOut) {
+    __writeChar(toOut);
+    0;
+}
+
+int printlnChar(char toOut) {
+    printChar(toOut);
+    println();
+    0;
+}
+
 int printString(string s) {
     int i = 0;
     int l = strlength(s);
@@ -30,7 +52,24 @@ int printlnString(string s) {
     0;
 }
 
-int printNumber(int num, ref bufferRef) {
+long intBufferSize() {
+    10;
+}
+
+long uintBufferSize() {
+    10;
+}
+
+long longBufferSize() {
+    19;
+}
+
+long ulongBufferSize() {
+    19;
+}
+
+
+int printInt(int num, ref bufferRef) {
     char[] buffer = bufferRef;
 
     int temp = num;
@@ -59,8 +98,38 @@ int printNumber(int num, ref bufferRef) {
     0;
 }
 
-int printlnNumber(int num, ref bufferRef) {
-    printNumber(num, bufferRef);
+int printlnInt(int num, ref bufferRef) {
+    printInt(num, bufferRef);
     println();
+    0;
+}
+
+int printLong(long num, char[] bufferRef) {
+    char[] buffer = bufferRef;
+
+    long temp = num;
+
+    if (temp < __toLongFromInt(0)) {
+        __writeChar('-');
+        temp = -temp;
+    }
+
+    if (temp == __toLongFromInt(0)) {
+        __writeChar('0');
+    } else {
+        int index = 0;
+
+        while (temp > __toLongFromInt(0)) {
+            buffer[index] = __toIntFromLong((temp % __toLongFromInt(10)) || __toLongFromInt(0x30));
+            index = index + 1;
+            temp = temp / __toLongFromInt(10);
+        }
+
+        index = index - 1;
+        while (index != -1) {
+            __writeChar(buffer[index]);
+            index = index - 1;
+        }
+    }
     0;
 }

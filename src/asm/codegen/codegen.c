@@ -59,16 +59,16 @@ void prepareRegsAndTempsHelper(OperationTreeNode *root, StringStack *stack, bool
         uint8_t offset = 0;
         StringStack *stackForCall = (StringStack *)malloc(sizeof(StringStack));
         initStack(stackForCall);
-        pushStack(stackForCall, REG_R7);
-        pushStack(stackForCall, REG_R6);
-        pushStack(stackForCall, REG_R5);
-        pushStack(stackForCall, REG_R4);
-        pushStack(stackForCall, REG_R3);
-        pushStack(stackForCall, REG_R2);
-        pushStack(stackForCall, REG_R1);
-        pushStack(stackForCall, REG_R0);
+        // pushStack(stackForCall, REG_R7);
+        // pushStack(stackForCall, REG_R6);
+        // pushStack(stackForCall, REG_R5);
+        // pushStack(stackForCall, REG_R4);
+        // pushStack(stackForCall, REG_R3);
+        // pushStack(stackForCall, REG_R2);
+        // pushStack(stackForCall, REG_R1);
+        // pushStack(stackForCall, REG_R0);
         for (uint32_t i = 1; i < root->childCount; i++) {
-            prepareRegsAndTempsHelper(root->children[i], stackForCall, stackOnly, debug);
+            prepareRegsAndTempsHelper(root->children[i], stack, stackOnly, debug);
             if (stackOnly) {
                 pushStack(stack, root->children[i]->reg);
                 root->reg = root->children[i]->reg;
