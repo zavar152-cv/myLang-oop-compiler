@@ -316,7 +316,7 @@ digraph Tree {
     node_146 -> node_157;
     node_157 [label="DEC"]
     node_157 -> node_158;
-    node_158 [label="20"]
+    node_158 [label="-20"]
     node_16 -> node_159;
     node_159 [label="EXPR"]
     node_159 -> node_160;

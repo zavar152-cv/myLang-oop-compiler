@@ -718,10 +718,10 @@ architecture myArch {
     instruction eq = {0010 1010, 00, reg as reg1, 000000, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
         if (Z == 1) then {
             reg1 = 1;
-            Z = 1;
+            Z = 0;
         } else {
             reg1 = 0;
-            Z = 0;
+            Z = 1;
         }
         IP = IP + 8;
     };
@@ -729,10 +729,10 @@ architecture myArch {
     instruction neq = {0010 1011, 00, reg as reg1, 000000, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
         if (Z == 0) then {
             reg1 = 1;
-            Z = 1;
+            Z = 0;
         } else {
             reg1 = 0;
-            Z = 0;
+            Z = 1;
         }
         IP = IP + 8;
     };
@@ -740,10 +740,10 @@ architecture myArch {
     instruction gr = {0010 1100, 00, reg as reg1, 000000, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
         if ((N == V) && !Z) then {
             reg1 = 1;
-            Z = 1;
+            Z = 0;
         } else {
             reg1 = 0;
-            Z = 0;
+            Z = 1;
         }
         IP = IP + 8;
     };
@@ -751,10 +751,10 @@ architecture myArch {
     instruction le = {0010 1101, 00, reg as reg1, 000000, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {       
         if (N != V) then {
             reg1 = 1;
-            Z = 1;
+            Z = 0;
         } else {
             reg1 = 0;
-            Z = 0;
+            Z = 1;
         }
         IP = IP + 8;
     };
@@ -762,10 +762,10 @@ architecture myArch {
     instruction greq = {0010 1110, 00, reg as reg1, 000000, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
         if (N == V) then {
             reg1 = 1;
-            Z = 1;
+            Z = 0;
         } else {
             reg1 = 0;
-            Z = 0;
+            Z = 1;
         }
         IP = IP + 8;
     };
@@ -773,10 +773,10 @@ architecture myArch {
     instruction leeq = {0010 1111, 00, reg as reg1, 000000, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
         if ((N != V) || Z) then {
             reg1 = 1;
-            Z = 1;
+            Z = 0;
         } else {
             reg1 = 0;
-            Z = 0;
+            Z = 1;
         }
         IP = IP + 8;
     };

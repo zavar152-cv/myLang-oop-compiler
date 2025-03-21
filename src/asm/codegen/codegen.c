@@ -658,8 +658,8 @@ void generateASMForConditionalBlock(struct StringBuffer *buffer, BasicBlock *blo
     for (int i = 0; i < block->instructionCount; i++) {
         generateASMForOT(entry, block->instructions[i].otRoot, buffer);
     }
-    commandJZ(buffer, trueLabel); 
-    commandJNZ(buffer, falseLabel);   
+    commandJNZ(buffer, trueLabel); 
+    commandJZ(buffer, falseLabel);   
 }
 
 size_t countBlocks(const BasicBlock *head) {
