@@ -11,14 +11,14 @@ digraph CFG {
         color=blue;
         entry0 [shape=point, style=invis];
         node0 [label="call <int:0, reg: R2, spilled: 0, offset: 0>", color=blue];
-        node1 [label="printInt <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node1 [label="printLong <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
         node0 -> node1[color=blue];
-        node2 [label="read <int:0, reg: R0, spilled: 0, offset: 0>", color=blue];
-        node3 [label="num <int:0, reg: AR, spilled: 0, offset: 0>", color=blue];
+        node2 [label="read <long:0, reg: R0, spilled: 0, offset: 0>", color=blue];
+        node3 [label="num <long:0, reg: AR, spilled: 0, offset: 0>", color=blue];
         node2 -> node3[color=blue];
         node0 -> node2[color=blue];
-        node4 [label="read <ref:0, reg: R1, spilled: 0, offset: 0>", color=blue];
-        node5 [label="bufferRef <ref:0, reg: AR, spilled: 0, offset: 0>", color=blue];
+        node4 [label="read <char:1, reg: R1, spilled: 0, offset: 0>", color=blue];
+        node5 [label="bufferRef <char:1, reg: AR, spilled: 0, offset: 0>", color=blue];
         node4 -> node5[color=blue];
         node0 -> node4[color=blue];
     }

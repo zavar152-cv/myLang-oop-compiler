@@ -10,7 +10,7 @@ digraph CFG {
         style=rounded;
         color=blue;
         entry0 [shape=point, style=invis];
-        node0 [label="call <int:0, reg: RT, spilled: 0, offset: 0>", color=blue];
+        node0 [label="call <int:0, reg: R1, spilled: 0, offset: 0>", color=blue];
         node1 [label="printByte <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
         node0 -> node1[color=blue];
         node2 [label="read <byte:0, reg: R0, spilled: 0, offset: 0>", color=blue];
@@ -24,7 +24,7 @@ digraph CFG {
         style=rounded;
         color=blue;
         entry1 [shape=point, style=invis];
-        node4 [label="call <int:0, reg: RT, spilled: 0, offset: 0>", color=blue];
+        node4 [label="call <int:0, reg: R0, spilled: 0, offset: 0>", color=blue];
         node5 [label="println <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
         node4 -> node5[color=blue];
     }

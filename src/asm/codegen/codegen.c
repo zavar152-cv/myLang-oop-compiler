@@ -79,7 +79,9 @@ void prepareRegsAndTempsHelper(OperationTreeNode *root, StringStack *stack, bool
         }
         freeStack(stackForCall);
         free(stackForCall);
-        root->reg = strdup(REG_RT);
+
+        char *reg = popStack(stack);
+        root->reg = reg;
         if (debug)
             printf("Call result in reg %s\n", root->reg);
     } else if (strcmp(root->label, OP_PLUS) == 0 ||
@@ -409,6 +411,9 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
         commandPOP(buffer, REG_R2);
         commandPOP(buffer, REG_R1);
         commandPOP(buffer, REG_R0);
+
+        commandMOV(buffer, root->reg, REG_RT);
+
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }

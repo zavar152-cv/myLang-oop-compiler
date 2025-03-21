@@ -133,3 +133,9 @@ int printLong(long num, char[] bufferRef) {
     }
     0;
 }
+
+int printlnLong(long num, char[] bufferRef) {
+    printLong(num, bufferRef);
+    println();
+    0;
+}

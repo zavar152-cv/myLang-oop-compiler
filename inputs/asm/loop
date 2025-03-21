@@ -1,0 +1,15 @@
+int main(string[] args) {
+    
+    int res = test() + test();
+
+
+    ref buffer = __allocRef(80);
+    printlnInt(res, buffer);
+
+    0;
+}
+
+
+int test() {
+    2;
+}

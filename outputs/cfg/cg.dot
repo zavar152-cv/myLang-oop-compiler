@@ -1,6 +1,9 @@
 digraph CallGraph {
     node [shape=ellipse, style=filled, color=lightblue];
 
+    "__allocRef";
+    "test";
+    "main";
     "__write";
     "printByte";
     "printlnByte";
@@ -10,19 +13,17 @@ digraph CallGraph {
     "printString";
     "printlnString";
     "printInt";
-    "__toIntFromLong";
-    "__cmpRef";
     "printlnInt";
-    "__toByteFromInt";
-    "__toUintFromInt";
     "__toLongFromInt";
-    "longBufferSize";
-    "__allocRef";
+    "__toIntFromLong";
     "__writeChar";
     "println";
     "printLong";
-    "main";
+    "printlnLong";
 
+    "main" -> "printlnInt" [color=blue];
+    "main" -> "__allocRef" [color=blue];
+    "main" -> "test" [color=blue];
     "printByte" -> "__write" [color=blue];
     "printlnByte" -> "println" [color=blue];
     "printlnByte" -> "printByte" [color=blue];
@@ -40,14 +41,6 @@ digraph CallGraph {
     "printLong" -> "__toLongFromInt" [color=blue];
     "printLong" -> "__toIntFromLong" [color=blue];
     "printLong" -> "__writeChar" [color=blue];
-    "main" -> "__cmpRef" [color=blue];
-    "main" -> "printlnInt" [color=blue];
-    "main" -> "__toByteFromInt" [color=blue];
-    "main" -> "__toUintFromInt" [color=blue];
-    "main" -> "__toLongFromInt" [color=blue];
-    "main" -> "longBufferSize" [color=blue];
-    "main" -> "__allocRef" [color=blue];
-    "main" -> "__writeChar" [color=blue];
-    "main" -> "println" [color=blue];
-    "main" -> "printLong" [color=blue];
+    "printlnLong" -> "println" [color=blue];
+    "printlnLong" -> "printLong" [color=blue];
 }

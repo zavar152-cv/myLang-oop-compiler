@@ -10,7 +10,7 @@ digraph CFG {
         style=rounded;
         color=blue;
         entry0 [shape=point, style=invis];
-        node0 [label="call <void:0, reg: RT, spilled: 0, offset: 0>", color=blue];
+        node0 [label="call <void:0, reg: R1, spilled: 0, offset: 0>", color=blue];
         node1 [label="__writeChar <void:0, reg: (null), spilled: 0, offset: 0>", color=blue];
         node0 -> node1[color=blue];
         node2 [label="indexr <char:0, reg: R0, spilled: 0, offset: 0>", color=blue];
@@ -225,7 +225,7 @@ digraph CFG {
         style=rounded;
         color=blue;
         entry9 [shape=point, style=invis];
-        node77 [label="call <void:0, reg: RT, spilled: 0, offset: 0>", color=blue];
+        node77 [label="call <void:0, reg: R1, spilled: 0, offset: 0>", color=blue];
         node78 [label="__writeChar <void:0, reg: (null), spilled: 0, offset: 0>", color=blue];
         node77 -> node78[color=blue];
         node79 [label="litRead <char:0, reg: R0, spilled: 0, offset: 0>", color=blue];
@@ -257,7 +257,7 @@ digraph CFG {
         style=rounded;
         color=blue;
         entry11 [shape=point, style=invis];
-        node86 [label="call <void:0, reg: RT, spilled: 0, offset: 0>", color=blue];
+        node86 [label="call <void:0, reg: R1, spilled: 0, offset: 0>", color=blue];
         node87 [label="__writeChar <void:0, reg: (null), spilled: 0, offset: 0>", color=blue];
         node86 -> node87[color=blue];
         node88 [label="litRead <char:0, reg: R0, spilled: 0, offset: 0>", color=blue];

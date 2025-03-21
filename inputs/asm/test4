@@ -1,0 +1,15 @@
+int main(string[] args) {
+    printlnString("Hello, world!");
+    int a = 9;
+    byte b = 4;
+    a = __toIntFromByte(b);
+
+    ref buffer = __allocRef(80);
+
+    printlnInt(test(a), buffer);
+    0;
+}
+
+int test(int y) {
+    y + 9;
+}

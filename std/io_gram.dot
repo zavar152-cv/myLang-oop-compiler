@@ -1491,4 +1491,80 @@ digraph Tree {
     node_744 [label="DEC"]
     node_744 -> node_745;
     node_745 [label="0"]
+    node_0 -> node_746;
+    node_746 [label="FUNC_DEF"]
+    node_746 -> node_747;
+    node_747 [label="FUNC_SIGNATURE"]
+    node_747 -> node_748;
+    node_748 [label="TYPEREF"]
+    node_748 -> node_749;
+    node_749 [label="BUILTIN_TYPE"]
+    node_749 -> node_750;
+    node_750 [label="int"]
+    node_747 -> node_751;
+    node_751 [label="NAME"]
+    node_751 -> node_752;
+    node_752 [label="printlnLong"]
+    node_747 -> node_753;
+    node_753 [label="ARGDEF_LIST"]
+    node_753 -> node_754;
+    node_754 [label="ARGDEF"]
+    node_754 -> node_755;
+    node_755 [label="TYPEREF"]
+    node_755 -> node_756;
+    node_756 [label="BUILTIN_TYPE"]
+    node_756 -> node_757;
+    node_757 [label="long"]
+    node_754 -> node_758;
+    node_758 [label="IDENTIFIER"]
+    node_758 -> node_759;
+    node_759 [label="num"]
+    node_753 -> node_760;
+    node_760 [label="ARGDEF"]
+    node_760 -> node_761;
+    node_761 [label="TYPEREF"]
+    node_761 -> node_762;
+    node_762 [label="BUILTIN_TYPE"]
+    node_762 -> node_763;
+    node_763 [label="char"]
+    node_761 -> node_764;
+    node_764 [label="ARRAY"]
+    node_760 -> node_765;
+    node_765 [label="IDENTIFIER"]
+    node_765 -> node_766;
+    node_766 [label="bufferRef"]
+    node_746 -> node_767;
+    node_767 [label="BLOCK"]
+    node_767 -> node_768;
+    node_768 [label="EXPR"]
+    node_768 -> node_769;
+    node_769 [label="FUNC_CALL"]
+    node_769 -> node_770;
+    node_770 [label="EXPR_LIST"]
+    node_770 -> node_771;
+    node_771 [label="IDENTIFIER"]
+    node_771 -> node_772;
+    node_772 [label="num"]
+    node_770 -> node_773;
+    node_773 [label="IDENTIFIER"]
+    node_773 -> node_774;
+    node_774 [label="bufferRef"]
+    node_769 -> node_775;
+    node_775 [label="IDENTIFIER"]
+    node_775 -> node_776;
+    node_776 [label="printLong"]
+    node_767 -> node_777;
+    node_777 [label="EXPR"]
+    node_777 -> node_778;
+    node_778 [label="FUNC_CALL"]
+    node_778 -> node_779;
+    node_779 [label="IDENTIFIER"]
+    node_779 -> node_780;
+    node_780 [label="println"]
+    node_767 -> node_781;
+    node_781 [label="EXPR"]
+    node_781 -> node_782;
+    node_782 [label="DEC"]
+    node_782 -> node_783;
+    node_783 [label="0"]
 }
