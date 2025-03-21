@@ -211,6 +211,14 @@ int main(int argc, char *argv[]) {
         files.result[i] = result;
     }
 
+    for (uint32_t i = 0; i < files.filesCount; i++) {
+        destroyMyLangResult(files.result[i]);
+        free(files.result[i]);
+    }
+    free(arguments.input_files);
+    free(files.result);
+    return 0;
+
     Program* prog = buildProgram(&files, arguments.debug);
 
     for (int i = 0; i < arguments.input_file_count; i++) {

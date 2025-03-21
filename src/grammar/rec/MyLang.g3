@@ -56,6 +56,19 @@ tokens {
     IF;
     ELSE;
     VARARGS;
+    CLASS;
+    INTERFACE;
+    CLASS_BODY;
+    INTERFACE_BODY;
+    CLASS_DECL;
+    INTERFACE_DECL;
+    FIELD;
+    METHOD;
+    ACCESS_MODIFIER;
+    EXTENDS;
+    IMPLEMENTS;
+    MM_ACCESS;
+    NEW;
 }
 
 @header {
@@ -68,7 +81,49 @@ source
     ;
 
 sourceItem
-    : funcSignature (statementBlock | ';') -> ^(FUNC_DEF funcSignature statementBlock?)
+    : classDecl
+    | interfaceDecl
+    ;
+
+classDecl
+    : accessModifier? 'class' identifier classExtends? classImplements? classBody
+      -> ^(CLASS_DECL accessModifier? ^(NAME identifier) classExtends? classImplements? classBody)
+    ;
+
+classExtends
+    : 'extends' identifier -> ^(EXTENDS identifier)
+    ;
+
+classImplements
+    : 'implements' identifier (',' identifier)*
+      -> ^(IMPLEMENTS identifier+)
+    ;
+
+classBody
+    : '{' classMember* '}' -> ^(CLASS_BODY classMember*)
+    ;
+
+classMember
+    : accessModifier? var ';' -> ^(FIELD accessModifier? var)
+    | accessModifier? funcSignature (statementBlock | ';') -> ^(METHOD accessModifier? funcSignature statementBlock?)
+    ;
+
+interfaceDecl
+    : accessModifier? 'interface' identifier interfaceBody
+      -> ^(INTERFACE_DECL accessModifier? ^(NAME identifier) interfaceBody)
+    ;
+
+interfaceBody
+    : '{' interfaceMember* '}' -> ^(INTERFACE_BODY interfaceMember*)
+    ;
+
+interfaceMember
+    : funcSignature ';' -> ^(METHOD funcSignature)
+    ;
+
+accessModifier
+    : 'public' -> ^(ACCESS_MODIFIER 'public')
+    | 'private' -> ^(ACCESS_MODIFIER 'private')
     ;
 
 funcSignature
@@ -214,7 +269,8 @@ primary
     ;
 
 atom
-    : braces
+    : NEW_TOKEN identifier '(' exprList? ')' -> ^(NEW identifier exprList?) 
+    | braces
     | place
     | literal
     ;
@@ -222,6 +278,11 @@ atom
 postfix
     : funcCallSuffix
     | indexingSuffix
+    | memberAccess
+    ;
+
+memberAccess
+    : DOT_TOKEN identifier -> ^(MM_ACCESS identifier)
     ;
 
 funcCallSuffix
@@ -318,6 +379,8 @@ CHAR_TYPE: 'char';
 STRING_TYPE: 'string';
 REF_TYPE: 'ref';
 
+DOT_TOKEN: '.';
+NEW_TOKEN: 'new';
 BOOL_TOKEN: ('true' | 'false') ;
 IDENTIFIER_TOKEN: (('a'..'z' | 'A'..'Z') | ('_')) (('a'..'z' | 'A'..'Z') | ('_') | ('0'..'9'))* ;
 BITS_TOKEN: '0' ('b'|'B') ('0' | '1')+ ;
@@ -326,6 +389,7 @@ DEC_TOKEN: ('-')?('0'..'9')+ ;
 CHAR_TOKEN: '\'' (ESC_SEQ | ~('\'' | '\\')) '\'' ;
 STR_TOKEN: ('"') ('\\' . | ~('\\'|'"'))* ('"');
 VARARGS_TOKEN: '...';
+
 
 LINE_COMMENT
     :   '//' ~('\n'|'\r')* { SKIP(); };

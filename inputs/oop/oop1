@@ -1,0 +1,18 @@
+public class MyClass extends BaseClass implements Interface1, Interface2 {
+    private int myField;
+
+    public MyClass() {
+        
+    }
+
+    public void myMethod(int x) {
+        int a = 9;
+        MyClass instance = new MyClass(1, 2);
+        instance.myMethod(5);
+        instance.field.inField;
+    }
+}
+
+public interface MyInterface {
+    void doSomething();
+}
