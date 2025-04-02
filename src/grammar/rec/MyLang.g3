@@ -69,6 +69,8 @@ tokens {
     IMPLEMENTS;
     MM_ACCESS;
     NEW;
+    COMPILER;
+    STATIC;
 }
 
 @header {
@@ -86,8 +88,8 @@ sourceItem
     ;
 
 classDecl
-    : accessModifier? 'class' identifier classExtends? classImplements? classBody
-      -> ^(CLASS_DECL accessModifier? ^(NAME identifier) classExtends? classImplements? classBody)
+    : 'class' identifier classExtends? classImplements? classBody
+      -> ^(CLASS_DECL ^(NAME identifier) classExtends? classImplements? classBody)
     ;
 
 classExtends
@@ -105,12 +107,12 @@ classBody
 
 classMember
     : accessModifier? var ';' -> ^(FIELD accessModifier? var)
-    | accessModifier? funcSignature (statementBlock | ';') -> ^(METHOD accessModifier? funcSignature statementBlock?)
+    | accessModifier funcSignature (statementBlock | ';') -> ^(METHOD accessModifier funcSignature statementBlock?)
     ;
 
 interfaceDecl
-    : accessModifier? 'interface' identifier interfaceBody
-      -> ^(INTERFACE_DECL accessModifier? ^(NAME identifier) interfaceBody)
+    : 'interface' identifier interfaceBody
+      -> ^(INTERFACE_DECL ^(NAME identifier) interfaceBody)
     ;
 
 interfaceBody
@@ -122,8 +124,13 @@ interfaceMember
     ;
 
 accessModifier
-    : 'public' -> ^(ACCESS_MODIFIER 'public')
-    | 'private' -> ^(ACCESS_MODIFIER 'private')
+    : 'public' additionalModifier* -> ^(ACCESS_MODIFIER 'public' (additionalModifier)*)
+    | 'private' additionalModifier* -> ^(ACCESS_MODIFIER 'private' (additionalModifier)*)
+    ;
+
+additionalModifier
+    : 'static' -> STATIC
+    | 'compiler' -> COMPILER
     ;
 
 funcSignature
@@ -269,7 +276,7 @@ primary
     ;
 
 atom
-    : NEW_TOKEN identifier '(' exprList? ')' -> ^(NEW identifier exprList?) 
+    : NEW_TOKEN identifier '(' exprList? ')' -> ^(NEW exprList? ^(IDENTIFIER identifier)) 
     | braces
     | place
     | literal
@@ -282,7 +289,7 @@ postfix
     ;
 
 memberAccess
-    : DOT_TOKEN identifier -> ^(MM_ACCESS identifier)
+    : DOT_TOKEN identifier -> ^(MM_ACCESS ^(IDENTIFIER identifier))
     ;
 
 funcCallSuffix

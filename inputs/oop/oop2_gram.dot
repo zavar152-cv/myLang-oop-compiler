@@ -1,0 +1,40 @@
+digraph Tree {
+    node [shape=hexagon];
+    node_0 [label="SOURCE"]
+    node_0 -> node_1;
+    node_1 [label="CLASS_DECL"]
+    node_1 -> node_2;
+    node_2 [label="NAME"]
+    node_2 -> node_3;
+    node_3 [label="Test"]
+    node_1 -> node_4;
+    node_4 [label="CLASS_BODY"]
+    node_4 -> node_5;
+    node_5 [label="METHOD"]
+    node_5 -> node_6;
+    node_6 [label="ACCESS_MODIFIER"]
+    node_6 -> node_7;
+    node_7 [label="public"]
+    node_5 -> node_8;
+    node_8 [label="FUNC_SIGNATURE"]
+    node_8 -> node_9;
+    node_9 [label="TYPEREF"]
+    node_9 -> node_10;
+    node_10 [label="BUILTIN_TYPE"]
+    node_10 -> node_11;
+    node_11 [label="int"]
+    node_8 -> node_12;
+    node_12 [label="NAME"]
+    node_12 -> node_13;
+    node_13 [label="test"]
+    node_8 -> node_14;
+    node_14 [label="ARGDEF_LIST"]
+    node_5 -> node_15;
+    node_15 [label="BLOCK"]
+    node_15 -> node_16;
+    node_16 [label="EXPR"]
+    node_16 -> node_17;
+    node_17 [label="DEC"]
+    node_17 -> node_18;
+    node_18 [label="0"]
+}

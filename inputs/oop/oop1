@@ -1,18 +1,66 @@
-public class MyClass extends BaseClass implements Interface1, Interface2 {
-    private int myField;
+class MyClass extends BaseClass implements Interface1, Interface2 {
+    public int myField, myField2;
+    public MyClass varClass;
+    public BaseClass v;
 
-    public MyClass() {
-        
+
+    public MyClass(int a, int b) {
+        myField = a + b;
     }
 
-    public void myMethod(int x) {
+    public int myMethod(int x) {
         int a = 9;
         MyClass instance = new MyClass(1, 2);
-        instance.myMethod(5);
-        instance.field.inField;
+
+        Interface1 unchecked1 = instance;
+
+        testMethod();
+        instance.testMethod(5);
+        instance.varClass.v.parentMethod2(5);
+        int b = instance.myField;
+
+        unchecked1.doSomething(1);
+        
+        0;
+    }
+
+    private int testMethod(int x) {
+        0;
+    }
+
+    public int parentMethod(long l) {
+        0;
+    }
+
+    public int doSomething(byte b) {
+        0;
     }
 }
 
-public interface MyInterface {
-    void doSomething();
+class BaseClass {
+    public BaseClass() {
+        
+    }
+
+    public int parentMethod2(long l) {
+        0;
+    }
+}
+
+class A {
+    public A() {
+        
+    }
+}
+
+interface MyInterface {
+    int doSomething2();
+}
+
+interface Interface1 {
+    int doSomething(byte b);
+}
+
+interface Interface2 {
+
 }

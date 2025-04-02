@@ -180,11 +180,11 @@ bool isUnaryOperationAllowed(const char *op, const char *type) {
 
 void checkTypeCompatibility(OperationTreeNode *lValueExprNode,
                             OperationTreeNode *rValueExprNode,
-                            OperationTreeErrorContainer *container,
+                            OperationTreeErrorContainer *container, ClassInfo *classes,
                             const char *filename) {
   if (!lValueExprNode->type->custom && !lValueExprNode->type->isArray) {
     if (strcmp(lValueExprNode->type->typeName, "byte") == 0) {
-      if (strcmp(rValueExprNode->label, LIT_READ) == 0 &&
+      if (strcmp(rValueExprNode->label, OT_LIT_READ) == 0 &&
           isCanBeByte(rValueExprNode->children[1]->label)) {
         TypeInfo *newTypeParent =
             createTypeInfo("byte", false, false, 0, rValueExprNode->type->line,
@@ -222,7 +222,7 @@ void checkTypeCompatibility(OperationTreeNode *lValueExprNode,
         }
       }
     } else if (strcmp(lValueExprNode->type->typeName, "uint") == 0) {
-      if (strcmp(rValueExprNode->label, LIT_READ) == 0 &&
+      if (strcmp(rValueExprNode->label, OT_LIT_READ) == 0 &&
           isCanBeUnsignedInt(rValueExprNode->children[1]->label)) {
         TypeInfo *newTypeParent =
             createTypeInfo("uint", false, false, 0, rValueExprNode->type->line,
@@ -246,7 +246,7 @@ void checkTypeCompatibility(OperationTreeNode *lValueExprNode,
         }
       }
     } else if (strcmp(lValueExprNode->type->typeName, "long") == 0) {
-      if (strcmp(rValueExprNode->label, LIT_READ) == 0 &&
+      if (strcmp(rValueExprNode->label, OT_LIT_READ) == 0 &&
           isCanBeLong(rValueExprNode->children[1]->label)) {
         TypeInfo *newTypeParent =
             createTypeInfo("long", false, false, 0, rValueExprNode->type->line,
@@ -270,7 +270,7 @@ void checkTypeCompatibility(OperationTreeNode *lValueExprNode,
         }
       }
     } else if (strcmp(lValueExprNode->type->typeName, "ulong") == 0) {
-      if (strcmp(rValueExprNode->label, LIT_READ) == 0 &&
+      if (strcmp(rValueExprNode->label, OT_LIT_READ) == 0 &&
           isCanBeUnsignedLong(rValueExprNode->children[1]->label)) {
         TypeInfo *newTypeParent =
             createTypeInfo("ulong", false, false, 0, rValueExprNode->type->line,
@@ -389,22 +389,82 @@ void checkTypeCompatibility(OperationTreeNode *lValueExprNode,
       }
     }
   } else if (lValueExprNode->type->custom) {
-    char buffer[1024];
-    snprintf(buffer, sizeof(buffer),
-             "Type error. Custom types are not allowed at %s:%d:%d\n", filename,
-             rValueExprNode->line, rValueExprNode->pos + 1);
-    if (container->error == NULL) {
-      container->error = createOperationTreeErrorInfo(buffer);
+    if (rValueExprNode->type->custom) {
+      ClassInfo *leftClass;
+      ClassInfo *rightClass;
+
+      ClassInfo *temp = classes;
+      while (temp != NULL) {
+        if (strcmp(lValueExprNode->type->typeName, temp->name) == 0) {
+          leftClass = temp;
+        }
+        if (strcmp(rValueExprNode->type->typeName, temp->name) == 0) {
+          rightClass = temp;
+        }
+        temp = temp->next;
+      }
+
+      if (strcmp(leftClass->name, rightClass->name) != 0) {
+        ClassInfo *parent = rightClass;
+        bool foundParent = false;
+        while (parent != NULL) {
+          if (strcmp(parent->name, leftClass->name) == 0) {
+            foundParent = true;
+            break;
+          }
+          parent = findClassWithName(classes, parent->parentName);
+        }
+
+        if (!foundParent) {
+          bool foundInterface = false;
+          ClassInfo *parent = rightClass;
+          while (parent != NULL) {
+            for (int i = 0; i < parent->interfaceCount; i++) {
+              if (strcmp(parent->interfaceNames[i], leftClass->name) == 0) {
+                foundInterface = true;
+                break;
+              }
+            }
+            parent = findClassWithName(classes, parent->parentName);
+          }
+
+          if (!foundParent && !foundInterface) {
+            char buffer[1024];
+            snprintf(
+                buffer, sizeof(buffer),
+                "Type warning. Unsafe cast %s to %s at %s:%d:%d\n",
+                rightClass->name, leftClass->name, filename, 
+                lValueExprNode->line, lValueExprNode->pos + 1);
+            if (container->error == NULL) {
+              container->error = createOperationTreeErrorInfo(buffer);
+            } else {
+              addOperationTreeError(container, buffer);
+            }
+          } 
+        }
+      } else {
+        //valid
+      }
+
     } else {
-      addOperationTreeError(container, buffer);
+      char buffer[1024];
+      snprintf(
+          buffer, sizeof(buffer),
+          "Type error. Can't cast primitive to object %s:%d:%d\n",
+          filename, lValueExprNode->line, lValueExprNode->pos + 1);
+      if (container->error == NULL) {
+        container->error = createOperationTreeErrorInfo(buffer);
+      } else {
+        addOperationTreeError(container, buffer);
+      }
     }
   }
 
   if (lValueExprNode->type->isArray) {
-    if (strcmp(lValueExprNode->label, INDEX) == 0) {
+    if (strcmp(lValueExprNode->label, OT_INDEX) == 0) {
       OperationTreeNode *indexNode = lValueExprNode;
       int dimI = 0;
-      while (strcmp(indexNode->label, INDEX) == 0) {
+      while (strcmp(indexNode->label, OT_INDEX) == 0) {
         indexNode = indexNode->children[0];
         dimI++;
       }
@@ -538,40 +598,282 @@ char *convertHexOrBitToDecimalString(const char *input, NumberType type,
   return output;
 }
 
+ClassInfo *findClassWithName(ClassInfo *classes, char *name) {
+  if (name == NULL)
+    return NULL;
+
+  ClassInfo *classInfo = classes;
+  bool found = false;
+  while (classInfo != NULL) {
+    if (strcmp(classInfo->name, name) == 0) {
+      found = true;
+      break;
+    }
+    classInfo = classInfo->next;
+  }
+  return found ? classInfo : NULL;
+}
+
+FunctionEntry *findFunctionEntryWithName(FunctionTable *table, char *name) {
+  bool found = false;
+  FunctionEntry *tempEntry = table->entry;
+  while (tempEntry != NULL) {
+    if (strcmp(tempEntry->functionName, name) == 0) {
+      found = true;
+      break;
+    }
+    tempEntry = tempEntry->next;
+  }
+  return found ? tempEntry : NULL;
+}
+
 OperationTreeNode *buildExprOperationTreeFromAstNode(
-    MyAstNode *root, bool isLvalue, bool isFunctionName,
+    MyAstNode *root, bool isLvalue, bool isFunctionName, bool isMethod,
     OperationTreeErrorContainer *container, ScopeManager *sm,
-    FunctionTable *functionTable, const char *filename) {
+    FunctionTable *functionTable, ClassInfo* classes, const char *filename) {
   if (strcmp(root->label, ASSIGN) == 0) {
     // left - EXPR
     // right - EXPR
     OperationTreeNode *writeOpNode = newOperationTreeNode(
-        WRITE, 2, root->line, root->pos, root->isImaginary);
+      OT_WRITE, 2, root->line, root->pos, root->isImaginary);
     OperationTreeNode *lValueExprNode = buildExprOperationTreeFromAstNode(
-        root->children[0], true, false, container, sm, functionTable, filename);
+        root->children[0], true, false, false, container, sm, functionTable, classes, filename);
     OperationTreeNode *rValueExprNode = buildExprOperationTreeFromAstNode(
-        root->children[1], false, false, container, sm, functionTable,
-        filename);
+        root->children[1], false, false, false, container, sm, functionTable,
+        classes, filename);
 
-    checkTypeCompatibility(lValueExprNode, rValueExprNode, container, filename);
+    checkTypeCompatibility(lValueExprNode, rValueExprNode, container, classes, filename);
 
     writeOpNode->children[0] = lValueExprNode;
     writeOpNode->children[1] = rValueExprNode;
     writeOpNode->type = copyTypeInfo(lValueExprNode->type);
     return writeOpNode;
-  } else if (strcmp(root->label, FUNC_CALL) == 0) {
+  } else if (strcmp(root->label, MM_ACCESS) == 0) {
+    OperationTreeNode *funcNameNode;
+    OperationTreeNode *varNode;
+    isMethod = true;
+    funcNameNode = buildExprOperationTreeFromAstNode(
+      root->children[0], false, true, true, container, sm, functionTable,
+      classes, filename);
+    
+      if (isFunctionName) {
+        //safe?
+        char *typeName;
+        if (root->children[1]->childCount == 0) {
+          varNode = buildExprOperationTreeFromAstNode(
+            root->children[1], false, false, false, container, sm, functionTable,
+            classes, filename);
+          Symbol *gotSymbol = findSymbol(sm, root->children[1]->children[0]->label);
+          typeName = gotSymbol->typeName;
+          if (gotSymbol == NULL) {
+            char buffer[1024];
+            snprintf(buffer, sizeof(buffer),
+                      "Method call error. Var '%s' not found at %s:%d:%d\n",
+                      root->children[1]->children[0]->label, filename, funcNameNode->line,
+                      funcNameNode->pos + 1);
+            if (container->error == NULL) {
+              container->error = createOperationTreeErrorInfo(buffer);
+            } else {
+              addOperationTreeError(container, buffer);
+            }
+            OperationTreeNode *methodNode = newOperationTreeNode(
+              OT_METHOD, 2, funcNameNode->line,
+              funcNameNode->pos, funcNameNode->isImaginary);
+            methodNode->children[0] = funcNameNode;
+            methodNode->children[1] = varNode;
+            methodNode->type = copyTypeInfo(funcNameNode->type);
+            return methodNode;
+          }
+        } else {
+          OperationTreeNode *node = buildExprOperationTreeFromAstNode(
+            root->children[1], false, false, false, container, sm, functionTable,
+            classes, filename);
+          typeName = node->type->typeName;
+          varNode = node;
+        }
+
+        ClassInfo *classInfo = findClassWithName(classes, typeName);
+
+        if (classInfo == NULL) {
+          char buffer[1024];
+          snprintf(buffer, sizeof(buffer),
+                    "Method call error. Class '%s' not found at %s:%d:%d\n",
+                    typeName, filename, funcNameNode->line,
+                    funcNameNode->pos + 1);
+          if (container->error == NULL) {
+            container->error = createOperationTreeErrorInfo(buffer);
+          } else {
+            addOperationTreeError(container, buffer);
+          }
+          OperationTreeNode *methodNode = newOperationTreeNode(
+            OT_METHOD, 2, funcNameNode->line,
+            funcNameNode->pos, funcNameNode->isImaginary);
+          methodNode->children[0] = funcNameNode;
+          methodNode->children[1] = varNode;
+          methodNode->type = copyTypeInfo(funcNameNode->type);
+          return methodNode;
+        }
+
+        FunctionEntry *entry = findFunctionEntryWithName(classInfo->program->functionTable, funcNameNode->label);
+        
+        if (entry != NULL) {
+          freeTypeInfo(funcNameNode->type);
+          funcNameNode->type = copyTypeInfo(entry->returnType);
+        } else {
+          char buffer[1024];
+          snprintf(buffer, sizeof(buffer),
+                    "Method call error. Method '%s' not found in class '%s' at %s:%d:%d\n",
+                    funcNameNode->label, classInfo->name, filename, funcNameNode->line,
+                    funcNameNode->pos + 1);
+          if (container->error == NULL) {
+            container->error = createOperationTreeErrorInfo(buffer);
+          } else {
+            addOperationTreeError(container, buffer);
+          }
+        }
+        OperationTreeNode *methodNode = newOperationTreeNode(
+          OT_METHOD, 2, funcNameNode->line,
+          funcNameNode->pos, funcNameNode->isImaginary);
+        methodNode->children[0] = funcNameNode;
+        methodNode->children[1] = varNode;
+        methodNode->type = copyTypeInfo(funcNameNode->type);
+        return methodNode;
+      } else {
+        //safe?
+        char *typeName;
+        if (root->children[1]->childCount == 0) {
+          varNode = buildExprOperationTreeFromAstNode(
+            root->children[1], false, false, false, container, sm, functionTable,
+            classes, filename);
+          Symbol *gotSymbol = findSymbol(sm, root->children[1]->children[0]->label);
+          typeName = gotSymbol->typeName;
+          if (gotSymbol == NULL) {
+            char buffer[1024];
+            snprintf(buffer, sizeof(buffer),
+                      "Field access error. Var '%s' not found at %s:%d:%d\n",
+                      root->children[1]->children[0]->label, filename, funcNameNode->line,
+                      funcNameNode->pos + 1);
+            if (container->error == NULL) {
+              container->error = createOperationTreeErrorInfo(buffer);
+            } else {
+              addOperationTreeError(container, buffer);
+            }
+            OperationTreeNode *fieldNode = newOperationTreeNode(
+              OT_FIELD, 2, funcNameNode->line,
+              funcNameNode->pos, funcNameNode->isImaginary);
+            fieldNode->children[0] = funcNameNode;
+            fieldNode->children[1] = varNode;
+            fieldNode->type = copyTypeInfo(funcNameNode->type);
+            return fieldNode;
+          }
+        } else {
+          OperationTreeNode *node = buildExprOperationTreeFromAstNode(
+            root->children[1], false, false, false, container, sm, functionTable,
+            classes, filename);
+          typeName = node->type->typeName;
+          varNode = node;
+        }
+
+        ClassInfo *classInfo = findClassWithName(classes, typeName);
+        
+        if (classInfo == NULL) {
+          char buffer[1024];
+          snprintf(buffer, sizeof(buffer),
+                    "Field access error. Class '%s' not found at %s:%d:%d\n",
+                    typeName, filename, funcNameNode->line,
+                    funcNameNode->pos + 1);
+          if (container->error == NULL) {
+            container->error = createOperationTreeErrorInfo(buffer);
+          } else {
+            addOperationTreeError(container, buffer);
+          }
+          OperationTreeNode *fieldNode = newOperationTreeNode(
+            OT_FIELD, 2, funcNameNode->line,
+            funcNameNode->pos, funcNameNode->isImaginary);
+          fieldNode->children[0] = funcNameNode;
+          fieldNode->children[1] = varNode;
+          fieldNode->type = copyTypeInfo(funcNameNode->type);
+          return fieldNode;
+        }
+
+        FieldInfo *fieldInfo = classInfo->fields;
+        bool found = false;
+        bool isPrivate = false;
+        while (fieldInfo != NULL) {
+          if (strcmp(fieldInfo->name, funcNameNode->label) == 0) {
+            found = true;
+            isPrivate = fieldInfo->isPrivate;
+            break;
+          }
+          fieldInfo = fieldInfo->next;
+        }
+
+        if (found && !isPrivate) {
+          freeTypeInfo(funcNameNode->type);
+          funcNameNode->type = copyTypeInfo(fieldInfo->type);
+        } else if (isPrivate) {
+          char buffer[1024];
+          snprintf(buffer, sizeof(buffer),
+                    "Field access error. Field '%s' is private in class '%s' at %s:%d:%d\n",
+                    funcNameNode->label, classInfo->name, filename, funcNameNode->line,
+                    funcNameNode->pos + 1);
+          if (container->error == NULL) {
+            container->error = createOperationTreeErrorInfo(buffer);
+          } else {
+            addOperationTreeError(container, buffer);
+          }
+        } else {
+          char buffer[1024];
+          snprintf(buffer, sizeof(buffer),
+                    "Field access error. Field '%s' not found in class '%s' at %s:%d:%d\n",
+                    funcNameNode->label, classInfo->name, filename, funcNameNode->line,
+                    funcNameNode->pos + 1);
+          if (container->error == NULL) {
+            container->error = createOperationTreeErrorInfo(buffer);
+          } else {
+            addOperationTreeError(container, buffer);
+          }
+        }
+        OperationTreeNode *fieldNode = newOperationTreeNode(
+          OT_FIELD, 2, funcNameNode->line,
+          funcNameNode->pos, funcNameNode->isImaginary);
+        fieldNode->children[0] = funcNameNode;
+        fieldNode->children[1] = varNode;
+        fieldNode->type = copyTypeInfo(funcNameNode->type);
+        return fieldNode;
+      }
+
+  } else if (strcmp(root->label, FUNC_CALL) == 0 || strcmp(root->label, NEW) == 0) {
     // if count == 2
     // left - EXPR_LIST
     // right - EXPR
 
     // if count == 1
     // child - EXPR
+    bool isNewOp = strcmp(root->label, NEW) == 0;
     if (root->childCount == 2) {
       OperationTreeNode *funcNameNode = buildExprOperationTreeFromAstNode(
-          root->children[1], false, true, container, sm, functionTable,
-          filename);
+          root->children[1], false, true, isNewOp, container, sm, functionTable,
+          classes, filename);
+
+      if (isNewOp) {
+        ClassInfo *classInfo = findClassWithName(classes, funcNameNode->label);
+        if (classInfo == NULL) {
+          char buffer[1024];
+          snprintf(buffer, sizeof(buffer),
+                   "Constructor call error. Can't find class %s at %s:%d:%d\n",
+                   funcNameNode->label, filename, funcNameNode->line,
+                   funcNameNode->pos + 1);
+          if (container->error == NULL) {
+            container->error = createOperationTreeErrorInfo(buffer);
+          } else {
+            addOperationTreeError(container, buffer);
+          }
+        }
+      }
+
       OperationTreeNode *callNode = newOperationTreeNode(
-          OT_CALL, 1 + root->children[0]->childCount, funcNameNode->line,
+          (isNewOp ? OT_NEW : OT_CALL), 1 + root->children[0]->childCount, funcNameNode->line,
           funcNameNode->pos, funcNameNode->isImaginary);
       callNode->children[0] = funcNameNode;
       callNode->type = copyTypeInfo(funcNameNode->type);
@@ -579,8 +881,8 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(
           findFunctionEntry(functionTable, funcNameNode->label);
       for (uint32_t i = 0; i < root->children[0]->childCount; i++) {
         OperationTreeNode *argNode = buildExprOperationTreeFromAstNode(
-            root->children[0]->children[i], false, false, container, sm,
-            functionTable, filename);
+            root->children[0]->children[i], false, false, false, container, sm,
+            functionTable, classes, filename);
         callNode->children[1 + i] = argNode;
       }
 
@@ -599,7 +901,7 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(
                     arg->name, 0, arg->line, arg->pos, false);
                 fakeArgNode->type = copyTypeInfo(arg->type);
                 checkTypeCompatibility(fakeArgNode, callNode->children[i],
-                                       container, filename);
+                                       container, classes, filename);
                 destroyOperationTreeNodeTree(fakeArgNode);
               }
             }
@@ -627,7 +929,7 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(
                                        argArray[i]->pos, false);
               fakeArgNode->type = copyTypeInfo(argArray[i]->type);
               checkTypeCompatibility(fakeArgNode, callNode->children[i + 1],
-                                     container, filename);
+                                     container, classes, filename);
               destroyOperationTreeNodeTree(fakeArgNode);
             }
             ArgumentInfo *lastArg = argArray[func->argumentsCount - 1];
@@ -637,7 +939,7 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(
                   lastArg->name, 0, lastArg->line, lastArg->pos, false);
               fakeArgNode->type = copyTypeInfo(lastArg->type);
               checkTypeCompatibility(fakeArgNode, callNode->children[i],
-                                     container, filename);
+                                     container, classes, filename);
               destroyOperationTreeNodeTree(fakeArgNode);
             }
             free(argArray);
@@ -672,10 +974,27 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(
       return callNode;
     } else if (root->childCount == 1) {
       OperationTreeNode *funcNameNode = buildExprOperationTreeFromAstNode(
-          root->children[0], false, true, container, sm, functionTable,
-          filename);
+          root->children[0], false, true, isNewOp, container, sm, functionTable,
+          classes, filename);
+
+      if (isNewOp) {
+        ClassInfo *classInfo = findClassWithName(classes, funcNameNode->label);
+        if (classInfo == NULL) {
+          char buffer[1024];
+          snprintf(buffer, sizeof(buffer),
+                    "Constructor call error. Can't find class %s at %s:%d:%d\n",
+                    funcNameNode->label, filename, funcNameNode->line,
+                    funcNameNode->pos + 1);
+          if (container->error == NULL) {
+            container->error = createOperationTreeErrorInfo(buffer);
+          } else {
+            addOperationTreeError(container, buffer);
+          }
+        }
+      }
+      
       OperationTreeNode *callNode =
-          newOperationTreeNode(OT_CALL, 1, funcNameNode->line,
+          newOperationTreeNode((isNewOp ? OT_NEW : OT_CALL), 1, funcNameNode->line,
                                funcNameNode->pos, funcNameNode->isImaginary);
       callNode->children[0] = funcNameNode;
       callNode->type = copyTypeInfo(funcNameNode->type);
@@ -698,8 +1017,8 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(
     // right - EXPR
     if (root->childCount == 1) {
       OperationTreeNode *indexNameNode = buildExprOperationTreeFromAstNode(
-          root->children[0], false, isFunctionName, container, sm,
-          functionTable, filename);
+          root->children[0], false, isFunctionName, false, container, sm,
+          functionTable, classes, filename);
       char buffer[1024];
       snprintf(buffer, sizeof(buffer),
                "Index error. Missing index value at %s:%d:%d\n", filename,
@@ -712,10 +1031,10 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(
       return indexNameNode;
     } else {
       OperationTreeNode *indexNameNode = buildExprOperationTreeFromAstNode(
-          root->children[1], false, isFunctionName, container, sm,
-          functionTable, filename);
+          root->children[1], false, isFunctionName, false, container, sm,
+          functionTable, classes, filename);
       OperationTreeNode *indexNode = newOperationTreeNode(
-          INDEX, 1 + root->children[0]->childCount, indexNameNode->line,
+        OT_INDEX, 1 + root->children[0]->childCount, indexNameNode->line,
           indexNameNode->pos, indexNameNode->isImaginary);
       indexNode->children[0] = indexNameNode;
       indexNode->type = copyTypeInfo(indexNameNode->type);
@@ -747,10 +1066,10 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(
       }
       for (uint32_t i = 0; i < root->children[0]->childCount; i++) {
         OperationTreeNode *iNode = buildExprOperationTreeFromAstNode(
-            root->children[0]->children[i], false, false, container, sm,
-            functionTable, filename);
+            root->children[0]->children[i], false, false, false, container, sm,
+            functionTable, classes, filename);
         indexNode->children[1 + i] = iNode;
-        if (strcmp(iNode->label, WRITE) == 0) {
+        if (strcmp(iNode->label, OT_WRITE) == 0) {
           char buffer[1024];
           snprintf(buffer, sizeof(buffer),
                    "Index error. Can't use write operations as indexes at "
@@ -777,7 +1096,7 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(
       }
       if (!isLvalue) {
         free(indexNode->label);
-        indexNode->label = strdup(INDEXR);
+        indexNode->label = strdup(OT_INDEXR);
       }
       return indexNode;
     }
@@ -811,11 +1130,11 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(
     OperationTreeNode *binaryOpNode = newOperationTreeNode(
         root->label, 2, root->line, root->pos, root->isImaginary);
     OperationTreeNode *leftExprNode = buildExprOperationTreeFromAstNode(
-        root->children[0], false, false, container, sm, functionTable,
-        filename);
+        root->children[0], false, false, false, container, sm, functionTable,
+        classes, filename);
     OperationTreeNode *rightExprNode = buildExprOperationTreeFromAstNode(
-        root->children[1], false, false, container, sm, functionTable,
-        filename);
+        root->children[1], false, false, false, container, sm, functionTable,
+        classes, filename);
 
     if (isCmpOp(root->label)) {
 
@@ -936,8 +1255,8 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(
       }
     }
     OperationTreeNode *exprNode = buildExprOperationTreeFromAstNode(
-        root->children[0], false, false, container, sm, functionTable,
-        filename);
+        root->children[0], false, false, false, container, sm, functionTable,
+        classes, filename);
     OperationTreeNode *unaryOpNode = newOperationTreeNode(
         root->label, 1, exprNode->line, exprNode->pos, root->isImaginary);
     unaryOpNode->children[0] = exprNode;
@@ -971,7 +1290,7 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(
                            root->children[0]->pos);
         char buffer[1024];
         snprintf(buffer, sizeof(buffer),
-                 "Var not found error. Var with name %s at %s:%d:%d is not "
+                 "Var not found error. Var with name '%s' at %s:%d:%d is not "
                  "declared\n",
                  root->children[0]->label, filename, root->children[0]->line,
                  root->children[0]->pos + 1);
@@ -985,16 +1304,30 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(
             gotSymbol->typeName, gotSymbol->custom, gotSymbol->isArray,
             gotSymbol->arrayDim, gotSymbol->line, gotSymbol->pos);
       }
-    } else {
+    } else if (!isMethod) {
       FunctionEntry *entry =
           findFunctionEntry(functionTable, root->children[0]->label);
+
+      if (entry == NULL) {
+        ClassInfo *tempClassInfo = classes;
+        while (tempClassInfo != NULL) {
+          FunctionEntry *tempEntry = findFunctionEntryWithName(tempClassInfo->program->functionTable, root->children[0]->label);
+          if (tempEntry != NULL && tempEntry->isConstructor) {
+            entry = tempEntry;
+            break;
+          }
+          tempClassInfo = tempClassInfo->next;
+        }
+      }
+
+
       if (entry == NULL) {
         idValueNode->type =
             createTypeInfo("_", false, false, 0, root->children[0]->line,
                            root->children[0]->pos);
         char buffer[1024];
         snprintf(buffer, sizeof(buffer),
-                 "Function not found error. Function with name %s at %s:%d:%d "
+                 "Function not found error. Function with name '%s' at %s:%d:%d "
                  "is not declared\n",
                  root->children[0]->label, filename, root->children[0]->line,
                  root->children[0]->pos + 1);
@@ -1006,13 +1339,32 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(
       } else {
         idValueNode->type = copyTypeInfo(entry->returnType);
       }
+    } else {
+      ClassInfo *tempClassInfo = classes;
+      bool found = false;
+      while (tempClassInfo != NULL) {
+        if (strcmp(root->children[0]->label, tempClassInfo->name) == 0) {
+          FunctionEntry *entry = findFunctionEntryWithName(tempClassInfo->program->functionTable, root->children[0]->label);
+          idValueNode->type = copyTypeInfo(entry->returnType);
+          found = true;
+          break;
+        }
+        tempClassInfo = tempClassInfo->next;
+      }
+
+      if (!found) {
+        idValueNode->type =
+        createTypeInfo("_", false, false, 0, root->children[0]->line,
+                       root->children[0]->pos);
+                       char buffer[1024];             
+      }
     }
 
     if (isLvalue | isFunctionName) {
       return idValueNode;
     } else {
       OperationTreeNode *readNode = newOperationTreeNode(
-          READ, 1, root->children[0]->line, root->children[0]->pos, true);
+        OT_READ, 1, root->children[0]->line, root->children[0]->pos, true);
       readNode->type = copyTypeInfo(idValueNode->type);
       readNode->children[0] = idValueNode;
       return readNode;
@@ -1043,7 +1395,7 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(
     OperationTreeNode *literalTypeNode = newOperationTreeNode(
         root->label, 0, root->line, root->pos, root->isImaginary);
     OperationTreeNode *litReadNode = newOperationTreeNode(
-        LIT_READ, 2, root->children[0]->line, root->children[0]->pos, true);
+      OT_LIT_READ, 2, root->children[0]->line, root->children[0]->pos, true);
     litReadNode->children[0] = literalTypeNode;
     litReadNode->children[1] = literalValueNode;
 
@@ -1217,12 +1569,12 @@ OperationTreeNode *buildExprOperationTreeFromAstNode(
 OperationTreeNode *buildTyperefHelper(OperationTreeErrorContainer *container,
                                       TypeInfo *varType, const char *filename) {
   OperationTreeNode *withTypeNode =
-      newOperationTreeNode(WITH_TYPE, varType->isArray ? 3 : 2, 0, 0, true);
+      newOperationTreeNode(OT_WITH_TYPE, varType->isArray ? 3 : 2, 0, 0, true);
   if (varType->isArray) {
     withTypeNode->children[0] = newOperationTreeNode(
         varType->typeName, 0, varType->line, varType->pos, false);
     withTypeNode->children[1] =
-        newOperationTreeNode(varType->custom ? CUSTOM : BUILTIN, 0,
+        newOperationTreeNode(varType->custom ? OT_CUSTOM : OT_BUILTIN, 0,
                              varType->line, varType->pos, false);
 
     if (varType->next != NULL) {
@@ -1248,7 +1600,7 @@ OperationTreeNode *buildTyperefHelper(OperationTreeErrorContainer *container,
     withTypeNode->children[0] = newOperationTreeNode(
         varType->typeName, 0, varType->line, varType->pos, false);
     withTypeNode->children[1] =
-        newOperationTreeNode(varType->custom ? CUSTOM : BUILTIN, 0,
+        newOperationTreeNode(varType->custom ? OT_CUSTOM : OT_BUILTIN, 0,
                              varType->line, varType->pos, false);
   }
   return withTypeNode;
@@ -1257,11 +1609,11 @@ OperationTreeNode *buildTyperefHelper(OperationTreeErrorContainer *container,
 OperationTreeNode *buildVarDeclareHelper(MyAstNode *id, MyAstNode *init,
                                          OperationTreeErrorContainer *container,
                                          TypeInfo *varType, ScopeManager *sm,
-                                         FunctionTable *functionTable,
-                                         const char *filename) {
+                                         FunctionTable *functionTable, 
+                                         ClassInfo* classes, const char *filename) {
   OperationTreeNode *declareNode;
   OperationTreeNode *withTypeNode =
-      newOperationTreeNode(WITH_TYPE, varType->isArray ? 3 : 2, 0, 0, true);
+      newOperationTreeNode(OT_WITH_TYPE, varType->isArray ? 3 : 2, 0, 0, true);
   if (varType->isArray) {
     OperationTreeNode *varNameNode =
         newOperationTreeNode(id->children[0]->label, 0, id->children[0]->line,
@@ -1269,7 +1621,7 @@ OperationTreeNode *buildVarDeclareHelper(MyAstNode *id, MyAstNode *init,
     withTypeNode->children[0] = newOperationTreeNode(
         varType->typeName, 0, varType->line, varType->pos, false);
     withTypeNode->children[1] =
-        newOperationTreeNode(varType->custom ? CUSTOM : BUILTIN, 0,
+        newOperationTreeNode(varType->custom ? OT_CUSTOM : OT_BUILTIN, 0,
                              varType->line, varType->pos, false);
 
     if (varType->next != NULL) {
@@ -1295,10 +1647,10 @@ OperationTreeNode *buildVarDeclareHelper(MyAstNode *id, MyAstNode *init,
     OperationTreeNode *varInitExprNode;
     if (init->childCount == 2) {
       varInitExprNode = buildExprOperationTreeFromAstNode(
-          init->children[1], false, false, container, sm, functionTable,
-          filename);
+          init->children[1], false, false, false, container, sm, functionTable,
+          classes, filename);
       OperationTreeNode *helperNode = newOperationTreeNode(
-          WRITE, 2, id->children[0]->line, id->children[0]->pos, false);
+        OT_WRITE, 2, id->children[0]->line, id->children[0]->pos, false);
       helperNode->children[0] =
           newOperationTreeNode(id->children[0]->label, 0, id->children[0]->line,
                                id->children[0]->pos, false);
@@ -1306,15 +1658,15 @@ OperationTreeNode *buildVarDeclareHelper(MyAstNode *id, MyAstNode *init,
       helperNode->children[1] = varInitExprNode;
 
       checkTypeCompatibility(helperNode->children[0], varInitExprNode,
-                             container, filename);
+                             container, classes, filename);
 
       helperNode->type = copyTypeInfo(varType);
-      declareNode = newOperationTreeNode(DECLARE, 3, 0, 0, true);
+      declareNode = newOperationTreeNode(OT_DECLARE, 3, 0, 0, true);
       declareNode->children[0] = withTypeNode;
       declareNode->children[1] = varNameNode;
       declareNode->children[2] = helperNode;
     } else {
-      declareNode = newOperationTreeNode(DECLARE, 2, 0, 0, true);
+      declareNode = newOperationTreeNode(OT_DECLARE, 2, 0, 0, true);
       declareNode->children[0] = withTypeNode;
       declareNode->children[1] = varNameNode;
     }
@@ -1325,15 +1677,15 @@ OperationTreeNode *buildVarDeclareHelper(MyAstNode *id, MyAstNode *init,
     withTypeNode->children[0] = newOperationTreeNode(
         varType->typeName, 0, varType->line, varType->pos, false);
     withTypeNode->children[1] =
-        newOperationTreeNode(varType->custom ? CUSTOM : BUILTIN, 0,
+        newOperationTreeNode(varType->custom ? OT_CUSTOM : OT_BUILTIN, 0,
                              varType->line, varType->pos, false);
     OperationTreeNode *varInitExprNode;
     if (init->childCount == 2) {
       varInitExprNode = buildExprOperationTreeFromAstNode(
-          init->children[1], false, false, container, sm, functionTable,
-          filename);
+          init->children[1], false, false, false, container, sm, functionTable,
+          classes, filename);
       OperationTreeNode *helperNode = newOperationTreeNode(
-          WRITE, 2, id->children[0]->line, id->children[0]->pos, false);
+        OT_WRITE, 2, id->children[0]->line, id->children[0]->pos, false);
       helperNode->children[0] =
           newOperationTreeNode(id->children[0]->label, 0, id->children[0]->line,
                                id->children[0]->pos, false);
@@ -1341,16 +1693,16 @@ OperationTreeNode *buildVarDeclareHelper(MyAstNode *id, MyAstNode *init,
       helperNode->children[1] = varInitExprNode;
 
       checkTypeCompatibility(helperNode->children[0], varInitExprNode,
-                             container, filename);
+                             container, classes, filename);
 
       helperNode->type = copyTypeInfo(varType);
-      declareNode = newOperationTreeNode(DECLARE, 3, id->children[0]->line,
+      declareNode = newOperationTreeNode(OT_DECLARE, 3, id->children[0]->line,
                                          id->children[0]->pos, true);
       declareNode->children[0] = withTypeNode;
       declareNode->children[1] = varNameNode;
       declareNode->children[2] = helperNode;
     } else {
-      declareNode = newOperationTreeNode(DECLARE, 2, id->children[0]->line,
+      declareNode = newOperationTreeNode(OT_DECLARE, 2, id->children[0]->line,
                                          id->children[0]->pos, true);
       declareNode->children[0] = withTypeNode;
       declareNode->children[1] = varNameNode;
@@ -1361,7 +1713,8 @@ OperationTreeNode *buildVarDeclareHelper(MyAstNode *id, MyAstNode *init,
 
 OperationTreeNode *buildVarOperationTreeFromAstNode(
     MyAstNode *root, OperationTreeErrorContainer *container, TypeInfo *varType,
-    ScopeManager *sm, FunctionTable *functionTable, const char *filename) {
+    ScopeManager *sm, FunctionTable *functionTable, 
+    ClassInfo* classes, const char *filename) {
   assert(strcmp(root->children[0]->label, TYPEREF) == 0);
 
   uint32_t varCount = (root->childCount - 1) / 2;
@@ -1371,7 +1724,7 @@ OperationTreeNode *buildVarOperationTreeFromAstNode(
     // use DECLARE node
     varNode =
         buildVarDeclareHelper(root->children[1], root->children[2], container,
-                              varType, sm, functionTable, filename);
+                              varType, sm, functionTable, classes, filename);
     const char *symbolName = root->children[1]->children[0]->label;
     Symbol *gotSymbol = findSymbol(sm, symbolName);
     if (gotSymbol == NULL) {
@@ -1396,13 +1749,13 @@ OperationTreeNode *buildVarOperationTreeFromAstNode(
     }
   } else {
     // use SEQ_DECLARE with childern type DECLARE
-    varNode = newOperationTreeNode(SEQ_DECLARE, varCount, 0, 0, true);
+    varNode = newOperationTreeNode(OT_SEQ_DECLARE, varCount, 0, 0, true);
     uint32_t i = 1;
     uint32_t varI = 0;
     while (i + 1 < root->childCount) {
       varNode->children[varI] = buildVarDeclareHelper(
           root->children[i], root->children[i + 1], container, varType, sm,
-          functionTable, filename);
+          functionTable, classes, filename);
       const char *symbolName = root->children[i]->children[0]->label;
       Symbol *gotSymbol = findSymbol(sm, symbolName);
       if (gotSymbol == NULL) {
@@ -1546,8 +1899,8 @@ FunctionEntry *createFunctionEntry(const char *fileName,
                                    const char *functionName,
                                    TypeInfo *returnType,
                                    ArgumentInfo *arguments, bool isVarargs,
-                                   bool isBuiltin, uint32_t argumentsCount,
-                                   uint32_t line, uint32_t pos) {
+                                   bool isBuiltin, bool isStatic, bool isPrivate, bool isConstructor,
+                                   uint32_t argumentsCount, uint32_t line, uint32_t pos) {
   FunctionEntry *entry = (FunctionEntry *)malloc(sizeof(FunctionEntry));
   if (!entry) {
     return NULL;
@@ -1564,6 +1917,9 @@ FunctionEntry *createFunctionEntry(const char *fileName,
   entry->isBuiltin = isBuiltin;
   entry->locals = NULL;
   entry->consts = NULL;
+  entry->isStatic = isStatic;
+  entry->isPrivate = isPrivate;
+  entry->isConstructor = isConstructor;
   return entry;
 }
 

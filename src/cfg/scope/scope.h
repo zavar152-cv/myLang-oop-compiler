@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 typedef struct TypeInfo TypeInfo;
+typedef struct ScopeManager ScopeManager;
 
 typedef struct TypeInfo {
     char *typeName;

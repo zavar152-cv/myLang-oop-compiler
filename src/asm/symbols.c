@@ -24,7 +24,7 @@ void removeQuotesName(const char *input, char *output) {
 }
 
 void scanOperationTreeForVarsHelper(FunctionEntry *entry, OperationTreeNode *root) {
-    if (strcmp(root->label, DECLARE) == 0) {
+    if (strcmp(root->label, OT_DECLARE) == 0) {
         bool custom = strcmp(root->children[0]->children[1]->label, "buitin") != 0;
         bool array = root->children[0]->childCount == 3;
         uint32_t arrayDim = 0;
@@ -38,7 +38,7 @@ void scanOperationTreeForVarsHelper(FunctionEntry *entry, OperationTreeNode *roo
         snprintf(name, sizeof(name), "var%d", entry->locals->count);
         insertInHashTable(entry->locals, name, local);
     }
-    if (strcmp(root->label, LIT_READ) == 0 && 
+    if (strcmp(root->label, OT_LIT_READ) == 0 && 
         (strcmp(root->type->typeName, "string") == 0 ||
             strcmp(root->type->typeName, "long") == 0 ||
             strcmp(root->type->typeName, "ulong") == 0)) {

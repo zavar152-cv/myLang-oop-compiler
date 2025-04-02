@@ -211,15 +211,7 @@ int main(int argc, char *argv[]) {
         files.result[i] = result;
     }
 
-    for (uint32_t i = 0; i < files.filesCount; i++) {
-        destroyMyLangResult(files.result[i]);
-        free(files.result[i]);
-    }
-    free(arguments.input_files);
-    free(files.result);
-    return 0;
-
-    Program* prog = buildProgram(&files, arguments.debug);
+    ClassProgram* prog = buildClassProgram(&files, arguments.debug);
 
     for (int i = 0; i < arguments.input_file_count; i++) {
         if (!files.result[i]->isValid) {
@@ -229,199 +221,47 @@ int main(int argc, char *argv[]) {
         } 
     }
 
-    if (prog->errors != NULL) {
-        printf("Errors:\n");
-        ProgramErrorInfo *error = prog->errors;
-        while (error != NULL) {
+    ClassInfo *classInfo = prog->classes;
+    while (classInfo != NULL) {
+        FunctionInfo *func = classInfo->program->functions;
+        if (classInfo->program->errors != NULL) {
+          printf("Errors of %s class:\n", classInfo->name);
+          ProgramErrorInfo *error = classInfo->program->errors;
+          while (error != NULL) {
             printf("%s\n", error->message);
             error = error->next;
-        }
-    }
-
-    if (prog->warnings != NULL) {
-      printf("Warnings:\n");
-      ProgramWarningInfo *warning = prog->warnings;
-      while (warning != NULL) {
-        printf("%s\n", warning->message);
-        warning = warning->next;
-      }
-    }
-
-    FunctionEntry *funcE = prog->functionTable->entry;
-    uint32_t alrValue = 0;
-    struct StringBuffer *buffer = stringbuffer_new_with_options(1024, true);
-    stringbuffer_append_string(buffer, "    [section codeM]\n\n");
-    commandJMP(buffer, "main");
-    while (funcE != NULL) {
-        funcE->locals = createHashTable(20);
-        funcE->consts = createHashTable(20);
-        FunctionInfo *func = prog->functions;
-        while (func != NULL) {
-          if (strcmp(func->functionName, funcE->functionName) == 0) {
-            break;
           }
+        }
+
+        if (classInfo->program->warnings != NULL) {
+          printf("Warnings of %s class:\n", classInfo->name);
+          ProgramWarningInfo *warning = classInfo->program->warnings;
+          while (warning != NULL) {
+            printf("%s\n", warning->message);
+            warning = warning->next;
+          }
+        }
+        const char *mainFileName = NULL;
+        while (func != NULL) {
+          if (strcmp(func->functionName, "main") == 0) {
+            mainFileName = func->fileName;
+          }
+          char *outputFilePath = getOutputFileName(func->fileName, func->functionName, "dot", arguments.output_dir);
+          if (func->cfg != NULL)
+            writeCFGToDotFile(func->cfg, outputFilePath, arguments.ot);
           func = func->next;
+          free(outputFilePath);
         }
-        if (func->cfg != NULL) {
-            BasicBlock *b = func->cfg->blocks;
-            while (b != NULL) {
-                for (int i = 0; i < b->instructionCount; i++) {
-                    scanOperationTreeForVars(funcE, b->instructions[i].otRoot);
-                    prepareRegsAndTemps(b->instructions[i].otRoot, arguments.debug);
-                }
-                b = b->next;
-            }
-
-            for (int i = 0; i < funcE->consts->size; i++) {
-                HashNode *node = funcE->consts->buckets[i];
-                while (node) {
-                    ((ConstVar *)node->value)->address = ((ConstVar *)node->value)->address + alrValue;
-                    alrValue = alrValue + ((ConstVar *)node->value)->size;
-                    node = node->next;
-                }
-            }
-
-            if (funcE->argumentsCount > 0) {
-                int64_t offset = 8 + funcE->argumentsCount * 8;
-                ArgumentInfo *arg = funcE->arguments;
-                while (arg != NULL) {
-                    arg->offset = offset;
-                    offset = offset - 8;
-                    arg = arg->next;
-                } 
-            }
-            
-
-            if (arguments.debug) {
-            printf("\nLocals for %s:\n", funcE->functionName);
-            for (int i = 0; i < funcE->locals->size; i++) {
-                HashNode *node = funcE->locals->buckets[i];
-                while (node) {
-                printf("Key: %s, Name: %s, Index: %d", node->key, ((LocalVar *)node->value)->name,
-                        ((LocalVar *)node->value)->index);
-                printf("\n");
-                node = node->next;
-                }
-            }
-
-            printf("\nConsts for %s:\n", funcE->functionName);
-            for (int i = 0; i < funcE->consts->size; i++) {
-                HashNode *node = funcE->consts->buckets[i];
-                while (node) {
-                printf("Key: %s, Value: %s, Address: %d", node->key, ((ConstVar *)node->value)->name,
-                        ((ConstVar *)node->value)->address);
-                printf("\n");
-                node = node->next;
-                }
-            }
-            if (funcE->argumentsCount > 0) {
-                printf("\nArgs for %s:\n", funcE->functionName);
-                ArgumentInfo *arg = funcE->arguments;
-                while (arg != NULL) {
-                    printf("Name: %s, Offset: %ld", arg->name, arg->offset);
-                    printf("\n");
-                    arg = arg->next;
-                } 
-            }
-            }
-            bool isMain = strcmp(funcE->functionName, "main") == 0;
-            generateASMForFunction(buffer, func, funcE, isMain, arguments.debug);
-
-        }
-
-        funcE = funcE->next;
+        classInfo = classInfo->next;
     }
 
-    stringbuffer_append_string(buffer, "\n    [section constantsM]\n\n");
-    funcE = prog->functionTable->entry;
-
-    while (funcE != NULL) {
-        for (int i = 0; i < funcE->consts->size; i++) {
-            HashNode *node = funcE->consts->buckets[i];
-            while (node) {
-                stringbuffer_append_string(buffer, "\n");
-                ConstVar *var = ((ConstVar *)node->value);
-                if (strcmp(var->typeName, "string") == 0) {
-                    stringbuffer_append_string(buffer, node->key);
-                    stringbuffer_append_string(buffer, ":\n");
-                    for (size_t i = 1; i < strlen(var->name) - 1; i++) {
-                        stringbuffer_append_string(buffer, "  dq ");
-                        unsigned char value = (unsigned char)var->name[i];
-                        char output[6]; 
-                        sprintf(output, "0x%02X", value);
-                        stringbuffer_append_string(buffer, output);
-                        stringbuffer_append_string(buffer, "\n");
-                    }
-                    stringbuffer_append_string(buffer, "  dq 0x00");
-                } else {
-                    stringbuffer_append_string(buffer, node->key);
-                    stringbuffer_append_string(buffer, ":\n");
-                    stringbuffer_append_string(buffer, "  dq ");
-                    stringbuffer_append_string(buffer, ((ConstVar *)node->value)->name);
-                    stringbuffer_append_string(buffer, "\n");
-                }
-
-                node = node->next;
-            }
-        }
-        funcE = funcE->next;
+    classInfo = prog->classes;
+    while (classInfo != NULL) {
+        freeFunctionTable(classInfo->program->functionTable, freeLocalVarAsVoid, freeConstVarAsVoid);
+        classInfo = classInfo->next;
     }
-
-    char *out = stringbuffer_to_string(buffer);
-    if (arguments.debug)
-        printf("%s\n\n", out);
-    stringbuffer_release(buffer);
-
-    FILE *asmFile = fopen(arguments.asm_dir, "wa");
-    fprintf(asmFile, "%s", out);
-    fclose(asmFile);
-    free(out);
-
-    freeFunctionTable(prog->functionTable, freeLocalVarAsVoid, freeConstVarAsVoid);
-
-    FunctionInfo *func = prog->functions;
-    const char *mainFileName = NULL;
-    while (func != NULL) {
-      if (strcmp(func->functionName, "main") == 0) {
-        mainFileName = func->fileName;
-      }
-      char *outputFilePath = getOutputFileName(func->fileName, func->functionName, "dot", arguments.output_dir);
-      if (func->cfg != NULL)
-        writeCFGToDotFile(func->cfg, outputFilePath, arguments.ot);
-      func = func->next;
-      free(outputFilePath);
-    }
-
-    if (mainFileName == NULL) {
-        fprintf(stderr, "Error: main function is not defined\n");
-    }
-
-    if (prog->errors == NULL && (mainFileName != NULL || arguments.output_dir != NULL)) {
-        CallGraph *graph = (CallGraph *)malloc(sizeof(CallGraph));
-        graph->functions = NULL;
-
-        traverseProgramAndBuildCallGraph(prog, graph, false);
-        char* dir;
-        char* path;
-        if (arguments.output_dir != NULL) {
-            dir = arguments.output_dir;
-            path = concat(dir, "/cg.dot");
-            writeCallGraphToDot(graph, path);
-            free(path);
-        } else if (mainFileName != NULL) {
-            dir = getDirectory(mainFileName);
-            path = concat(dir, "/cg.dot");
-            writeCallGraphToDot(graph, path);
-            free(path);
-            free(dir);
-        } else {
-            fprintf(stderr, "Error: can't save CG to dot file because main function and output directory are not defined\n");
-        }
-
-        freeCallGraph(graph);
-    }
-
-    freeProgram(prog);
+    
+    freeClassProgram(prog);
 
     for (uint32_t i = 0; i < files.filesCount; i++) {
         destroyMyLangResult(files.result[i]);
@@ -429,5 +269,189 @@ int main(int argc, char *argv[]) {
     }
     free(arguments.input_files);
     free(files.result);
+    return 0;
+
+    // FunctionEntry *funcE = prog->functionTable->entry;
+    // uint32_t alrValue = 0;
+    // struct StringBuffer *buffer = stringbuffer_new_with_options(1024, true);
+    // stringbuffer_append_string(buffer, "    [section codeM]\n\n");
+    // commandJMP(buffer, "main");
+    // while (funcE != NULL) {
+    //     funcE->locals = createHashTable(20);
+    //     funcE->consts = createHashTable(20);
+    //     FunctionInfo *func = prog->functions;
+    //     while (func != NULL) {
+    //       if (strcmp(func->functionName, funcE->functionName) == 0) {
+    //         break;
+    //       }
+    //       func = func->next;
+    //     }
+    //     if (func->cfg != NULL) {
+    //         BasicBlock *b = func->cfg->blocks;
+    //         while (b != NULL) {
+    //             for (int i = 0; i < b->instructionCount; i++) {
+    //                 scanOperationTreeForVars(funcE, b->instructions[i].otRoot);
+    //                 prepareRegsAndTemps(b->instructions[i].otRoot, arguments.debug);
+    //             }
+    //             b = b->next;
+    //         }
+
+    //         for (int i = 0; i < funcE->consts->size; i++) {
+    //             HashNode *node = funcE->consts->buckets[i];
+    //             while (node) {
+    //                 ((ConstVar *)node->value)->address = ((ConstVar *)node->value)->address + alrValue;
+    //                 alrValue = alrValue + ((ConstVar *)node->value)->size;
+    //                 node = node->next;
+    //             }
+    //         }
+
+    //         if (funcE->argumentsCount > 0) {
+    //             int64_t offset = 8 + funcE->argumentsCount * 8;
+    //             ArgumentInfo *arg = funcE->arguments;
+    //             while (arg != NULL) {
+    //                 arg->offset = offset;
+    //                 offset = offset - 8;
+    //                 arg = arg->next;
+    //             } 
+    //         }
+            
+
+    //         if (arguments.debug) {
+    //         printf("\nLocals for %s:\n", funcE->functionName);
+    //         for (int i = 0; i < funcE->locals->size; i++) {
+    //             HashNode *node = funcE->locals->buckets[i];
+    //             while (node) {
+    //             printf("Key: %s, Name: %s, Index: %d", node->key, ((LocalVar *)node->value)->name,
+    //                     ((LocalVar *)node->value)->index);
+    //             printf("\n");
+    //             node = node->next;
+    //             }
+    //         }
+
+    //         printf("\nConsts for %s:\n", funcE->functionName);
+    //         for (int i = 0; i < funcE->consts->size; i++) {
+    //             HashNode *node = funcE->consts->buckets[i];
+    //             while (node) {
+    //             printf("Key: %s, Value: %s, Address: %d", node->key, ((ConstVar *)node->value)->name,
+    //                     ((ConstVar *)node->value)->address);
+    //             printf("\n");
+    //             node = node->next;
+    //             }
+    //         }
+    //         if (funcE->argumentsCount > 0) {
+    //             printf("\nArgs for %s:\n", funcE->functionName);
+    //             ArgumentInfo *arg = funcE->arguments;
+    //             while (arg != NULL) {
+    //                 printf("Name: %s, Offset: %ld", arg->name, arg->offset);
+    //                 printf("\n");
+    //                 arg = arg->next;
+    //             } 
+    //         }
+    //         }
+    //         bool isMain = strcmp(funcE->functionName, "main") == 0;
+    //         generateASMForFunction(buffer, func, funcE, isMain, arguments.debug);
+
+    //     }
+
+    //     funcE = funcE->next;
+    // }
+
+    // stringbuffer_append_string(buffer, "\n    [section constantsM]\n\n");
+    // funcE = prog->functionTable->entry;
+
+    // while (funcE != NULL) {
+    //     for (int i = 0; i < funcE->consts->size; i++) {
+    //         HashNode *node = funcE->consts->buckets[i];
+    //         while (node) {
+    //             stringbuffer_append_string(buffer, "\n");
+    //             ConstVar *var = ((ConstVar *)node->value);
+    //             if (strcmp(var->typeName, "string") == 0) {
+    //                 stringbuffer_append_string(buffer, node->key);
+    //                 stringbuffer_append_string(buffer, ":\n");
+    //                 for (size_t i = 1; i < strlen(var->name) - 1; i++) {
+    //                     stringbuffer_append_string(buffer, "  dq ");
+    //                     unsigned char value = (unsigned char)var->name[i];
+    //                     char output[6]; 
+    //                     sprintf(output, "0x%02X", value);
+    //                     stringbuffer_append_string(buffer, output);
+    //                     stringbuffer_append_string(buffer, "\n");
+    //                 }
+    //                 stringbuffer_append_string(buffer, "  dq 0x00");
+    //             } else {
+    //                 stringbuffer_append_string(buffer, node->key);
+    //                 stringbuffer_append_string(buffer, ":\n");
+    //                 stringbuffer_append_string(buffer, "  dq ");
+    //                 stringbuffer_append_string(buffer, ((ConstVar *)node->value)->name);
+    //                 stringbuffer_append_string(buffer, "\n");
+    //             }
+
+    //             node = node->next;
+    //         }
+    //     }
+    //     funcE = funcE->next;
+    // }
+
+    // char *out = stringbuffer_to_string(buffer);
+    // if (arguments.debug)
+    //     printf("%s\n\n", out);
+    // stringbuffer_release(buffer);
+
+    // FILE *asmFile = fopen(arguments.asm_dir, "wa");
+    // fprintf(asmFile, "%s", out);
+    // fclose(asmFile);
+    // free(out);
+
+    // freeFunctionTable(prog->functionTable, freeLocalVarAsVoid, freeConstVarAsVoid);
+
+    // FunctionInfo *func = prog->functions;
+    // const char *mainFileName = NULL;
+    // while (func != NULL) {
+    //   if (strcmp(func->functionName, "main") == 0) {
+    //     mainFileName = func->fileName;
+    //   }
+    //   char *outputFilePath = getOutputFileName(func->fileName, func->functionName, "dot", arguments.output_dir);
+    //   if (func->cfg != NULL)
+    //     writeCFGToDotFile(func->cfg, outputFilePath, arguments.ot);
+    //   func = func->next;
+    //   free(outputFilePath);
+    // }
+
+    // if (mainFileName == NULL) {
+    //     fprintf(stderr, "Error: main function is not defined\n");
+    // }
+
+    // if (prog->errors == NULL && (mainFileName != NULL || arguments.output_dir != NULL)) {
+    //     CallGraph *graph = (CallGraph *)malloc(sizeof(CallGraph));
+    //     graph->functions = NULL;
+
+    //     traverseProgramAndBuildCallGraph(prog, graph, false);
+    //     char* dir;
+    //     char* path;
+    //     if (arguments.output_dir != NULL) {
+    //         dir = arguments.output_dir;
+    //         path = concat(dir, "/cg.dot");
+    //         writeCallGraphToDot(graph, path);
+    //         free(path);
+    //     } else if (mainFileName != NULL) {
+    //         dir = getDirectory(mainFileName);
+    //         path = concat(dir, "/cg.dot");
+    //         writeCallGraphToDot(graph, path);
+    //         free(path);
+    //         free(dir);
+    //     } else {
+    //         fprintf(stderr, "Error: can't save CG to dot file because main function and output directory are not defined\n");
+    //     }
+
+    //     freeCallGraph(graph);
+    // }
+
+    // freeProgram(prog);
+
+    // for (uint32_t i = 0; i < files.filesCount; i++) {
+    //     destroyMyLangResult(files.result[i]);
+    //     free(files.result[i]);
+    // }
+    // free(arguments.input_files);
+    // free(files.result);
     return 0;
 }

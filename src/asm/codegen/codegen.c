@@ -27,7 +27,7 @@ void calcMaxRegs(OperationTreeNode *root, uint8_t *maxRegs) {
 }
 
 void prepareRegsAndTempsHelper(OperationTreeNode *root, StringStack *stack, bool stackOnly, bool debug) {
-    if (strcmp(root->label, WRITE) == 0) {
+    if (strcmp(root->label, OT_WRITE) == 0) {
         if (root->children[0]->childCount == 0) {
             root->children[0]->reg = strdup(REG_AR);
         } else {
@@ -37,7 +37,7 @@ void prepareRegsAndTempsHelper(OperationTreeNode *root, StringStack *stack, bool
             free(reg);
         }
         prepareRegsAndTempsHelper(root->children[1], stack, stackOnly, debug);
-    } else if (strcmp(root->label, INDEX) == 0 || strcmp(root->label, INDEXR) == 0) {
+    } else if (strcmp(root->label, OT_INDEX) == 0 || strcmp(root->label, OT_INDEXR) == 0) {
         if (root->children[0]->childCount == 0) {
             root->children[0]->reg = strdup(REG_AR);
         } else {
@@ -123,7 +123,7 @@ void prepareRegsAndTempsHelper(OperationTreeNode *root, StringStack *stack, bool
         }
         if (debug)
             printf("Unary operation '%s' result in reg %s\n", root->label, root->reg);
-    } else if (strcmp(root->label, LIT_READ) == 0) {
+    } else if (strcmp(root->label, OT_LIT_READ) == 0) {
         char *reg = popStack(stack);
         root->reg = strdup(reg);
         if (strcmp(root->children[1]->type->typeName, "string") == 0 ||
@@ -135,14 +135,14 @@ void prepareRegsAndTempsHelper(OperationTreeNode *root, StringStack *stack, bool
         if (debug)
             printf("Literal %s in reg %s\n", root->children[1]->label, reg);
         free(reg);
-    } else if (strcmp(root->label, READ) == 0) {
+    } else if (strcmp(root->label, OT_READ) == 0) {
         char *reg = popStack(stack);
         root->reg = strdup(reg);
         root->children[0]->reg = strdup(REG_AR);
         if (debug)
             printf("Var %s in reg %s\n", root->children[0]->label, reg);
         free(reg);
-    } else if (strcmp(root->label, RETURN) == 0) {
+    } else if (strcmp(root->label, OT_RETURN) == 0) {
         prepareRegsAndTempsHelper(root->children[0], stack, stackOnly, debug);
         root->reg = strdup(REG_RT);
         if (debug)
@@ -163,15 +163,15 @@ void prepareRegsAndTemps(OperationTreeNode *root, bool debug) {
     pushStack(stack, REG_R0);
 
 
-    if (strcmp(root->label, DECLARE) == 0 && root->childCount == 3) {
+    if (strcmp(root->label, OT_DECLARE) == 0 && root->childCount == 3) {
         uint8_t maxRegs = 0;
         calcMaxRegs(root->children[2], &maxRegs);
 
         bool stackOnly = maxRegs > 8;
         prepareRegsAndTempsHelper(root->children[2], stack, stackOnly, debug);
-    } else if (strcmp(root->label, SEQ_DECLARE) == 0) {
+    } else if (strcmp(root->label, OT_SEQ_DECLARE) == 0) {
         for (uint32_t i = 0; i < root->childCount; i++) {
-            if (strcmp(root->label, DECLARE) == 0 && root->childCount == 3) {
+            if (strcmp(root->label, OT_DECLARE) == 0 && root->childCount == 3) {
                 uint8_t maxRegs = 0;
                 calcMaxRegs(root->children[i], &maxRegs);
 
@@ -298,7 +298,7 @@ char parseEscapedChar(const char *str) {
 }
 
 void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struct StringBuffer *buffer) {
-    if (strcmp(root->label, WRITE) == 0) {
+    if (strcmp(root->label, OT_WRITE) == 0) {
         if (root->children[0]->childCount == 0) {
             generateASMForOTHelper(entry, root->children[1], buffer);
             bool found = false;
@@ -326,7 +326,7 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
             generateASMForOTHelper(entry, root->children[1], buffer);
             commandST(buffer, "q", root->children[1]->reg, root->children[0]->reg);
         }
-    } else if (strcmp(root->label, INDEX) == 0) {
+    } else if (strcmp(root->label, OT_INDEX) == 0) {
         generateASMForOTHelper(entry, root->children[0], buffer);
         generateASMForOTHelper(entry, root->children[1], buffer);
         commandLDI32(buffer, REG_BR2, "8");
@@ -340,7 +340,7 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
-    } else if (strcmp(root->label, INDEXR) == 0) {
+    } else if (strcmp(root->label, OT_INDEXR) == 0) {
         generateASMForOTHelper(entry, root->children[0], buffer);
         generateASMForOTHelper(entry, root->children[1], buffer);
         commandLDI32(buffer, REG_BR2, "8");
@@ -526,7 +526,7 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
-    } else if (strcmp(root->label, LIT_READ) == 0) {
+    } else if (strcmp(root->label, OT_LIT_READ) == 0) {
         if (strcmp(root->children[1]->type->typeName, "ulong") == 0 || 
             strcmp(root->children[1]->type->typeName, "long") == 0) {
             for (int i = 0; i < entry->consts->size; i++) {
@@ -571,7 +571,7 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
-    } else if (strcmp(root->label, READ) == 0) {
+    } else if (strcmp(root->label, OT_READ) == 0) {
         bool found = false;
         for (int i = 0; i < entry->locals->size; i++) {
             HashNode *node = entry->locals->buckets[i];
@@ -620,7 +620,7 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
-    } else if (strcmp(root->label, RETURN) == 0) {
+    } else if (strcmp(root->label, OT_RETURN) == 0) {
         generateASMForOTHelper(entry, root->children[0], buffer);
         commandMOV(buffer, root->reg, root->children[0]->reg);
     }
@@ -628,11 +628,11 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
 
 void generateASMForOT(FunctionEntry *entry, OperationTreeNode *root, struct StringBuffer *buffer) {
     commentOTPosition(buffer, root->line, root->pos);
-    if (strcmp(root->label, DECLARE) == 0 && root->childCount == 3) {
+    if (strcmp(root->label, OT_DECLARE) == 0 && root->childCount == 3) {
         generateASMForOTHelper(entry, root->children[2], buffer);
-    } else if (strcmp(root->label, SEQ_DECLARE) == 0) {
+    } else if (strcmp(root->label, OT_SEQ_DECLARE) == 0) {
         for (uint32_t i = 0; i < root->childCount; i++) {
-            if (strcmp(root->label, DECLARE) == 0 && root->childCount == 3) {
+            if (strcmp(root->label, OT_DECLARE) == 0 && root->childCount == 3) {
                 generateASMForOTHelper(entry, root->children[i], buffer);
             } 
         }

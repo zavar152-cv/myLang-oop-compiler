@@ -55,7 +55,7 @@ typedef struct {
     BasicBlock *blocks;
 } CFG;
 
-typedef struct FunctionInfo {
+typedef struct __attribute__((packed)) FunctionInfo {
     char *fileName;
     char *functionName;
     TypeInfo *returnType;
@@ -63,6 +63,9 @@ typedef struct FunctionInfo {
     CFG *cfg;
     bool isVarargs;
     bool isBuiltin;
+    bool isPrivate;
+    bool isStatic;
+    bool isConstructor;
     struct FunctionInfo *next;
     uint32_t line;
     uint32_t pos;
@@ -90,6 +93,10 @@ typedef struct Program {
     ProgramErrorInfo *errors;
     ProgramWarningInfo *warnings;
 } Program;
+
+typedef struct ClassProgram {
+    ClassInfo* classes;
+} ClassProgram;
 
 BasicBlock* createBasicBlock(int id, BlockType type, const char *name);
 
@@ -131,7 +138,7 @@ void freeFunctionInfo(FunctionInfo *funcInfo);
 
 void printFunctionInfo(FunctionInfo *funcInfo);
 
-Program* buildProgram(FilesToAnalyze *files, bool debug);
+ClassProgram* buildClassProgram(FilesToAnalyze *files, bool debug);
 
 ProgramErrorInfo* createProgramErrorInfo(const char *message);
 
@@ -148,3 +155,21 @@ void freeProgramWarnings(ProgramWarningInfo *error);
 void writeCFGToDotFile(CFG *cfg, const char *filename, bool drawOt);
 
 void traverseProgramAndBuildCallGraph(Program *program, CallGraph *cg, bool debug);
+
+ClassInfo* createClassInfo(const char* name, const char* parentName, const char** interfaceNames, int interfaceCount, MyAstNode* classBody, char* fileName);
+
+void freeClassInfo(ClassInfo* info);
+
+ClassProgram* createClassProgram();
+
+void addClassInfo(ClassProgram* program, ClassInfo* classInfo);
+
+void freeClassProgram(ClassProgram* program);
+
+void printAllClassesInfo(ClassInfo* head);
+
+FieldInfo *createFieldInfo(TypeInfo *type, const char *name, uint32_t line, uint32_t pos);
+  
+void addField(ClassInfo *classInfo, FieldInfo *fieldInfo);
+
+void freeField(FieldInfo *field);
