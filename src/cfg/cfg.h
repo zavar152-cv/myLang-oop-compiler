@@ -4,6 +4,7 @@
 #include "tokens.h"
 #include "ot/ot.h"
 #include "cg/cg.h"
+#include <stdint.h>
 
 
 #define INITIAL_CAPACITY 4
@@ -156,7 +157,7 @@ void writeCFGToDotFile(CFG *cfg, const char *filename, bool drawOt);
 
 void traverseProgramAndBuildCallGraph(Program *program, CallGraph *cg, bool debug);
 
-ClassInfo* createClassInfo(const char* name, const char* parentName, const char** interfaceNames, int interfaceCount, MyAstNode* classBody, char* fileName);
+ClassInfo* createClassInfo(const char* name, const char* parentName, const char** interfaceNames, int interfaceCount, MyAstNode* classBody, char* fileName, uint64_t typeId);
 
 void freeClassInfo(ClassInfo* info);
 

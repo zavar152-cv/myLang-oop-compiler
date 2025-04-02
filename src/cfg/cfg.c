@@ -79,6 +79,88 @@ void addBasicBlock(CFG *cfg, BasicBlock *block) {
   cfg->blocks = block;
 }
 
+void printClassInfoTable(ClassInfo* head) {
+  printf("%-20s %-15s %-10s %-11s %-20s %-18s %s\n", 
+      "Class Name", "Parent", "IntfCount", "IsInterface", "File Name", "Type ID", "Interfaces");
+
+  printf("---------------------------------------------------------------------------------------------------------------\n");
+
+  for (ClassInfo* cls = head; cls != NULL; cls = cls->next) {
+  printf("%-20s %-15s %-10d %-11s %-20s 0x%016llx ", 
+          cls->name ? cls->name : "NULL",
+          cls->parentName ? cls->parentName : "None",
+          cls->interfaceCount,
+          cls->isInterface ? "true" : "false",
+          cls->fileName ? cls->fileName : "NULL",
+          (unsigned long long)cls->typeId);
+
+  if (cls->interfaceNames && cls->interfaceCount > 0) {
+      for (int i = 0; i < cls->interfaceCount; ++i) {
+          printf("%s%s", cls->interfaceNames[i], (i < cls->interfaceCount - 1) ? ", " : "");
+      }
+  } else {
+      printf("None");
+  }
+
+  printf("\n");
+  }
+}
+
+void printFunctionInfoTable(const ClassInfo* cls) {
+  if (!cls->program || !cls->program->functions) {
+      printf("\nNo functions found for class %s.\n", cls->name);
+      return;
+  }
+
+  printf("\nFunctions of class %s:\n", cls->name);
+  printf("%-20s %-15s %-10s %-10s %-10s %-10s %-11s %-9s %-9s\n", 
+         "Function Name", "Return Type", "Varargs", "Builtin", "Private", "Static", "Constructor", "Line", "Pos");
+
+  printf("------------------------------------------------------------------------------------------------------------------------\n");
+
+  for (FunctionInfo* fn = cls->program->functions; fn != NULL; fn = fn->next) {
+      printf("%-20s %-15s %-10s %-10s %-10s %-10s %-11s %-9u %-9u\n",
+             fn->functionName ? fn->functionName : "NULL",
+             fn->returnType && fn->returnType->typeName ? fn->returnType->typeName : "void",
+             fn->isVarargs ? "true" : "false",
+             fn->isBuiltin ? "true" : "false",
+             fn->isPrivate ? "true" : "false",
+             fn->isStatic ? "true" : "false",
+             fn->isConstructor ? "true" : "false",
+             fn->line,
+             fn->pos);
+  }
+}
+
+
+void printFieldInfoTable(const ClassInfo* cls) {
+  printf("\nFields of class %s:\n", cls->name);
+  printf("%-20s %-15s %-10s %-10s %-5s %-5s %-10s\n", 
+         "Field Name", "Type", "Private", "Static", "Line", "Pos", "Offset");
+
+  printf("------------------------------------------------------------------------------------------------------------------------\n");
+
+  for (FieldInfo* field = cls->fields; field != NULL; field = field->next) {
+      printf("%-20s %-15s %-10s %-10s %-5u %-5u %-10lld\n", 
+             field->name ? field->name : "NULL",
+             field->type && field->type->typeName ? field->type->typeName : "NULL",
+             field->isPrivate ? "true" : "false",
+             field->isStatic ? "true" : "false",
+             field->line,
+             field->pos,
+             (long long)field->offset);
+  }
+}
+
+void printAllClassesInfoTable(ClassInfo* head) {
+  printClassInfoTable(head);
+
+  for (ClassInfo* cls = head; cls != NULL; cls = cls->next) {
+      printFieldInfoTable(cls);
+      printFunctionInfoTable(cls);
+  }
+}
+
 TypeInfo* parseTyperef(MyAstNode* typeRef) {
   assert(typeRef->childCount == 1 || typeRef->childCount == 2 || typeRef->childCount >= 3);
 
@@ -825,6 +907,7 @@ bool equalsArgumentList(ArgumentInfo *a, ArgumentInfo *b) {
 
 ClassProgram *buildClassProgram(FilesToAnalyze *files, bool debug) {
   ClassProgram *classProgram = createClassProgram();
+  uint64_t typeId = 1;
   for (uint32_t i = 0; i < files->filesCount; i++) {
     MyLangResult* result = files->result[i];
     MyAstNode** classDefs = result->tree->children;
@@ -868,7 +951,8 @@ ClassProgram *buildClassProgram(FilesToAnalyze *files, bool debug) {
           for (uint32_t i = 0; i < implements->childCount; i++) {
             interfaces[i] = implements->children[i]->label;
           }
-          ClassInfo *classInfo = createClassInfo(name->children[0]->label, extends->children[0]->label, interfaces, implements->childCount, classBody, files->fileName[i]);
+          ClassInfo *classInfo = createClassInfo(name->children[0]->label, extends->children[0]->label, interfaces, implements->childCount, classBody, files->fileName[i], typeId);
+          typeId++;
           addClassInfo(classProgram, classInfo);
           free(interfaces);
           prepareClassDeclaration(classInfo, classBody, files->fileName[i], debug, false);
@@ -884,7 +968,8 @@ ClassProgram *buildClassProgram(FilesToAnalyze *files, bool debug) {
           assert(strcmp(oopModifier->label, EXTENDS) == 0 || strcmp(oopModifier->label, IMPLEMENTS) == 0);
           ClassInfo *classInfo;
           if (strcmp(oopModifier->label, EXTENDS) == 0) {
-            classInfo = createClassInfo(name->children[0]->label, oopModifier->children[0]->label, NULL, 0, classBody, files->fileName[i]);
+            classInfo = createClassInfo(name->children[0]->label, oopModifier->children[0]->label, NULL, 0, classBody, files->fileName[i], typeId);
+            typeId++;
             addClassInfo(classProgram, classInfo);
             prepareClassDeclaration(classInfo, classBody, files->fileName[i], debug, false);
           } else if (strcmp(oopModifier->label, IMPLEMENTS) == 0) {
@@ -892,7 +977,8 @@ ClassProgram *buildClassProgram(FilesToAnalyze *files, bool debug) {
             for (uint32_t i = 0; i < oopModifier->childCount; i++) {
               interfaces[i] = oopModifier->children[i]->label;
             }
-            classInfo = createClassInfo(name->children[0]->label, "Object", interfaces, oopModifier->childCount, classBody, files->fileName[i]);
+            classInfo = createClassInfo(name->children[0]->label, "Object", interfaces, oopModifier->childCount, classBody, files->fileName[i], typeId);
+            typeId++;
             addClassInfo(classProgram, classInfo);
             free(interfaces);
             prepareClassDeclaration(classInfo, classBody, files->fileName[i], debug, false);
@@ -907,7 +993,10 @@ ClassProgram *buildClassProgram(FilesToAnalyze *files, bool debug) {
 
           bool isObjectClass = strcmp(name->children[0]->label, "Object") == 0;
 
-          ClassInfo *classInfo = createClassInfo(name->children[0]->label, isObjectClass ? NULL : "Object", NULL, 0, classBody, files->fileName[i]);
+          ClassInfo *classInfo = createClassInfo(name->children[0]->label, isObjectClass ? NULL : "Object", NULL, 0, classBody, files->fileName[i], isObjectClass ? 0 : typeId);
+          if (!isObjectClass) {
+            typeId++;
+          }
           addClassInfo(classProgram, classInfo);
           prepareClassDeclaration(classInfo, classBody, files->fileName[i], debug, false);
         }
@@ -923,7 +1012,8 @@ ClassProgram *buildClassProgram(FilesToAnalyze *files, bool debug) {
 
         assert(strcmp(name->label, NAME) == 0);
         assert(strcmp(interfaceBody->label, INTERFACE_BODY) == 0);
-        ClassInfo *classInfo = createClassInfo(name->children[0]->label, "Object", NULL, 0, interfaceBody, files->fileName[i]);
+        ClassInfo *classInfo = createClassInfo(name->children[0]->label, "Object", NULL, 0, interfaceBody, files->fileName[i], typeId);
+        typeId++;
         classInfo->isInterface = true;
         addClassInfo(classProgram, classInfo);
         prepareClassDeclaration(classInfo, interfaceBody, files->fileName[i], debug, true);
@@ -1020,6 +1110,7 @@ ClassProgram *buildClassProgram(FilesToAnalyze *files, bool debug) {
 
   if (debug) {
     printAllClassesInfo(classProgram->classes);
+    printAllClassesInfoTable(classProgram->classes);
   }
 
   return classProgram;
@@ -1298,7 +1389,7 @@ void freeProgramWarnings(ProgramWarningInfo *warning) {
     }
 }
 
-ClassInfo* createClassInfo(const char* name, const char* parentName, const char** interfaceNames, int interfaceCount, MyAstNode* classBody, char* fileName) {
+ClassInfo* createClassInfo(const char* name, const char* parentName, const char** interfaceNames, int interfaceCount, MyAstNode* classBody, char* fileName, uint64_t typeId) {
   ClassInfo* info = (ClassInfo*)malloc(sizeof(ClassInfo));
   if (!info) return NULL;
 
@@ -1321,6 +1412,7 @@ ClassInfo* createClassInfo(const char* name, const char* parentName, const char*
   info->next = NULL;
   info->body = classBody;
   info->fileName = strdup(fileName);
+  info->typeId = typeId;
 
   return info;
 }
@@ -1460,6 +1552,7 @@ void printProgramInfo(Program* program) {
 void printClassInfo(ClassInfo* cls) {
     printf("====================================================\n");
     printf("Class: %s\n", cls->name);
+    printf("TypeID: %lu\n", cls->typeId);
     printf("Parent: %s\n", cls->parentName ? cls->parentName : "None");
     printf("Is Interface: %s\n", cls->isInterface ? "Yes" : "No");
 

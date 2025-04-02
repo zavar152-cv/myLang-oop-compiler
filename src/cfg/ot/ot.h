@@ -76,6 +76,7 @@ typedef struct ClassInfo {
     FieldInfo *fields;
     MyAstNode *body;
     char* fileName;
+    uint64_t typeId;
     struct Program* program;
     struct ClassInfo* next;
 } ClassInfo;
