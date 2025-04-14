@@ -10,16 +10,16 @@ class MyClass extends BaseClass implements Interface1, Interface2 {
 
     public int myMethod(int x) {
         int a = 9;
-        MyClass instance = new MyClass(1, 2);
+        MegaBaseClass instance = new MyClass(1, 2);
 
-        Interface1 unchecked1 = instance;
+        // Interface1 unchecked1 = instance;
 
-        testMethod();
-        instance.testMethod(5);
-        instance.varClass.v.parentMethod2(5);
-        int b = instance.myField;
+        // testMethod();
+        // instance.testMethod(5);
+        // instance.varClass.v.parentMethod2(5);
+        // int b = instance.myField;
 
-        unchecked1.doSomething(1);
+        // unchecked1.doSomething(1);
         
         0;
     }
@@ -37,13 +37,19 @@ class MyClass extends BaseClass implements Interface1, Interface2 {
     }
 }
 
-class BaseClass {
+class BaseClass extends MegaBaseClass {
     public BaseClass() {
         
     }
 
     public int parentMethod2(long l) {
         0;
+    }
+}
+
+class MegaBaseClass {
+    public MegaBaseClass() {
+
     }
 }
 
