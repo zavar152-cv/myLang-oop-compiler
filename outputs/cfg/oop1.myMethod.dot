@@ -4,7 +4,7 @@ digraph CFG {
     node [shape=rectangle];
 
     BB2 [label=<<B>BB2: END</B><BR ALIGN="CENTER"/>>];
-    BB1 [label=<<B>BB1: Base block</B><BR ALIGN="CENTER"/>VAR<BR ALIGN="CENTER"/>VAR<BR ALIGN="CENTER"/>FUNC_CALL<BR ALIGN="CENTER"/>FUNC_CALL<BR ALIGN="CENTER"/>FUNC_CALL<BR ALIGN="CENTER"/>DEC<BR ALIGN="CENTER"/>>];
+    BB1 [label=<<B>BB1: Base block</B><BR ALIGN="CENTER"/>VAR<BR ALIGN="CENTER"/>VAR<BR ALIGN="CENTER"/>FUNC_CALL<BR ALIGN="CENTER"/>FUNC_CALL<BR ALIGN="CENTER"/>FUNC_CALL<BR ALIGN="CENTER"/>FUNC_CALL<BR ALIGN="CENTER"/>DEC<BR ALIGN="CENTER"/>>];
     subgraph cluster_instruction0 {
         label = "OT of BB1:0";
         style=rounded;
@@ -48,8 +48,8 @@ digraph CFG {
         node15 [label="write <MyClass:0, reg: (null), spilled: 0, offset: 0>", color=blue];
         node16 [label="instance <MyClass:0, reg: (null), spilled: 0, offset: 0>", color=blue];
         node15 -> node16[color=blue];
-        node17 [label="new <_:0, reg: (null), spilled: 0, offset: 0>", color=blue];
-        node18 [label="MyClass2 <_:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node17 [label="new <MyClass:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node18 [label="MyClass <MyClass:0, reg: (null), spilled: 0, offset: 0>", color=blue];
         node17 -> node18[color=blue];
         node19 [label="litRead <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
         node20 [label="DEC", color=blue];
@@ -84,19 +84,23 @@ digraph CFG {
         entry3 [shape=point, style=invis];
         node27 [label="call <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
         node28 [label="method <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
-        node29 [label="testMethod <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node29 [label="parentMethod2 <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
         node28 -> node29[color=blue];
-        node30 [label="read <MyClass:0, reg: (null), spilled: 0, offset: 0>", color=blue];
-        node31 [label="instance <MyClass:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node30 [label="field <MyClass:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node31 [label="varClass <MyClass:0, reg: (null), spilled: 0, offset: 0>", color=blue];
         node30 -> node31[color=blue];
+        node32 [label="read <MyClass:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node33 [label="instance <MyClass:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node32 -> node33[color=blue];
+        node30 -> node32[color=blue];
         node28 -> node30[color=blue];
         node27 -> node28[color=blue];
-        node32 [label="litRead <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
-        node33 [label="DEC", color=blue];
-        node32 -> node33[color=blue];
-        node34 [label="5 <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
-        node32 -> node34[color=blue];
-        node27 -> node32[color=blue];
+        node34 [label="litRead <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node35 [label="DEC", color=blue];
+        node34 -> node35[color=blue];
+        node36 [label="5 <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node34 -> node36[color=blue];
+        node27 -> node34[color=blue];
     }
     BB1 -> entry3 [lhead=cluster_instruction3, color=blue];
     subgraph cluster_instruction4 {
@@ -104,25 +108,15 @@ digraph CFG {
         style=rounded;
         color=blue;
         entry4 [shape=point, style=invis];
-        node35 [label="call <_:0, reg: (null), spilled: 0, offset: 0>", color=blue];
-        node36 [label="method <_:0, reg: (null), spilled: 0, offset: 0>", color=blue];
-        node37 [label="parentMethod2 <_:0, reg: (null), spilled: 0, offset: 0>", color=blue];
-        node36 -> node37[color=blue];
-        node38 [label="field <MyClass:0, reg: (null), spilled: 0, offset: 0>", color=blue];
-        node39 [label="v <MyClass:0, reg: (null), spilled: 0, offset: 0>", color=blue];
-        node38 -> node39[color=blue];
-        node40 [label="read <MyClass:0, reg: (null), spilled: 0, offset: 0>", color=blue];
-        node41 [label="instance <MyClass:0, reg: (null), spilled: 0, offset: 0>", color=blue];
-        node40 -> node41[color=blue];
-        node38 -> node40[color=blue];
-        node36 -> node38[color=blue];
-        node35 -> node36[color=blue];
-        node42 [label="litRead <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
-        node43 [label="DEC", color=blue];
-        node42 -> node43[color=blue];
-        node44 [label="5 <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
-        node42 -> node44[color=blue];
-        node35 -> node42[color=blue];
+        node37 [label="call <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node38 [label="parentMethod <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node37 -> node38[color=blue];
+        node39 [label="litRead <long:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node40 [label="DEC", color=blue];
+        node39 -> node40[color=blue];
+        node41 [label="5 <long:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node39 -> node41[color=blue];
+        node37 -> node39[color=blue];
     }
     BB1 -> entry4 [lhead=cluster_instruction4, color=blue];
     subgraph cluster_instruction5 {
@@ -130,15 +124,31 @@ digraph CFG {
         style=rounded;
         color=blue;
         entry5 [shape=point, style=invis];
-        node45 [label="return <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
-        node46 [label="litRead <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
-        node47 [label="DEC", color=blue];
-        node46 -> node47[color=blue];
-        node48 [label="0 <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
-        node46 -> node48[color=blue];
-        node45 -> node46[color=blue];
+        node42 [label="call <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node43 [label="parentMethod2 <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node42 -> node43[color=blue];
+        node44 [label="litRead <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node45 [label="DEC", color=blue];
+        node44 -> node45[color=blue];
+        node46 [label="5 <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node44 -> node46[color=blue];
+        node42 -> node44[color=blue];
     }
     BB1 -> entry5 [lhead=cluster_instruction5, color=blue];
+    subgraph cluster_instruction6 {
+        label = "OT of BB1:6";
+        style=rounded;
+        color=blue;
+        entry6 [shape=point, style=invis];
+        node47 [label="return <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node48 [label="litRead <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node49 [label="DEC", color=blue];
+        node48 -> node49[color=blue];
+        node50 [label="0 <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node48 -> node50[color=blue];
+        node47 -> node48[color=blue];
+    }
+    BB1 -> entry6 [lhead=cluster_instruction6, color=blue];
     BB0 [label=<<B>BB0: START</B><BR ALIGN="CENTER"/>>];
 
     BB1 -> BB2;

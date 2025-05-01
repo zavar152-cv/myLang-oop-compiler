@@ -36,12 +36,14 @@ architecture myArch {
         storage BR2_S [64];
         storage RT_S [64];
         storage IID_S [64];
+        storage THIS_S [64];
         view SP = SP_S;
         view BP = BP_S;
         view BR1 = BR1_S;
         view BR2 = BR2_S;
         view RT = RT_S;
         view IID = IID_S;
+        view THIS = THIS_S;
 
         /*------------------IO REGISTERS-------------------------*/
         storage IN_S [8];
@@ -100,7 +102,8 @@ architecture myArch {
             BR1 = 001111,
             BR2 = 010000,
             ALR = 010001,
-            IID = 010010
+            IID = 010010,
+            THIS = 010011
 	    };
 
         encode size sequence = alternatives {

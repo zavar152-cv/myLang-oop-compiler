@@ -67,18 +67,34 @@ typedef struct FieldInfo {
     int64_t offset;
 } FieldInfo;
 
+typedef struct ClassVtableEntry {
+    char *functionName;
+    char *className;
+    int64_t offset;
+    struct ClassVtableEntry *next;
+    struct ClassVtableEntry *prev;
+} ClassVtableEntry;
+
+typedef struct ClassVtable {
+    ClassVtableEntry *head;
+    ClassVtableEntry *tail;
+    int64_t currentOffset;
+} ClassVtable;
+
 typedef struct ClassInfo {
-    char* name;
-    char* parentName;
-    char** interfaceNames;
+    char *name;
+    char *parentName;
+    char **interfaceNames;
     int interfaceCount;
     bool isInterface;
     FieldInfo *fields;
+    uint64_t fieldsCount;
     MyAstNode *body;
-    char* fileName;
+    char *fileName;
     uint64_t typeId;
-    struct Program* program;
-    struct ClassInfo* next;
+    struct Program *program;
+    ClassVtable *vtable;
+    struct ClassInfo *next;
 } ClassInfo;
 
 typedef struct __attribute__((packed)) FunctionEntry {
@@ -91,6 +107,7 @@ typedef struct __attribute__((packed)) FunctionEntry {
     bool isPrivate;
     bool isStatic;
     bool isConstructor;
+    bool isOverride;
     HashTable *locals;
     HashTable *consts;
     struct FunctionEntry *next;
@@ -105,13 +122,13 @@ typedef struct FunctionTable {
 
 OperationTreeNode *newOperationTreeNode(const char *label, uint32_t childCount, uint32_t line, uint32_t pos, bool isImaginary);
 
-OperationTreeNode *buildVarOperationTreeFromAstNode(MyAstNode* root, OperationTreeErrorContainer *container, TypeInfo* varType, ScopeManager *sm, FunctionTable *functionTable, ClassInfo* classes, const char* filename);
+OperationTreeNode *buildVarOperationTreeFromAstNode(MyAstNode* root, OperationTreeErrorContainer *container, TypeInfo* varType, ScopeManager *sm, FunctionTable *functionTable, ClassInfo* classes, ClassInfo *currentClass, const char* filename);
 
 TypeInfo* parseTyperef(MyAstNode* typeRef);
 
 void destroyOperationTreeNodeTree(OperationTreeNode *root);
 
-OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLvalue, bool isFunctionName, bool isMethod, OperationTreeErrorContainer *error, ScopeManager *sm, FunctionTable *functionTable, ClassInfo* classes, const char* filename);
+OperationTreeNode *buildExprOperationTreeFromAstNode(MyAstNode* root, bool isLvalue, bool isFunctionName, bool isMethod, OperationTreeErrorContainer *error, ScopeManager *sm, FunctionTable *functionTable, ClassInfo* classes, ClassInfo *currentClass, const char* filename);
 
 void printOperationTree(OperationTreeNode *root);
 

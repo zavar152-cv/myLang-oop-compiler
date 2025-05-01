@@ -67,6 +67,7 @@ typedef struct __attribute__((packed)) FunctionInfo {
     bool isPrivate;
     bool isStatic;
     bool isConstructor;
+    bool isOverride;
     struct FunctionInfo *next;
     uint32_t line;
     uint32_t pos;
@@ -174,3 +175,17 @@ FieldInfo *createFieldInfo(TypeInfo *type, const char *name, uint32_t line, uint
 void addField(ClassInfo *classInfo, FieldInfo *fieldInfo);
 
 void freeField(FieldInfo *field);
+
+ClassVtable *createVtable();
+
+void addVtableEntry(ClassVtable *vtable, const char *functionName, const char *className);
+
+void freeVtable(ClassVtable *vtable);
+
+void prepareClassVtable(ClassInfo *classInfo, ClassInfo *classes);
+
+void prepareClassVtableHelper(ClassInfo *classInfo, ClassInfo *classes, ClassVtable *vtable);
+
+void printVtable(const ClassVtable *vtable);
+
+void prepareOffset(ClassVtable *vtable, size_t *outCount);

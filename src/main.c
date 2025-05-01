@@ -255,6 +255,41 @@ int main(int argc, char *argv[]) {
         classInfo = classInfo->next;
     }
 
+    struct StringBuffer *buffer = stringbuffer_new_with_options(1024, true);
+    stringbuffer_append_string(buffer, "\n    [section constantsM]\n\n");
+    
+    classInfo = prog->classes;
+    while (classInfo != NULL) {
+        if (classInfo->isInterface) {
+            classInfo = classInfo->next;
+            continue;
+        } else {
+            stringbuffer_append_string(buffer, "vtable_");
+            stringbuffer_append_string(buffer, classInfo->name);
+            stringbuffer_append_string(buffer, ":\n");
+
+            ClassVtableEntry *vtableEntry = classInfo->vtable->head;
+            while (vtableEntry != NULL) {
+                stringbuffer_append_string(buffer, "    dq ");
+                stringbuffer_append_string(buffer, vtableEntry->className);
+                stringbuffer_append_string(buffer, ".");
+                stringbuffer_append_string(buffer, vtableEntry->functionName);
+                stringbuffer_append_string(buffer, "\n");
+                vtableEntry = vtableEntry->next;
+            }
+        }
+        stringbuffer_append_string(buffer, "\n");
+        classInfo = classInfo->next;
+    }
+    
+    char *out = stringbuffer_to_string(buffer);
+    stringbuffer_release(buffer);
+
+    FILE *asmFile = fopen(arguments.asm_dir, "wa");
+    fprintf(asmFile, "%s", out);
+    fclose(asmFile);
+    free(out);
+
     classInfo = prog->classes;
     while (classInfo != NULL) {
         freeFunctionTable(classInfo->program->functionTable, freeLocalVarAsVoid, freeConstVarAsVoid);

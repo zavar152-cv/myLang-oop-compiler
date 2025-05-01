@@ -12,7 +12,7 @@
 #include "scope/scope.h"
 #include "../asm/symbols.h"
 
-BasicBlock *parseBlock(MyAstNode* block, Program *program, const char* filename, bool isLoop, BasicBlock* prevBlock, BasicBlock* existingBlock, BasicBlock* loopBlock, CFG *cfg, ScopeManager *sm, ClassInfo *classes, FunctionTable *functionTable, uint32_t *uid);
+BasicBlock *parseBlock(MyAstNode* block, Program *program, const char* filename, bool isLoop, BasicBlock* prevBlock, BasicBlock* existingBlock, BasicBlock* loopBlock, CFG *cfg, ScopeManager *sm, ClassInfo *classes, ClassInfo *currentClass, FunctionTable *functionTable, uint32_t *uid);
 
 BasicBlock *createBasicBlock(int id, BlockType type, const char *name) {
   BasicBlock *block = (BasicBlock *)malloc(sizeof(BasicBlock));
@@ -113,19 +113,20 @@ void printFunctionInfoTable(const ClassInfo* cls) {
   }
 
   printf("\nFunctions of class %s:\n", cls->name);
-  printf("%-20s %-15s %-10s %-10s %-10s %-10s %-11s %-9s %-9s\n", 
-         "Function Name", "Return Type", "Varargs", "Builtin", "Private", "Static", "Constructor", "Line", "Pos");
+  printf("%-20s %-15s %-10s %-10s %-10s %-10s %-10s %-11s %-9s %-9s\n", 
+         "Function Name", "Return Type", "Varargs", "Builtin", "Private", "Static", "Override", "Constructor", "Line", "Pos");
 
   printf("------------------------------------------------------------------------------------------------------------------------\n");
 
   for (FunctionInfo* fn = cls->program->functions; fn != NULL; fn = fn->next) {
-      printf("%-20s %-15s %-10s %-10s %-10s %-10s %-11s %-9u %-9u\n",
+      printf("%-20s %-15s %-10s %-10s %-10s %-10s %-10s %-11s %-9u %-9u\n",
              fn->functionName ? fn->functionName : "NULL",
              fn->returnType && fn->returnType->typeName ? fn->returnType->typeName : "void",
              fn->isVarargs ? "true" : "false",
              fn->isBuiltin ? "true" : "false",
              fn->isPrivate ? "true" : "false",
              fn->isStatic ? "true" : "false",
+             fn->isOverride ? "true" : "false",
              fn->isConstructor ? "true" : "false",
              fn->line,
              fn->pos);
@@ -158,6 +159,7 @@ void printAllClassesInfoTable(ClassInfo* head) {
   for (ClassInfo* cls = head; cls != NULL; cls = cls->next) {
       printFieldInfoTable(cls);
       printFunctionInfoTable(cls);
+      printVtable(cls->vtable);
   }
 }
 
@@ -220,11 +222,11 @@ void parseArgdefList(MyAstNode* argdefList, FunctionInfo* info, Program *program
   }
 }
 
-void parseVar(MyAstNode* var, BasicBlock *currentBlock, Program *program, const char* filename, ScopeManager *sm, ClassInfo* classes, FunctionTable *functionTable) {
+void parseVar(MyAstNode* var, BasicBlock *currentBlock, Program *program, const char* filename, ScopeManager *sm, ClassInfo* classes, ClassInfo *currentClass, FunctionTable *functionTable) {
   OperationTreeErrorContainer *errorContainer = (OperationTreeErrorContainer*)malloc(sizeof(OperationTreeErrorContainer));
   errorContainer->error = NULL;
   TypeInfo *typeInfo = parseTyperef(var->children[0]);
-  OperationTreeNode *otNode = buildVarOperationTreeFromAstNode(var, errorContainer, typeInfo, sm, functionTable, classes, filename);
+  OperationTreeNode *otNode = buildVarOperationTreeFromAstNode(var, errorContainer, typeInfo, sm, functionTable, classes, currentClass, filename);
   addInstruction(currentBlock, var->label, otNode);
   freeTypeInfo(typeInfo);
 
@@ -238,11 +240,11 @@ void parseVar(MyAstNode* var, BasicBlock *currentBlock, Program *program, const 
   free(errorContainer);
 }
 
-void parseExpr(MyAstNode* expr, BasicBlock *currentBlock, Program *program, ScopeManager *sm, FunctionTable *functionTable, ClassInfo* classes, const char* filename) {
+void parseExpr(MyAstNode* expr, BasicBlock *currentBlock, Program *program, ScopeManager *sm, FunctionTable *functionTable, ClassInfo* classes, ClassInfo *currentClass, const char* filename) {
   assert(strcmp(expr->label, EXPR) == 0);
   OperationTreeErrorContainer *errorContainer = (OperationTreeErrorContainer*)malloc(sizeof(OperationTreeErrorContainer));
   errorContainer->error = NULL;
-  OperationTreeNode *otNode = buildExprOperationTreeFromAstNode(expr->children[0], false, false, false, errorContainer, sm, functionTable, classes, filename);
+  OperationTreeNode *otNode = buildExprOperationTreeFromAstNode(expr->children[0], false, false, false, errorContainer, sm, functionTable, classes, currentClass, filename);
   addInstruction(currentBlock, expr->children[0]->label, otNode);
 
   OperationTreeErrorInfo *errorInfo = errorContainer->error;
@@ -307,7 +309,7 @@ void mergeBasicBlocks(CFG *cfg, BasicBlock *block1, BasicBlock *block2) {
     free(block2);
 }
 
-BasicBlock* parseDoWhile(MyAstNode* doWhileBlock, Program *program, const char* filename, BasicBlock* prevBlock, BasicBlock* existingBlock, BasicBlock* loopExitBlock, CFG *cfg, ScopeManager *sm, ClassInfo *classes, FunctionTable *functionTable, uint32_t *uid) {
+BasicBlock* parseDoWhile(MyAstNode* doWhileBlock, Program *program, const char* filename, BasicBlock* prevBlock, BasicBlock* existingBlock, BasicBlock* loopExitBlock, CFG *cfg, ScopeManager *sm, ClassInfo *classes, ClassInfo *currentClass, FunctionTable *functionTable, uint32_t *uid) {
   assert(strcmp(doWhileBlock->label, DO_WHILE) == 0);
   BasicBlock *bodyBlock;
   if (existingBlock == NULL) {
@@ -328,7 +330,7 @@ BasicBlock* parseDoWhile(MyAstNode* doWhileBlock, Program *program, const char* 
 
   OperationTreeErrorContainer *errorContainer = (OperationTreeErrorContainer*)malloc(sizeof(OperationTreeErrorContainer));
   errorContainer->error = NULL;
-  OperationTreeNode *otNode = buildExprOperationTreeFromAstNode(doWhileBlock->children[1]->children[0], false, false, false, errorContainer, sm, functionTable, classes, filename);
+  OperationTreeNode *otNode = buildExprOperationTreeFromAstNode(doWhileBlock->children[1]->children[0], false, false, false, errorContainer, sm, functionTable, classes, currentClass, filename);
   addInstruction(conditionBlock, doWhileBlock->children[1]->label, otNode);
 
   OperationTreeErrorInfo *errorInfo = errorContainer->error;
@@ -343,14 +345,14 @@ BasicBlock* parseDoWhile(MyAstNode* doWhileBlock, Program *program, const char* 
   addEdge(conditionBlock, bodyBlock, TRUE_CONDITION, NULL);
   addEdge(conditionBlock, emptyBlock, FALSE_CONDITION, NULL);
 
-  BasicBlock *bodyExitBlock = parseBlock(doWhileBlock->children[0], program, filename, true, conditionBlock, bodyBlock, conditionBlock, cfg, sm, classes, functionTable, uid);
+  BasicBlock *bodyExitBlock = parseBlock(doWhileBlock->children[0], program, filename, true, conditionBlock, bodyBlock, conditionBlock, cfg, sm, classes, currentClass, functionTable, uid);
 
   addEdge(bodyExitBlock, conditionBlock, UNCONDITIONAL_JUMP, NULL);
 
   return emptyBlock;
 }
 
-BasicBlock* parseWhile(MyAstNode* whileBlock, Program *program, const char* filename, BasicBlock* prevBlock, BasicBlock* existingBlock, BasicBlock* loopExitBlock, CFG *cfg, ScopeManager *sm, ClassInfo *classes, FunctionTable *functionTable, uint32_t *uid) {
+BasicBlock* parseWhile(MyAstNode* whileBlock, Program *program, const char* filename, BasicBlock* prevBlock, BasicBlock* existingBlock, BasicBlock* loopExitBlock, CFG *cfg, ScopeManager *sm, ClassInfo *classes, ClassInfo *currentClass, FunctionTable *functionTable, uint32_t *uid) {
     assert(strcmp(whileBlock->label, WHILE) == 0);
 
     BasicBlock *conditionBlock;            
@@ -371,7 +373,7 @@ BasicBlock* parseWhile(MyAstNode* whileBlock, Program *program, const char* file
 
     OperationTreeErrorContainer *errorContainer = (OperationTreeErrorContainer*)malloc(sizeof(OperationTreeErrorContainer));
     errorContainer->error = NULL;
-    OperationTreeNode *otNode = buildExprOperationTreeFromAstNode(whileBlock->children[0]->children[0], false, false, false, errorContainer, sm, functionTable, classes, filename);
+    OperationTreeNode *otNode = buildExprOperationTreeFromAstNode(whileBlock->children[0]->children[0], false, false, false, errorContainer, sm, functionTable, classes, currentClass, filename);
     addInstruction(conditionBlock, whileBlock->children[0]->label, otNode);
 
     OperationTreeErrorInfo *errorInfo = errorContainer->error;
@@ -389,14 +391,14 @@ BasicBlock* parseWhile(MyAstNode* whileBlock, Program *program, const char* file
     addEdge(conditionBlock, bodyBlock, TRUE_CONDITION, NULL);
     addEdge(conditionBlock, emptyBlock, FALSE_CONDITION, NULL);
 
-    BasicBlock *bodyExitBlock = parseBlock(whileBlock->children[1], program, filename, true, conditionBlock, bodyBlock, emptyBlock, cfg, sm, classes, functionTable, uid);
+    BasicBlock *bodyExitBlock = parseBlock(whileBlock->children[1], program, filename, true, conditionBlock, bodyBlock, emptyBlock, cfg, sm, classes, currentClass, functionTable, uid);
 
     addEdge(bodyExitBlock, conditionBlock, UNCONDITIONAL_JUMP, NULL);
 
     return emptyBlock;
 }
 
-BasicBlock *parseIf(MyAstNode* ifBlock, Program *program, const char* filename, bool isLoop, BasicBlock* prevBlock, BasicBlock* existingBlock, BasicBlock* loopExitBlock, CFG *cfg, ScopeManager *sm, ClassInfo *classes, FunctionTable *functionTable, uint32_t *uid) {
+BasicBlock *parseIf(MyAstNode* ifBlock, Program *program, const char* filename, bool isLoop, BasicBlock* prevBlock, BasicBlock* existingBlock, BasicBlock* loopExitBlock, CFG *cfg, ScopeManager *sm, ClassInfo *classes, ClassInfo *currentClass, FunctionTable *functionTable, uint32_t *uid) {
     assert(strcmp(ifBlock->label, IF) == 0);
 
     BasicBlock *conditionBlock;
@@ -416,7 +418,7 @@ BasicBlock *parseIf(MyAstNode* ifBlock, Program *program, const char* filename, 
 
     OperationTreeErrorContainer *errorContainer = (OperationTreeErrorContainer*)malloc(sizeof(OperationTreeErrorContainer));
     errorContainer->error = NULL;
-    OperationTreeNode *otNode = buildExprOperationTreeFromAstNode(ifBlock->children[0]->children[0], false, false, false, errorContainer, sm, functionTable, classes, filename);
+    OperationTreeNode *otNode = buildExprOperationTreeFromAstNode(ifBlock->children[0]->children[0], false, false, false, errorContainer, sm, functionTable, classes, currentClass, filename);
     addInstruction(conditionBlock, ifBlock->children[0]->label, otNode);
 
     OperationTreeErrorInfo *errorInfo = errorContainer->error;
@@ -445,18 +447,18 @@ BasicBlock *parseIf(MyAstNode* ifBlock, Program *program, const char* filename, 
         addEdge(conditionBlock, emptyBlock, FALSE_CONDITION, NULL);
     }
 
-    BasicBlock *thenExitBlock = parseBlock(ifBlock->children[1], program, filename, isLoop, conditionBlock, thenBlock, loopExitBlock, cfg, sm, classes, functionTable, uid);
+    BasicBlock *thenExitBlock = parseBlock(ifBlock->children[1], program, filename, isLoop, conditionBlock, thenBlock, loopExitBlock, cfg, sm, classes, currentClass, functionTable, uid);
 
     addEdge(thenExitBlock, emptyBlock, UNCONDITIONAL_JUMP, NULL);
 
     if (elseBlock != NULL) {
-        BasicBlock *elseExitBlock = parseBlock(ifBlock->children[2]->children[0], program, filename, isLoop, conditionBlock, elseBlock, loopExitBlock, cfg, sm, classes, functionTable, uid);
+        BasicBlock *elseExitBlock = parseBlock(ifBlock->children[2]->children[0], program, filename, isLoop, conditionBlock, elseBlock, loopExitBlock, cfg, sm, classes, currentClass, functionTable, uid);
         addEdge(elseExitBlock, emptyBlock, UNCONDITIONAL_JUMP, NULL);
     }
     return emptyBlock;
 }
 
-BasicBlock *parseBlock(MyAstNode* block, Program *program, const char* filename, bool isLoop, BasicBlock* prevBlock, BasicBlock* existingBlock, BasicBlock* loopExitBlock, CFG *cfg, ScopeManager *sm, ClassInfo *classes, FunctionTable *functionTable, uint32_t *uid) {
+BasicBlock *parseBlock(MyAstNode* block, Program *program, const char* filename, bool isLoop, BasicBlock* prevBlock, BasicBlock* existingBlock, BasicBlock* loopExitBlock, CFG *cfg, ScopeManager *sm, ClassInfo *classes, ClassInfo *currentClass, FunctionTable *functionTable, uint32_t *uid) {
   //assert(strcmp(block->label, BLOCK) == 0);
   enterScope(sm);
   BasicBlock *currentBlock;
@@ -484,22 +486,22 @@ BasicBlock *parseBlock(MyAstNode* block, Program *program, const char* filename,
       currentBlock->name = strdup("Base block");
     }
     if (strcmp(block->children[i]->label, VAR) == 0) {
-      parseVar(block->children[i], currentBlock, program, filename, sm, classes, functionTable);
+      parseVar(block->children[i], currentBlock, program, filename, sm, classes, currentClass, functionTable);
     } else if (strcmp(block->children[i]->label, BLOCK) == 0) {
       BasicBlock *toExistingBlock = currentBlock->isEmpty ? currentBlock : NULL;
-      BasicBlock *nestedExitBlock = parseBlock(block->children[i], program, filename, isLoop, currentBlock, toExistingBlock, loopExitBlock, cfg, sm, classes, functionTable, uid);
+      BasicBlock *nestedExitBlock = parseBlock(block->children[i], program, filename, isLoop, currentBlock, toExistingBlock, loopExitBlock, cfg, sm, classes, currentClass, functionTable, uid);
       currentBlock = nestedExitBlock;
     } else if (strcmp(block->children[i]->label, IF) == 0) {
       BasicBlock *toExistingBlock = currentBlock->isEmpty ? currentBlock : NULL;
-      BasicBlock *nestedExitBlock = parseIf(block->children[i], program, filename, isLoop, currentBlock, toExistingBlock, loopExitBlock, cfg, sm, classes, functionTable, uid);
+      BasicBlock *nestedExitBlock = parseIf(block->children[i], program, filename, isLoop, currentBlock, toExistingBlock, loopExitBlock, cfg, sm, classes, currentClass, functionTable, uid);
       currentBlock = nestedExitBlock;
     } else if (strcmp(block->children[i]->label, WHILE) == 0) {
       BasicBlock *toExistingBlock = currentBlock->isEmpty ? currentBlock : NULL;
-      BasicBlock *nestedExitBlock = parseWhile(block->children[i], program, filename, currentBlock, toExistingBlock, loopExitBlock, cfg, sm, classes, functionTable, uid);
+      BasicBlock *nestedExitBlock = parseWhile(block->children[i], program, filename, currentBlock, toExistingBlock, loopExitBlock, cfg, sm, classes, currentClass, functionTable, uid);
       currentBlock = nestedExitBlock;
     } else if (strcmp(block->children[i]->label, DO_WHILE) == 0) {
       BasicBlock *toExistingBlock = currentBlock->isEmpty ? currentBlock : NULL;
-      BasicBlock *nestedExitBlock = parseDoWhile(block->children[i], program, filename, currentBlock, toExistingBlock, loopExitBlock, cfg, sm, classes, functionTable, uid);
+      BasicBlock *nestedExitBlock = parseDoWhile(block->children[i], program, filename, currentBlock, toExistingBlock, loopExitBlock, cfg, sm, classes, currentClass, functionTable, uid);
       currentBlock = nestedExitBlock;      
     } else if (strcmp(block->children[i]->label, BREAK) == 0) {
       OperationTreeNode *breakOtNode = newOperationTreeNode(OT_BREAK, 0, block->children[i]->children[0]->line, block->children[i]->children[0]->pos, false);
@@ -527,7 +529,7 @@ BasicBlock *parseBlock(MyAstNode* block, Program *program, const char* filename,
         addProgramError(program, error);
       }
     } else if (strcmp(block->children[i]->label, EXPR) == 0) {
-      parseExpr(block->children[i], currentBlock, program, sm, functionTable, classes, filename);
+      parseExpr(block->children[i], currentBlock, program, sm, functionTable, classes, currentClass, filename);
     }
   }
 
@@ -716,9 +718,46 @@ bool prepareClassDeclaration(ClassInfo *classInfo, MyAstNode* classBody, char *f
     ProgramErrorInfo* error = createProgramErrorInfo(buffer);
     addProgramError(classInfo->program, error);
   }
-
   return redef;
 }
+
+void prepareClassVtable(ClassInfo *classInfo, ClassInfo *classes) {
+  ClassVtable *vtable = createVtable();
+  prepareClassVtableHelper(classInfo, classes, vtable);
+  size_t count = 0;
+  prepareOffset(vtable, &count);
+  classInfo->vtable = vtable;
+}
+
+void prepareClassVtableHelper(ClassInfo *classInfo, ClassInfo *classes, ClassVtable *vtable) {
+
+  ClassInfo *parentClass = findClassWithName(classes, classInfo->parentName);
+
+  if (parentClass != NULL) {
+    prepareClassVtableHelper(parentClass, classes, vtable);
+  }
+  FunctionEntry *functionEntry = classInfo->program->functionTable->entry;
+  while (functionEntry != NULL) {
+
+    if (functionEntry->isOverride) {
+      ClassVtableEntry *currentEntry = vtable->head;
+
+      while (currentEntry != NULL) {
+        if (strcmp(currentEntry->functionName, functionEntry->functionName) == 0) {
+          free(currentEntry->className);
+          currentEntry->className = strdup(classInfo->name);
+          break;
+        }
+        currentEntry = currentEntry->next;
+      }
+
+    } else {
+      addVtableEntry(vtable, functionEntry->functionName, classInfo->name);
+    }
+    functionEntry = functionEntry->next;
+  }
+}
+
 
 void prepareCFGForProgram(ClassInfo *classInfo, ClassInfo* classes, MyAstNode* classBody, char *fileName, bool debug) {
     MyAstNode **funcDefs = classBody->children;
@@ -775,7 +814,7 @@ void prepareCFGForProgram(ClassInfo *classInfo, ClassInfo* classes, MyAstNode* c
         addSymbol(&sm, funcArg->name, funcArg->type->typeName, funcArg->type->custom, funcArg->type->isArray, funcArg->type->arrayDim, funcArg->line, funcArg->pos);
         funcArg = funcArg->next;
       }
-      BasicBlock *lastBlock = parseBlock(block, classInfo->program, fileName, false, startBlock, NULL, NULL, cfg, &sm, classes, classInfo->program->functionTable, &uid);
+      BasicBlock *lastBlock = parseBlock(block, classInfo->program, fileName, false, startBlock, NULL, NULL, cfg, &sm, classes, classInfo, classInfo->program->functionTable, &uid);
       exitScope(&sm);
       BasicBlock *retCheckBlock;
       if (lastBlock->isEmpty) {
@@ -1056,6 +1095,15 @@ ClassProgram *buildClassProgram(FilesToAnalyze *files, bool debug) {
             ProgramErrorInfo* error = createProgramErrorInfo(buffer);
             addProgramError(classInfo->program, error);
           }
+          FunctionInfo *funcInfo = classInfo->program->functions;
+          while (funcInfo != NULL) {
+            if (strcmp(funcInfo->functionName, childEntry->functionName) == 0) {
+              funcInfo->isOverride = true;
+              break;
+            }
+            funcInfo = funcInfo->next;
+          }
+          childEntry->isOverride = true;
         }
         parentEntry = parentEntry->next;
       }
@@ -1105,6 +1153,12 @@ ClassProgram *buildClassProgram(FilesToAnalyze *files, bool debug) {
     
     if (!classInfo->isInterface)
       prepareCFGForProgram(classInfo, classProgram->classes, classInfo->body, classInfo->fileName, debug);
+    classInfo = classInfo->next;
+  }
+
+  classInfo = classProgram->classes;
+  while (classInfo != NULL) {
+    prepareClassVtable(classInfo, classProgram->classes);
     classInfo = classInfo->next;
   }
 
@@ -1243,6 +1297,7 @@ void addField(ClassInfo *classInfo, FieldInfo *fieldInfo) {
   }
   fieldInfo->next = classInfo->fields;
   classInfo->fields = fieldInfo;
+  classInfo->fieldsCount = classInfo->fieldsCount + 1;
 }
 
 void freeField(FieldInfo *field) {
@@ -1306,6 +1361,7 @@ FunctionInfo *createFunctionInfo(const char *fileName, const char *functionName,
   funcInfo->isStatic = false;
   funcInfo->isPrivate = false;
   funcInfo->isConstructor = false;
+  funcInfo->isOverride = false;
   return funcInfo;
 }
 
@@ -1409,10 +1465,12 @@ ClassInfo* createClassInfo(const char* name, const char* parentName, const char*
   info->isInterface = false;
   info->program = NULL;
   info->fields = NULL;
+  info->fieldsCount = 0;
   info->next = NULL;
   info->body = classBody;
   info->fileName = strdup(fileName);
   info->typeId = typeId;
+  info->vtable = NULL;
 
   return info;
 }
@@ -1457,6 +1515,10 @@ void freeClassInfo(ClassInfo* info) {
       freeProgram(info->program);
   }
 
+  if (info->vtable) {
+    freeVtable(info->vtable);
+  }
+
   freeField(info->fields);
   free(info->fileName);
 
@@ -1476,6 +1538,63 @@ void freeClassProgram(ClassProgram* program) {
   free(program);
 }
 
+
+ClassVtable *createVtable() {
+  ClassVtable *vtable = malloc(sizeof(ClassVtable));
+  vtable->head = NULL;
+  vtable->tail = NULL;
+  vtable->currentOffset = 0;
+  return vtable;
+}
+
+void addVtableEntry(ClassVtable *vtable, const char *functionName, const char *className) {
+  ClassVtableEntry *newEntry = malloc(sizeof(*newEntry));
+  newEntry->functionName = strdup(functionName);
+  newEntry->className = strdup(className);
+  newEntry->offset       = vtable->currentOffset;
+  newEntry->next         = NULL;
+  newEntry->prev         = NULL;
+
+  if (vtable->head == NULL) {
+      vtable->head = vtable->tail = newEntry;
+  } else {
+      vtable->tail->next = newEntry;
+      newEntry->prev     = vtable->tail;
+      vtable->tail       = newEntry;
+  }
+}
+
+void prepareOffset(ClassVtable *vtable, size_t *outCount) {
+  size_t count = 0;
+  ClassVtableEntry *cur = vtable->head;
+  while (cur) {
+      count++;
+      cur = cur->next;
+  }
+
+  ClassVtableEntry **array = malloc(count * sizeof(ClassVtableEntry *));
+
+  cur = vtable->head;
+  for (size_t i = 0; i < count; ++i) {
+      cur->offset = i * 8;
+      cur = cur->next;
+  }
+
+  *outCount = count;
+  free(array);
+}
+
+void freeVtable(ClassVtable *vtable) {
+  ClassVtableEntry *current = vtable->head;
+  while (current) {
+      ClassVtableEntry *next = current->next;
+      free(current->functionName);
+      free(current->className);
+      free(current);
+      current = next;
+  }
+  free(vtable);
+}
 void printTypeInfo(TypeInfo* type) {
     while (type) {
         printf("Type: %s", type->typeName);
@@ -1876,4 +1995,23 @@ void traverseProgramAndBuildCallGraph(Program *program, CallGraph *cg, bool debu
 
     if (debug)
       printf("\nEnd of Program Traversal.\n");
+}
+
+void printEntriesReversed(const ClassVtableEntry *e) {
+  if (!e) return;
+  printEntriesReversed(e->prev);
+  printf("Function: %-20s | Class: %-20s | Offset: %ld\n", e->functionName, e->className, e->offset);
+}
+
+void printVtable(const ClassVtable *vtable) {
+  if (!vtable) {
+      printf("Vtable is NULL\n");
+      return;
+  }
+
+  const ClassVtableEntry *entry = vtable->tail;
+
+  printf("=== Class Vtable ===\n");
+  printEntriesReversed(entry);
+  printf("====================\n");
 }
