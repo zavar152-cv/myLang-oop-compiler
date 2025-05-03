@@ -14,7 +14,7 @@ digraph CFG {
         node1 [label="litRead <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
         node2 [label="DEC", color=blue];
         node1 -> node2[color=blue];
-        node3 [label="0 <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node3 [label="1 <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
         node1 -> node3[color=blue];
         node0 -> node1[color=blue];
     }

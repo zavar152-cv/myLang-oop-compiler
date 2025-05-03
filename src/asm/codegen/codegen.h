@@ -125,4 +125,4 @@ void prepareRegsAndTemps(OperationTreeNode *root, bool debug);
 
 void generateASMForOT(FunctionEntry *entry, OperationTreeNode *root, struct StringBuffer *buffer);
 
-void generateASMForFunction(struct StringBuffer *buffer, FunctionInfo *func, FunctionEntry *funcE, bool main, bool debug);
+void generateASMForFunction(ClassInfo *classInfo, ClassInfo *classes, struct StringBuffer *buffer, FunctionInfo *func, FunctionEntry *funcE, bool main, bool debug);

@@ -700,7 +700,9 @@ int compareBlocks(const void *a, const void *b) {
     return (blockA->id - blockB->id);
 }
 
-void generateASMForFunction(struct StringBuffer *buffer, FunctionInfo *func, FunctionEntry *funcE, bool main, bool debug) {
+void generateASMForFunction(ClassInfo *classInfo, ClassInfo *classes, struct StringBuffer *buffer, FunctionInfo *func, FunctionEntry *funcE, bool main, bool debug) {
+    stringbuffer_append_string(buffer, classInfo->name);
+    stringbuffer_append_string(buffer, ".");
     stringbuffer_append_string(buffer, func->functionName);
     stringbuffer_append_string(buffer, ":\n\n");
 

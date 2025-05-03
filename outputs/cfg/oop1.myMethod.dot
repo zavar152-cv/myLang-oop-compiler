@@ -127,10 +127,10 @@ digraph CFG {
         node42 [label="call <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
         node43 [label="parentMethod2 <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
         node42 -> node43[color=blue];
-        node44 [label="litRead <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node44 [label="litRead <long:0, reg: (null), spilled: 0, offset: 0>", color=blue];
         node45 [label="DEC", color=blue];
         node44 -> node45[color=blue];
-        node46 [label="5 <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node46 [label="5 <long:0, reg: (null), spilled: 0, offset: 0>", color=blue];
         node44 -> node46[color=blue];
         node42 -> node44[color=blue];
     }

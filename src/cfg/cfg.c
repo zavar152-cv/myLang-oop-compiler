@@ -733,7 +733,7 @@ void prepareClassVtableHelper(ClassInfo *classInfo, ClassInfo *classes, ClassVta
 
   ClassInfo *parentClass = findClassWithName(classes, classInfo->parentName);
 
-  if (parentClass != NULL) {
+  if (parentClass != NULL && !classInfo->isInterface) {
     prepareClassVtableHelper(parentClass, classes, vtable);
   }
   FunctionEntry *functionEntry = classInfo->program->functionTable->entry;

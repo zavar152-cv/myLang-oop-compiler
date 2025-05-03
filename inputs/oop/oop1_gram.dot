@@ -465,210 +465,362 @@ digraph Tree {
     node_231 [label="DEC"]
     node_231 -> node_232;
     node_232 [label="0"]
-    node_0 -> node_233;
-    node_233 [label="CLASS_DECL"]
+    node_9 -> node_233;
+    node_233 [label="METHOD"]
     node_233 -> node_234;
-    node_234 [label="NAME"]
+    node_234 [label="ACCESS_MODIFIER"]
     node_234 -> node_235;
-    node_235 [label="BaseClass"]
+    node_235 [label="public"]
     node_233 -> node_236;
-    node_236 [label="EXTENDS"]
+    node_236 [label="FUNC_SIGNATURE"]
     node_236 -> node_237;
-    node_237 [label="MegaBaseClass"]
-    node_233 -> node_238;
-    node_238 [label="CLASS_BODY"]
+    node_237 [label="TYPEREF"]
+    node_237 -> node_238;
+    node_238 [label="BUILTIN_TYPE"]
     node_238 -> node_239;
-    node_239 [label="METHOD"]
-    node_239 -> node_240;
-    node_240 [label="ACCESS_MODIFIER"]
+    node_239 [label="int"]
+    node_236 -> node_240;
+    node_240 [label="NAME"]
     node_240 -> node_241;
-    node_241 [label="public"]
-    node_239 -> node_242;
-    node_242 [label="FUNC_SIGNATURE"]
+    node_241 [label="doSomething5"]
+    node_236 -> node_242;
+    node_242 [label="ARGDEF_LIST"]
     node_242 -> node_243;
-    node_243 [label="NAME"]
+    node_243 [label="ARGDEF"]
     node_243 -> node_244;
-    node_244 [label="BaseClass"]
-    node_242 -> node_245;
-    node_245 [label="ARGDEF_LIST"]
-    node_239 -> node_246;
-    node_246 [label="BLOCK"]
-    node_238 -> node_247;
-    node_247 [label="METHOD"]
+    node_244 [label="TYPEREF"]
+    node_244 -> node_245;
+    node_245 [label="BUILTIN_TYPE"]
+    node_245 -> node_246;
+    node_246 [label="int"]
+    node_243 -> node_247;
+    node_247 [label="IDENTIFIER"]
     node_247 -> node_248;
-    node_248 [label="ACCESS_MODIFIER"]
-    node_248 -> node_249;
-    node_249 [label="public"]
-    node_247 -> node_250;
-    node_250 [label="FUNC_SIGNATURE"]
+    node_248 [label="b"]
+    node_233 -> node_249;
+    node_249 [label="BLOCK"]
+    node_249 -> node_250;
+    node_250 [label="EXPR"]
     node_250 -> node_251;
-    node_251 [label="TYPEREF"]
+    node_251 [label="DEC"]
     node_251 -> node_252;
-    node_252 [label="BUILTIN_TYPE"]
-    node_252 -> node_253;
-    node_253 [label="int"]
-    node_250 -> node_254;
+    node_252 [label="8"]
+    node_0 -> node_253;
+    node_253 [label="CLASS_DECL"]
+    node_253 -> node_254;
     node_254 [label="NAME"]
     node_254 -> node_255;
-    node_255 [label="parentMethod2"]
-    node_250 -> node_256;
-    node_256 [label="ARGDEF_LIST"]
+    node_255 [label="BaseClass"]
+    node_253 -> node_256;
+    node_256 [label="EXTENDS"]
     node_256 -> node_257;
-    node_257 [label="ARGDEF"]
-    node_257 -> node_258;
-    node_258 [label="TYPEREF"]
+    node_257 [label="MegaBaseClass"]
+    node_253 -> node_258;
+    node_258 [label="CLASS_BODY"]
     node_258 -> node_259;
-    node_259 [label="BUILTIN_TYPE"]
+    node_259 [label="METHOD"]
     node_259 -> node_260;
-    node_260 [label="long"]
-    node_257 -> node_261;
-    node_261 [label="IDENTIFIER"]
-    node_261 -> node_262;
-    node_262 [label="l"]
-    node_247 -> node_263;
-    node_263 [label="BLOCK"]
+    node_260 [label="ACCESS_MODIFIER"]
+    node_260 -> node_261;
+    node_261 [label="public"]
+    node_259 -> node_262;
+    node_262 [label="FUNC_SIGNATURE"]
+    node_262 -> node_263;
+    node_263 [label="NAME"]
     node_263 -> node_264;
-    node_264 [label="EXPR"]
-    node_264 -> node_265;
-    node_265 [label="DEC"]
-    node_265 -> node_266;
-    node_266 [label="0"]
-    node_0 -> node_267;
-    node_267 [label="CLASS_DECL"]
+    node_264 [label="BaseClass"]
+    node_262 -> node_265;
+    node_265 [label="ARGDEF_LIST"]
+    node_259 -> node_266;
+    node_266 [label="BLOCK"]
+    node_258 -> node_267;
+    node_267 [label="METHOD"]
     node_267 -> node_268;
-    node_268 [label="NAME"]
+    node_268 [label="ACCESS_MODIFIER"]
     node_268 -> node_269;
-    node_269 [label="MegaBaseClass"]
+    node_269 [label="public"]
     node_267 -> node_270;
-    node_270 [label="CLASS_BODY"]
+    node_270 [label="FUNC_SIGNATURE"]
     node_270 -> node_271;
-    node_271 [label="FIELD"]
+    node_271 [label="TYPEREF"]
     node_271 -> node_272;
-    node_272 [label="ACCESS_MODIFIER"]
+    node_272 [label="BUILTIN_TYPE"]
     node_272 -> node_273;
-    node_273 [label="public"]
-    node_271 -> node_274;
-    node_274 [label="VAR"]
+    node_273 [label="int"]
+    node_270 -> node_274;
+    node_274 [label="NAME"]
     node_274 -> node_275;
-    node_275 [label="TYPEREF"]
-    node_275 -> node_276;
-    node_276 [label="BUILTIN_TYPE"]
+    node_275 [label="parentMethod2"]
+    node_270 -> node_276;
+    node_276 [label="ARGDEF_LIST"]
     node_276 -> node_277;
-    node_277 [label="int"]
-    node_274 -> node_278;
-    node_278 [label="IDENTIFIER"]
+    node_277 [label="ARGDEF"]
+    node_277 -> node_278;
+    node_278 [label="TYPEREF"]
     node_278 -> node_279;
-    node_279 [label="testVar"]
-    node_274 -> node_280;
-    node_280 [label="INIT"]
-    node_280 -> node_281;
-    node_281 [label="testVar"]
-    node_270 -> node_282;
-    node_282 [label="METHOD"]
-    node_282 -> node_283;
-    node_283 [label="ACCESS_MODIFIER"]
+    node_279 [label="BUILTIN_TYPE"]
+    node_279 -> node_280;
+    node_280 [label="long"]
+    node_277 -> node_281;
+    node_281 [label="IDENTIFIER"]
+    node_281 -> node_282;
+    node_282 [label="l"]
+    node_267 -> node_283;
+    node_283 [label="BLOCK"]
     node_283 -> node_284;
-    node_284 [label="public"]
-    node_282 -> node_285;
-    node_285 [label="FUNC_SIGNATURE"]
+    node_284 [label="EXPR"]
+    node_284 -> node_285;
+    node_285 [label="DEC"]
     node_285 -> node_286;
-    node_286 [label="NAME"]
-    node_286 -> node_287;
-    node_287 [label="MegaBaseClass"]
-    node_285 -> node_288;
-    node_288 [label="ARGDEF_LIST"]
-    node_282 -> node_289;
-    node_289 [label="BLOCK"]
-    node_0 -> node_290;
-    node_290 [label="CLASS_DECL"]
+    node_286 [label="0"]
+    node_0 -> node_287;
+    node_287 [label="CLASS_DECL"]
+    node_287 -> node_288;
+    node_288 [label="NAME"]
+    node_288 -> node_289;
+    node_289 [label="MegaBaseClass"]
+    node_287 -> node_290;
+    node_290 [label="CLASS_BODY"]
     node_290 -> node_291;
-    node_291 [label="NAME"]
+    node_291 [label="FIELD"]
     node_291 -> node_292;
-    node_292 [label="A"]
-    node_290 -> node_293;
-    node_293 [label="CLASS_BODY"]
-    node_293 -> node_294;
-    node_294 [label="METHOD"]
+    node_292 [label="ACCESS_MODIFIER"]
+    node_292 -> node_293;
+    node_293 [label="public"]
+    node_291 -> node_294;
+    node_294 [label="VAR"]
     node_294 -> node_295;
-    node_295 [label="ACCESS_MODIFIER"]
+    node_295 [label="TYPEREF"]
     node_295 -> node_296;
-    node_296 [label="public"]
-    node_294 -> node_297;
-    node_297 [label="FUNC_SIGNATURE"]
-    node_297 -> node_298;
-    node_298 [label="NAME"]
+    node_296 [label="BUILTIN_TYPE"]
+    node_296 -> node_297;
+    node_297 [label="int"]
+    node_294 -> node_298;
+    node_298 [label="IDENTIFIER"]
     node_298 -> node_299;
-    node_299 [label="A"]
-    node_297 -> node_300;
-    node_300 [label="ARGDEF_LIST"]
-    node_294 -> node_301;
-    node_301 [label="BLOCK"]
-    node_0 -> node_302;
-    node_302 [label="INTERFACE_DECL"]
+    node_299 [label="testVar"]
+    node_294 -> node_300;
+    node_300 [label="INIT"]
+    node_300 -> node_301;
+    node_301 [label="testVar"]
+    node_290 -> node_302;
+    node_302 [label="METHOD"]
     node_302 -> node_303;
-    node_303 [label="NAME"]
+    node_303 [label="ACCESS_MODIFIER"]
     node_303 -> node_304;
-    node_304 [label="MyInterface"]
+    node_304 [label="public"]
     node_302 -> node_305;
-    node_305 [label="INTERFACE_BODY"]
+    node_305 [label="FUNC_SIGNATURE"]
     node_305 -> node_306;
-    node_306 [label="METHOD"]
+    node_306 [label="NAME"]
     node_306 -> node_307;
-    node_307 [label="FUNC_SIGNATURE"]
-    node_307 -> node_308;
-    node_308 [label="TYPEREF"]
-    node_308 -> node_309;
-    node_309 [label="BUILTIN_TYPE"]
-    node_309 -> node_310;
-    node_310 [label="int"]
-    node_307 -> node_311;
+    node_307 [label="MegaBaseClass"]
+    node_305 -> node_308;
+    node_308 [label="ARGDEF_LIST"]
+    node_302 -> node_309;
+    node_309 [label="BLOCK"]
+    node_0 -> node_310;
+    node_310 [label="CLASS_DECL"]
+    node_310 -> node_311;
     node_311 [label="NAME"]
     node_311 -> node_312;
-    node_312 [label="doSomething2"]
-    node_307 -> node_313;
-    node_313 [label="ARGDEF_LIST"]
-    node_0 -> node_314;
-    node_314 [label="INTERFACE_DECL"]
-    node_314 -> node_315;
-    node_315 [label="NAME"]
+    node_312 [label="A"]
+    node_310 -> node_313;
+    node_313 [label="IMPLEMENTS"]
+    node_313 -> node_314;
+    node_314 [label="Interface1"]
+    node_310 -> node_315;
+    node_315 [label="CLASS_BODY"]
     node_315 -> node_316;
-    node_316 [label="Interface1"]
-    node_314 -> node_317;
-    node_317 [label="INTERFACE_BODY"]
+    node_316 [label="METHOD"]
+    node_316 -> node_317;
+    node_317 [label="ACCESS_MODIFIER"]
     node_317 -> node_318;
-    node_318 [label="METHOD"]
-    node_318 -> node_319;
+    node_318 [label="public"]
+    node_316 -> node_319;
     node_319 [label="FUNC_SIGNATURE"]
     node_319 -> node_320;
-    node_320 [label="TYPEREF"]
+    node_320 [label="NAME"]
     node_320 -> node_321;
-    node_321 [label="BUILTIN_TYPE"]
-    node_321 -> node_322;
-    node_322 [label="int"]
-    node_319 -> node_323;
-    node_323 [label="NAME"]
-    node_323 -> node_324;
-    node_324 [label="doSomething"]
-    node_319 -> node_325;
-    node_325 [label="ARGDEF_LIST"]
+    node_321 [label="A"]
+    node_319 -> node_322;
+    node_322 [label="ARGDEF_LIST"]
+    node_316 -> node_323;
+    node_323 [label="BLOCK"]
+    node_315 -> node_324;
+    node_324 [label="METHOD"]
+    node_324 -> node_325;
+    node_325 [label="ACCESS_MODIFIER"]
     node_325 -> node_326;
-    node_326 [label="ARGDEF"]
-    node_326 -> node_327;
-    node_327 [label="TYPEREF"]
+    node_326 [label="public"]
+    node_324 -> node_327;
+    node_327 [label="FUNC_SIGNATURE"]
     node_327 -> node_328;
-    node_328 [label="BUILTIN_TYPE"]
+    node_328 [label="TYPEREF"]
     node_328 -> node_329;
-    node_329 [label="byte"]
-    node_326 -> node_330;
-    node_330 [label="IDENTIFIER"]
-    node_330 -> node_331;
-    node_331 [label="b"]
-    node_0 -> node_332;
-    node_332 [label="INTERFACE_DECL"]
-    node_332 -> node_333;
-    node_333 [label="NAME"]
+    node_329 [label="BUILTIN_TYPE"]
+    node_329 -> node_330;
+    node_330 [label="int"]
+    node_327 -> node_331;
+    node_331 [label="NAME"]
+    node_331 -> node_332;
+    node_332 [label="doSomething"]
+    node_327 -> node_333;
+    node_333 [label="ARGDEF_LIST"]
     node_333 -> node_334;
-    node_334 [label="Interface2"]
-    node_332 -> node_335;
-    node_335 [label="INTERFACE_BODY"]
+    node_334 [label="ARGDEF"]
+    node_334 -> node_335;
+    node_335 [label="TYPEREF"]
+    node_335 -> node_336;
+    node_336 [label="BUILTIN_TYPE"]
+    node_336 -> node_337;
+    node_337 [label="byte"]
+    node_334 -> node_338;
+    node_338 [label="IDENTIFIER"]
+    node_338 -> node_339;
+    node_339 [label="b"]
+    node_324 -> node_340;
+    node_340 [label="BLOCK"]
+    node_340 -> node_341;
+    node_341 [label="EXPR"]
+    node_341 -> node_342;
+    node_342 [label="DEC"]
+    node_342 -> node_343;
+    node_343 [label="1"]
+    node_315 -> node_344;
+    node_344 [label="METHOD"]
+    node_344 -> node_345;
+    node_345 [label="ACCESS_MODIFIER"]
+    node_345 -> node_346;
+    node_346 [label="public"]
+    node_344 -> node_347;
+    node_347 [label="FUNC_SIGNATURE"]
+    node_347 -> node_348;
+    node_348 [label="TYPEREF"]
+    node_348 -> node_349;
+    node_349 [label="BUILTIN_TYPE"]
+    node_349 -> node_350;
+    node_350 [label="int"]
+    node_347 -> node_351;
+    node_351 [label="NAME"]
+    node_351 -> node_352;
+    node_352 [label="doSomething5"]
+    node_347 -> node_353;
+    node_353 [label="ARGDEF_LIST"]
+    node_353 -> node_354;
+    node_354 [label="ARGDEF"]
+    node_354 -> node_355;
+    node_355 [label="TYPEREF"]
+    node_355 -> node_356;
+    node_356 [label="BUILTIN_TYPE"]
+    node_356 -> node_357;
+    node_357 [label="int"]
+    node_354 -> node_358;
+    node_358 [label="IDENTIFIER"]
+    node_358 -> node_359;
+    node_359 [label="b"]
+    node_344 -> node_360;
+    node_360 [label="BLOCK"]
+    node_360 -> node_361;
+    node_361 [label="EXPR"]
+    node_361 -> node_362;
+    node_362 [label="DEC"]
+    node_362 -> node_363;
+    node_363 [label="5"]
+    node_0 -> node_364;
+    node_364 [label="INTERFACE_DECL"]
+    node_364 -> node_365;
+    node_365 [label="NAME"]
+    node_365 -> node_366;
+    node_366 [label="MyInterface"]
+    node_364 -> node_367;
+    node_367 [label="INTERFACE_BODY"]
+    node_367 -> node_368;
+    node_368 [label="METHOD"]
+    node_368 -> node_369;
+    node_369 [label="FUNC_SIGNATURE"]
+    node_369 -> node_370;
+    node_370 [label="TYPEREF"]
+    node_370 -> node_371;
+    node_371 [label="BUILTIN_TYPE"]
+    node_371 -> node_372;
+    node_372 [label="int"]
+    node_369 -> node_373;
+    node_373 [label="NAME"]
+    node_373 -> node_374;
+    node_374 [label="doSomething2"]
+    node_369 -> node_375;
+    node_375 [label="ARGDEF_LIST"]
+    node_0 -> node_376;
+    node_376 [label="INTERFACE_DECL"]
+    node_376 -> node_377;
+    node_377 [label="NAME"]
+    node_377 -> node_378;
+    node_378 [label="Interface1"]
+    node_376 -> node_379;
+    node_379 [label="INTERFACE_BODY"]
+    node_379 -> node_380;
+    node_380 [label="METHOD"]
+    node_380 -> node_381;
+    node_381 [label="FUNC_SIGNATURE"]
+    node_381 -> node_382;
+    node_382 [label="TYPEREF"]
+    node_382 -> node_383;
+    node_383 [label="BUILTIN_TYPE"]
+    node_383 -> node_384;
+    node_384 [label="int"]
+    node_381 -> node_385;
+    node_385 [label="NAME"]
+    node_385 -> node_386;
+    node_386 [label="doSomething"]
+    node_381 -> node_387;
+    node_387 [label="ARGDEF_LIST"]
+    node_387 -> node_388;
+    node_388 [label="ARGDEF"]
+    node_388 -> node_389;
+    node_389 [label="TYPEREF"]
+    node_389 -> node_390;
+    node_390 [label="BUILTIN_TYPE"]
+    node_390 -> node_391;
+    node_391 [label="byte"]
+    node_388 -> node_392;
+    node_392 [label="IDENTIFIER"]
+    node_392 -> node_393;
+    node_393 [label="b"]
+    node_379 -> node_394;
+    node_394 [label="METHOD"]
+    node_394 -> node_395;
+    node_395 [label="FUNC_SIGNATURE"]
+    node_395 -> node_396;
+    node_396 [label="TYPEREF"]
+    node_396 -> node_397;
+    node_397 [label="BUILTIN_TYPE"]
+    node_397 -> node_398;
+    node_398 [label="int"]
+    node_395 -> node_399;
+    node_399 [label="NAME"]
+    node_399 -> node_400;
+    node_400 [label="doSomething5"]
+    node_395 -> node_401;
+    node_401 [label="ARGDEF_LIST"]
+    node_401 -> node_402;
+    node_402 [label="ARGDEF"]
+    node_402 -> node_403;
+    node_403 [label="TYPEREF"]
+    node_403 -> node_404;
+    node_404 [label="BUILTIN_TYPE"]
+    node_404 -> node_405;
+    node_405 [label="int"]
+    node_402 -> node_406;
+    node_406 [label="IDENTIFIER"]
+    node_406 -> node_407;
+    node_407 [label="b"]
+    node_0 -> node_408;
+    node_408 [label="INTERFACE_DECL"]
+    node_408 -> node_409;
+    node_409 [label="NAME"]
+    node_409 -> node_410;
+    node_410 [label="Interface2"]
+    node_408 -> node_411;
+    node_411 [label="INTERFACE_BODY"]
 }

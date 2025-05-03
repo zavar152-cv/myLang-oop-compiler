@@ -23,7 +23,7 @@ void removeQuotesName(const char *input, char *output) {
     output[j] = '\0';
 }
 
-void scanOperationTreeForVarsHelper(FunctionEntry *entry, OperationTreeNode *root) {
+void scanOperationTreeForVarsHelper(ClassInfo *classInfo, FunctionEntry *entry, OperationTreeNode *root) {
     if (strcmp(root->label, OT_DECLARE) == 0) {
         bool custom = strcmp(root->children[0]->children[1]->label, "buitin") != 0;
         bool array = root->children[0]->childCount == 3;
@@ -46,7 +46,7 @@ void scanOperationTreeForVarsHelper(FunctionEntry *entry, OperationTreeNode *roo
         
         ConstVar *constVar = createConstVar(root->children[1]->label, root->type->typeName, size, 0);
         char name[1024];
-        snprintf(name, sizeof(name), "%s_const%d", entry->functionName, entry->consts->count);
+        snprintf(name, sizeof(name), "%s.%s_const%d", classInfo->name, entry->functionName, entry->consts->count);
         if (strcmp(root->type->typeName, "string") == 0) {
             constVar->size = strlen(constVar->name) + 1 - 2;
         }
@@ -70,12 +70,12 @@ void scanOperationTreeForVarsHelper(FunctionEntry *entry, OperationTreeNode *roo
         }
     }
     for (uint32_t i = 0; i < root->childCount; i++) {
-        scanOperationTreeForVarsHelper(entry, root->children[i]);
+        scanOperationTreeForVarsHelper(classInfo, entry, root->children[i]);
     }
 }
 
-void scanOperationTreeForVars(FunctionEntry *entry, OperationTreeNode *root) {
-    scanOperationTreeForVarsHelper(entry, root);
+void scanOperationTreeForVars(ClassInfo *classInfo, FunctionEntry *entry, OperationTreeNode *root) {
+    scanOperationTreeForVarsHelper(classInfo, entry, root);
 }
 
 LocalVar *createLocalVar(const char *name, const char *typeName, uint8_t size, bool custom, bool isArray, uint32_t arrayDim, uint32_t index) {

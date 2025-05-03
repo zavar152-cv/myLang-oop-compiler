@@ -10,6 +10,15 @@ main:
     ;MCALL R0, 16
     LDI32 IID, 3
     ICALL R0, 8
+
+    LDI32 AR, classInfo_BaseClass
+    MOV THIS, ALR
+    NEW AR, 4
+
+    LDI32 R4, 25
+    STF q R4, THIS, 24
+    LDF q R5, THIS, 24
+
     HLT
 
 func:

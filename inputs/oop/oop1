@@ -39,6 +39,10 @@ class MyClass extends BaseClass implements Interface1, Interface2 {
     public int doSomething(byte b) {
         0;
     }
+
+    public int doSomething5(int b) {
+        8;
+    }
 }
 
 class BaseClass extends MegaBaseClass {
@@ -60,9 +64,17 @@ class MegaBaseClass {
     }
 }
 
-class A {
+class A implements Interface1 {
     public A() {
         
+    }
+
+    public int doSomething(byte b) {
+        1;
+    }
+
+    public int doSomething5(int b) {
+        5;
     }
 }
 
@@ -72,6 +84,8 @@ interface MyInterface {
 
 interface Interface1 {
     int doSomething(byte b);
+
+    int doSomething5(int b);
 }
 
 interface Interface2 {
