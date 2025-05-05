@@ -46,7 +46,7 @@ void scanOperationTreeForVarsHelper(ClassInfo *classInfo, FunctionEntry *entry, 
         
         ConstVar *constVar = createConstVar(root->children[1]->label, root->type->typeName, size, 0);
         char name[1024];
-        snprintf(name, sizeof(name), "%s.%s_const%d", classInfo->name, entry->functionName, entry->consts->count);
+        snprintf(name, sizeof(name), "%s_%s_const%d", classInfo->name, entry->functionName, entry->consts->count);
         if (strcmp(root->type->typeName, "string") == 0) {
             constVar->size = strlen(constVar->name) + 1 - 2;
         }

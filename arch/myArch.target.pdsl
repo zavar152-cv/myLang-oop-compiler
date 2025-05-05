@@ -10,6 +10,14 @@ architecture myArch {
         storage R5_S[64];
         storage R6_S[64];
         storage R7_S[64];
+        storage N0_S[64];
+        storage N1_S[64];
+        storage N2_S[64];
+        storage N3_S[64];
+        storage N4_S[64];
+        storage N5_S[64];
+        storage N6_S[64];
+        storage N7_S[64];
 
         /*-----64 bit-----*/
         view R0 = R0_S;
@@ -19,7 +27,15 @@ architecture myArch {
         view R4 = R4_S;
         view R5 = R5_S;
         view R6 = R6_S;
-        view R7 = R7_S;        
+        view R7 = R7_S;   
+        view N0 = N0_S;
+        view N1 = N1_S;
+        view N2 = N2_S;
+        view N3 = N3_S;
+        view N4 = N4_S;
+        view N5 = N5_S;
+        view N6 = N6_S;
+        view N7 = N7_S;       
 
         /*------------------INSTRUCTION AND ADDRESS POINTERS-------------------------*/
         storage IP_S [32];
@@ -103,7 +119,15 @@ architecture myArch {
             BR2 = 010000,
             ALR = 010001,
             IID = 010010,
-            THIS = 010011
+            THIS = 010011,
+            N0 = 010100,
+            N1 = 010100,
+            N2 = 010101,
+            N3 = 010110,
+            N4 = 010111,
+            N5 = 011000,
+            N6 = 011001,
+            N7 = 011010
 	    };
 
         encode size sequence = alternatives {
@@ -867,7 +891,7 @@ architecture myArch {
     };
 
     instruction f-load = {0011 0100, sequence size, reg as to, reg as objectPtr, 00 0000 0000, off32 as offsetValue} {
-        let addr = objectPtr + offsetValue;
+        let addr = 8 + objectPtr + offsetValue;
         addr = addr & 0x00000000ffffffff;
         when sz8 then {
             let res = dataM:8[addr];
@@ -942,7 +966,7 @@ architecture myArch {
     };
 
     instruction f-store = {0011 1001, sequence size, reg as from, reg as objectPtr, 00 0000 0000, off32 as offsetValue} {
-        let addr = objectPtr + offsetValue;
+        let addr = 8 + objectPtr + offsetValue;
         addr = addr & 0x00000000ffffffff;
         when sz8 then {
             dataM:8[addr] = from & 0x00000000000000ff;
@@ -953,6 +977,12 @@ architecture myArch {
         } else when sz64 then {
             dataM:8[addr] = from & 0xffffffffffffffff;
         }
+        IP = IP + 8;
+    };
+
+    instruction f-address = {0011 1010, 11, reg as to, reg as objectPtr, 00 0000 0000, off32 as offsetValue} {
+        let addr = 8 + objectPtr + offsetValue;
+        to = addr & 0x00000000ffffffff;
         IP = IP + 8;
     };
 
@@ -1019,6 +1049,8 @@ architecture myArch {
                      for f-load(to, objectPtr, offsetValue) "w {1}, {2}, {3}" when sz16,
                      for f-load(to, objectPtr, offsetValue) "d {1}, {2}, {3}" when sz32,
                      for f-load(to, objectPtr, offsetValue) "q {1}, {2}, {3}" when sz64;
+
+        mnemonic FA for f-address(to, objectPtr, offsetValue) plain3;
 
         mnemonic PUSH for push(from) plain1;     
         mnemonic POP for pop(to) plain1; 

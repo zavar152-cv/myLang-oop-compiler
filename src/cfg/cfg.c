@@ -752,7 +752,8 @@ void prepareClassVtableHelper(ClassInfo *classInfo, ClassInfo *classes, ClassVta
       }
 
     } else {
-      addVtableEntry(vtable, functionEntry->functionName, classInfo->name);
+      if (!functionEntry->isBuiltin)
+        addVtableEntry(vtable, functionEntry->functionName, classInfo->name);
     }
     functionEntry = functionEntry->next;
   }
@@ -1061,96 +1062,97 @@ ClassProgram *buildClassProgram(FilesToAnalyze *files, bool debug) {
   }
 
   ClassInfo *classInfo = classProgram->classes;
-  while (classInfo != NULL && strcmp(classInfo->name, "Object") != 0) {
+  while (classInfo != NULL) {
+    if (strcmp(classInfo->name, "Object") != 0) {
 
-    char *parentName = classInfo->parentName;
-    ClassInfo *parentClassInfo = findClassWithName(classProgram->classes, parentName);
-    
-    if (parentClassInfo == NULL) {
-      char buffer[1024];
-      snprintf(buffer, sizeof(buffer),
-        "Extend error. Parent '%s' of '%s' isn't exist\n", parentName, classInfo->name);
-      ProgramErrorInfo* error = createProgramErrorInfo(buffer);
-      addProgramError(classInfo->program, error);
-    } else {
-      FunctionTable *parentFuncTable = parentClassInfo->program->functionTable;
+      char *parentName = classInfo->parentName;
+      ClassInfo *parentClassInfo = findClassWithName(classProgram->classes, parentName);
       
-      FunctionEntry *parentEntry = parentFuncTable->entry;
-      while (parentEntry != NULL) {
-        FunctionEntry *childEntry = findFunctionEntryWithName(classInfo->program->functionTable, parentEntry->functionName);
-        if (childEntry != NULL) {
-          if (!(equalsArgumentList(childEntry->arguments, parentEntry->arguments) 
-                && childEntry->argumentsCount == parentEntry->argumentsCount)) {
-            char buffer[1024];
-            snprintf(buffer, sizeof(buffer),
-              "Override error. Parent function '%s' of '%s' has different arguments in child function '%s' of class '%s'\n", 
-              parentEntry->functionName, parentClassInfo->name, childEntry->functionName, classInfo->name);
-            ProgramErrorInfo* error = createProgramErrorInfo(buffer);
-            addProgramError(classInfo->program, error);
-          } else if (!equalsTypeInfo(childEntry->returnType, parentEntry->returnType)) {
-            char buffer[1024];
-            snprintf(buffer, sizeof(buffer),
-              "Override error. Parent function '%s' of '%s' has different return type in child function '%s' of class '%s'\n", 
-              parentEntry->functionName, parentClassInfo->name, childEntry->functionName, classInfo->name);
-            ProgramErrorInfo* error = createProgramErrorInfo(buffer);
-            addProgramError(classInfo->program, error);
-          }
-          FunctionInfo *funcInfo = classInfo->program->functions;
-          while (funcInfo != NULL) {
-            if (strcmp(funcInfo->functionName, childEntry->functionName) == 0) {
-              funcInfo->isOverride = true;
-              break;
-            }
-            funcInfo = funcInfo->next;
-          }
-          childEntry->isOverride = true;
-        }
-        parentEntry = parentEntry->next;
-      }
-    }
-
-    for (int i = 0; i < classInfo->interfaceCount; i++) {
-      ClassInfo *interfaceInfo = findClassWithName(classProgram->classes, classInfo->interfaceNames[i]);
-      if (interfaceInfo == NULL) {
+      if (parentClassInfo == NULL) {
         char buffer[1024];
         snprintf(buffer, sizeof(buffer),
-          "Interface error. Interface '%s' for '%s' isn't exist\n", classInfo->interfaceNames[i], classInfo->name);
+          "Extend error. Parent '%s' of '%s' isn't exist\n", parentName, classInfo->name);
         ProgramErrorInfo* error = createProgramErrorInfo(buffer);
         addProgramError(classInfo->program, error);
       } else {
-        FunctionTable *interfaceFuncTable = interfaceInfo->program->functionTable;
-        FunctionEntry *interfaceEntry = interfaceFuncTable->entry;
-        while (interfaceEntry != NULL) {
-          FunctionEntry *childEntry = findFunctionEntryWithName(classInfo->program->functionTable, interfaceEntry->functionName);
+        FunctionTable *parentFuncTable = parentClassInfo->program->functionTable;
+        
+        FunctionEntry *parentEntry = parentFuncTable->entry;
+        while (parentEntry != NULL) {
+          FunctionEntry *childEntry = findFunctionEntryWithName(classInfo->program->functionTable, parentEntry->functionName);
           if (childEntry != NULL) {
-            if (!(equalsArgumentList(childEntry->arguments, interfaceEntry->arguments) 
-            && childEntry->argumentsCount == interfaceEntry->argumentsCount)) {
+            if (!(equalsArgumentList(childEntry->arguments, parentEntry->arguments) 
+                  && childEntry->argumentsCount == parentEntry->argumentsCount)) {
               char buffer[1024];
               snprintf(buffer, sizeof(buffer),
-                "Implement error. Interface function '%s' of '%s' has different arguments in child function '%s' of class '%s'\n", 
-                interfaceEntry->functionName, interfaceInfo->name, childEntry->functionName, classInfo->name);
+                "Override error. Parent function '%s' of '%s' has different arguments in child function '%s' of class '%s'\n", 
+                parentEntry->functionName, parentClassInfo->name, childEntry->functionName, classInfo->name);
               ProgramErrorInfo* error = createProgramErrorInfo(buffer);
               addProgramError(classInfo->program, error);
-            } else if (!equalsTypeInfo(childEntry->returnType, interfaceEntry->returnType)) {
+            } else if (!equalsTypeInfo(childEntry->returnType, parentEntry->returnType)) {
               char buffer[1024];
               snprintf(buffer, sizeof(buffer),
-                "Implement error. Interface function '%s' of '%s' has different return type of child function '%s' in class '%s'\n", 
-                interfaceEntry->functionName, interfaceInfo->name, childEntry->functionName, classInfo->name);
+                "Override error. Parent function '%s' of '%s' has different return type in child function '%s' of class '%s'\n", 
+                parentEntry->functionName, parentClassInfo->name, childEntry->functionName, classInfo->name);
               ProgramErrorInfo* error = createProgramErrorInfo(buffer);
               addProgramError(classInfo->program, error);
             }
-          } else {
-            char buffer[1024];
-            snprintf(buffer, sizeof(buffer),
-              "Implementation error. Interface '%s' function '%s' for '%s' isn't implement\n", classInfo->interfaceNames[i], interfaceEntry->functionName, classInfo->name);
-            ProgramErrorInfo* error = createProgramErrorInfo(buffer);
-            addProgramError(classInfo->program, error);
+            FunctionInfo *funcInfo = classInfo->program->functions;
+            while (funcInfo != NULL) {
+              if (strcmp(funcInfo->functionName, childEntry->functionName) == 0) {
+                funcInfo->isOverride = true;
+                break;
+              }
+              funcInfo = funcInfo->next;
+            }
+            childEntry->isOverride = true;
           }
-          interfaceEntry = interfaceEntry->next;
+          parentEntry = parentEntry->next;
+        }
+      }
+
+      for (int i = 0; i < classInfo->interfaceCount; i++) {
+        ClassInfo *interfaceInfo = findClassWithName(classProgram->classes, classInfo->interfaceNames[i]);
+        if (interfaceInfo == NULL) {
+          char buffer[1024];
+          snprintf(buffer, sizeof(buffer),
+            "Interface error. Interface '%s' for '%s' isn't exist\n", classInfo->interfaceNames[i], classInfo->name);
+          ProgramErrorInfo* error = createProgramErrorInfo(buffer);
+          addProgramError(classInfo->program, error);
+        } else {
+          FunctionTable *interfaceFuncTable = interfaceInfo->program->functionTable;
+          FunctionEntry *interfaceEntry = interfaceFuncTable->entry;
+          while (interfaceEntry != NULL) {
+            FunctionEntry *childEntry = findFunctionEntryWithName(classInfo->program->functionTable, interfaceEntry->functionName);
+            if (childEntry != NULL) {
+              if (!(equalsArgumentList(childEntry->arguments, interfaceEntry->arguments) 
+              && childEntry->argumentsCount == interfaceEntry->argumentsCount)) {
+                char buffer[1024];
+                snprintf(buffer, sizeof(buffer),
+                  "Implement error. Interface function '%s' of '%s' has different arguments in child function '%s' of class '%s'\n", 
+                  interfaceEntry->functionName, interfaceInfo->name, childEntry->functionName, classInfo->name);
+                ProgramErrorInfo* error = createProgramErrorInfo(buffer);
+                addProgramError(classInfo->program, error);
+              } else if (!equalsTypeInfo(childEntry->returnType, interfaceEntry->returnType)) {
+                char buffer[1024];
+                snprintf(buffer, sizeof(buffer),
+                  "Implement error. Interface function '%s' of '%s' has different return type of child function '%s' in class '%s'\n", 
+                  interfaceEntry->functionName, interfaceInfo->name, childEntry->functionName, classInfo->name);
+                ProgramErrorInfo* error = createProgramErrorInfo(buffer);
+                addProgramError(classInfo->program, error);
+              }
+            } else {
+              char buffer[1024];
+              snprintf(buffer, sizeof(buffer),
+                "Implementation error. Interface '%s' function '%s' for '%s' isn't implement\n", classInfo->interfaceNames[i], interfaceEntry->functionName, classInfo->name);
+              ProgramErrorInfo* error = createProgramErrorInfo(buffer);
+              addProgramError(classInfo->program, error);
+            }
+            interfaceEntry = interfaceEntry->next;
+          }
         }
       }
     }
-    
     if (!classInfo->isInterface)
       prepareCFGForProgram(classInfo, classProgram->classes, classInfo->body, classInfo->fileName, debug);
     classInfo = classInfo->next;
