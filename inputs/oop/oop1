@@ -8,18 +8,27 @@ class MyClass extends BaseClass implements Interface1, Interface2 {
         myField = a + b;
     }
 
+    public int main() {
+        myMethod(1);
+        0;
+    }
+
     public int myMethod(int x) {
         int a = 9;
         MyClass instance = new MyClass(1, 2);
-
+        myField = 7;
+        myField2 = 1;
+        myField = myField2;
+        instance.varClass = new MyClass(5, 5);
+        instance.varClass.myField = 78;
         // Interface1 unchecked1 = instance;
 
-        testMethod();
+        //testMethod();
         // instance.testMethod(5);
-        instance.varClass.parentMethod2(5);
+        //instance.varClass.parentMethod2(5);
         // int b = instance.myField;
-        parentMethod(5);
-        parentMethod2(5);
+        //parentMethod(5);
+        //parentMethod2(5);
         // unchecked1.doSomething(1);
         0;
     }

@@ -1,0 +1,212 @@
+digraph CFG {
+    compound=true;
+    graph [splines=true];
+    node [shape=rectangle];
+
+    BB2 [label=<<B>BB2: END</B><BR ALIGN="CENTER"/>>];
+    BB1 [label=<<B>BB1: Base block</B><BR ALIGN="CENTER"/>VAR<BR ALIGN="CENTER"/>VAR<BR ALIGN="CENTER"/>=<BR ALIGN="CENTER"/>=<BR ALIGN="CENTER"/>=<BR ALIGN="CENTER"/>FUNC_CALL<BR ALIGN="CENTER"/>FUNC_CALL<BR ALIGN="CENTER"/>FUNC_CALL<BR ALIGN="CENTER"/>FUNC_CALL<BR ALIGN="CENTER"/>DEC<BR ALIGN="CENTER"/>>];
+    subgraph cluster_instruction0 {
+        label = "OT of BB1:0";
+        style=rounded;
+        color=blue;
+        entry0 [shape=point, style=invis];
+        node0 [label="declare", color=blue];
+        node1 [label="withType", color=blue];
+        node2 [label="int", color=blue];
+        node1 -> node2[color=blue];
+        node3 [label="builtin", color=blue];
+        node1 -> node3[color=blue];
+        node0 -> node1[color=blue];
+        node4 [label="a <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node0 -> node4[color=blue];
+        node5 [label="write <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node6 [label="a <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node5 -> node6[color=blue];
+        node7 [label="litRead <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node8 [label="DEC", color=blue];
+        node7 -> node8[color=blue];
+        node9 [label="9 <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node7 -> node9[color=blue];
+        node5 -> node7[color=blue];
+        node0 -> node5[color=blue];
+    }
+    BB1 -> entry0 [lhead=cluster_instruction0, color=blue];
+    subgraph cluster_instruction1 {
+        label = "OT of BB1:1";
+        style=rounded;
+        color=blue;
+        entry1 [shape=point, style=invis];
+        node10 [label="declare", color=blue];
+        node11 [label="withType", color=blue];
+        node12 [label="MyClass", color=blue];
+        node11 -> node12[color=blue];
+        node13 [label="custom", color=blue];
+        node11 -> node13[color=blue];
+        node10 -> node11[color=blue];
+        node14 [label="instance <MyClass:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node10 -> node14[color=blue];
+        node15 [label="write <MyClass:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node16 [label="instance <MyClass:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node15 -> node16[color=blue];
+        node17 [label="new <MyClass:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node18 [label="MyClass <MyClass:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node17 -> node18[color=blue];
+        node19 [label="litRead <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node20 [label="DEC", color=blue];
+        node19 -> node20[color=blue];
+        node21 [label="1 <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node19 -> node21[color=blue];
+        node17 -> node19[color=blue];
+        node22 [label="litRead <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node23 [label="DEC", color=blue];
+        node22 -> node23[color=blue];
+        node24 [label="2 <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node22 -> node24[color=blue];
+        node17 -> node22[color=blue];
+        node15 -> node17[color=blue];
+        node10 -> node15[color=blue];
+    }
+    BB1 -> entry1 [lhead=cluster_instruction1, color=blue];
+    subgraph cluster_instruction2 {
+        label = "OT of BB1:2";
+        style=rounded;
+        color=blue;
+        entry2 [shape=point, style=invis];
+        node25 [label="write <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node26 [label="myField <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node25 -> node26[color=blue];
+        node27 [label="litRead <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node28 [label="DEC", color=blue];
+        node27 -> node28[color=blue];
+        node29 [label="7 <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node27 -> node29[color=blue];
+        node25 -> node27[color=blue];
+    }
+    BB1 -> entry2 [lhead=cluster_instruction2, color=blue];
+    subgraph cluster_instruction3 {
+        label = "OT of BB1:3";
+        style=rounded;
+        color=blue;
+        entry3 [shape=point, style=invis];
+        node30 [label="write <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node31 [label="myField <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node30 -> node31[color=blue];
+        node32 [label="read <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node33 [label="myField2 <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node32 -> node33[color=blue];
+        node30 -> node32[color=blue];
+    }
+    BB1 -> entry3 [lhead=cluster_instruction3, color=blue];
+    subgraph cluster_instruction4 {
+        label = "OT of BB1:4";
+        style=rounded;
+        color=blue;
+        entry4 [shape=point, style=invis];
+        node34 [label="write <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node35 [label="field <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node36 [label="myField <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node35 -> node36[color=blue];
+        node37 [label="field <MyClass:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node38 [label="varClass <MyClass:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node37 -> node38[color=blue];
+        node39 [label="read <MyClass:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node40 [label="instance <MyClass:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node39 -> node40[color=blue];
+        node37 -> node39[color=blue];
+        node35 -> node37[color=blue];
+        node34 -> node35[color=blue];
+        node41 [label="litRead <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node42 [label="DEC", color=blue];
+        node41 -> node42[color=blue];
+        node43 [label="78 <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node41 -> node43[color=blue];
+        node34 -> node41[color=blue];
+    }
+    BB1 -> entry4 [lhead=cluster_instruction4, color=blue];
+    subgraph cluster_instruction5 {
+        label = "OT of BB1:5";
+        style=rounded;
+        color=blue;
+        entry5 [shape=point, style=invis];
+        node44 [label="call <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node45 [label="testMethod <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node44 -> node45[color=blue];
+    }
+    BB1 -> entry5 [lhead=cluster_instruction5, color=blue];
+    subgraph cluster_instruction6 {
+        label = "OT of BB1:6";
+        style=rounded;
+        color=blue;
+        entry6 [shape=point, style=invis];
+        node46 [label="call <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node47 [label="method <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node48 [label="parentMethod2 <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node47 -> node48[color=blue];
+        node49 [label="field <MyClass:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node50 [label="varClass <MyClass:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node49 -> node50[color=blue];
+        node51 [label="read <MyClass:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node52 [label="instance <MyClass:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node51 -> node52[color=blue];
+        node49 -> node51[color=blue];
+        node47 -> node49[color=blue];
+        node46 -> node47[color=blue];
+        node53 [label="litRead <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node54 [label="DEC", color=blue];
+        node53 -> node54[color=blue];
+        node55 [label="5 <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node53 -> node55[color=blue];
+        node46 -> node53[color=blue];
+    }
+    BB1 -> entry6 [lhead=cluster_instruction6, color=blue];
+    subgraph cluster_instruction7 {
+        label = "OT of BB1:7";
+        style=rounded;
+        color=blue;
+        entry7 [shape=point, style=invis];
+        node56 [label="call <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node57 [label="parentMethod <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node56 -> node57[color=blue];
+        node58 [label="litRead <long:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node59 [label="DEC", color=blue];
+        node58 -> node59[color=blue];
+        node60 [label="5 <long:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node58 -> node60[color=blue];
+        node56 -> node58[color=blue];
+    }
+    BB1 -> entry7 [lhead=cluster_instruction7, color=blue];
+    subgraph cluster_instruction8 {
+        label = "OT of BB1:8";
+        style=rounded;
+        color=blue;
+        entry8 [shape=point, style=invis];
+        node61 [label="call <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node62 [label="parentMethod2 <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node61 -> node62[color=blue];
+        node63 [label="litRead <long:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node64 [label="DEC", color=blue];
+        node63 -> node64[color=blue];
+        node65 [label="5 <long:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node63 -> node65[color=blue];
+        node61 -> node63[color=blue];
+    }
+    BB1 -> entry8 [lhead=cluster_instruction8, color=blue];
+    subgraph cluster_instruction9 {
+        label = "OT of BB1:9";
+        style=rounded;
+        color=blue;
+        entry9 [shape=point, style=invis];
+        node66 [label="return <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node67 [label="litRead <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node68 [label="DEC", color=blue];
+        node67 -> node68[color=blue];
+        node69 [label="0 <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node67 -> node69[color=blue];
+        node66 -> node67[color=blue];
+    }
+    BB1 -> entry9 [lhead=cluster_instruction9, color=blue];
+    BB0 [label=<<B>BB0: START</B><BR ALIGN="CENTER"/>>];
+
+    BB1 -> BB2;
+    BB0 -> BB1;
+}

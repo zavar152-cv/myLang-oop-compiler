@@ -241,6 +241,13 @@ int main(int argc, char *argv[]) {
             warning = warning->next;
           }
         }
+        classInfo = classInfo->next;
+    }
+
+
+    classInfo = prog->classes;
+    while (classInfo != NULL) {
+        FunctionInfo *func = classInfo->program->functions;
         const char *mainFileName = NULL;
         while (func != NULL) {
           if (strcmp(func->functionName, "main") == 0) {
@@ -259,10 +266,38 @@ int main(int argc, char *argv[]) {
         classInfo = classInfo->next;
     }
 
+
     struct StringBuffer *buffer = stringbuffer_new_with_options(1024, true);
     uint32_t alrValue = 0;
-    classInfo = prog->classes;
     stringbuffer_append_string(buffer, "    [section codeM]\n\n");
+
+    classInfo = prog->classes;
+    while (classInfo != NULL) {
+        FunctionInfo *func = classInfo->program->functions;
+        while (func != NULL) {
+          if (strcmp(func->functionName, "main") == 0) {
+            char *classInfoString = concat("classInfo_", classInfo->name);
+            commandLDI32(buffer, REG_AR, classInfoString);
+            commandMOV(buffer, REG_THIS, REG_ALR);
+            
+            
+            char fieldsCountBuffer[1024];
+            snprintf(fieldsCountBuffer, sizeof(fieldsCountBuffer), "%ld", classInfo->fieldsCount);
+            commandNEW(buffer, REG_AR, fieldsCountBuffer);
+            free(classInfoString);
+
+            char *mainMethod = concat(classInfo->name, "_main");
+            commandJMP(buffer, mainMethod);
+            free(mainMethod);
+
+            break;
+          }
+          func = func->next;
+        }
+        classInfo = classInfo->next;
+    }
+
+    classInfo = prog->classes;
     while (classInfo != NULL) {
         FunctionEntry *funcE = classInfo->program->functionTable->entry;
         while (funcE != NULL) {
@@ -363,7 +398,7 @@ int main(int argc, char *argv[]) {
             while (vtableEntry != NULL) {
                 stringbuffer_append_string(buffer, "    dq ");
                 stringbuffer_append_string(buffer, vtableEntry->className);
-                stringbuffer_append_string(buffer, ".");
+                stringbuffer_append_string(buffer, "_");
                 stringbuffer_append_string(buffer, vtableEntry->functionName);
                 stringbuffer_append_string(buffer, "\n");
                 vtableEntry = vtableEntry->next;
@@ -384,7 +419,7 @@ int main(int argc, char *argv[]) {
                 while (vtableEntry != NULL) {
                     stringbuffer_append_string(buffer, "    dq ");
                     stringbuffer_append_string(buffer, classInfo->name);
-                    stringbuffer_append_string(buffer, ".");
+                    stringbuffer_append_string(buffer, "_");
                     stringbuffer_append_string(buffer, vtableEntry->functionName);
                     stringbuffer_append_string(buffer, "\n");
                     vtableEntry = vtableEntry->next;
@@ -498,6 +533,27 @@ int main(int argc, char *argv[]) {
     fprintf(asmFile, "%s", out);
     fclose(asmFile);
     free(out);
+
+    classInfo = prog->classes;
+    while (classInfo != NULL) {
+        FunctionInfo *func = classInfo->program->functions;
+        const char *mainFileName = NULL;
+        while (func != NULL) {
+          if (strcmp(func->functionName, "main") == 0) {
+            mainFileName = func->fileName;
+          }
+          char *suffix = concat(".", func->functionName);
+          char *functionName = concat(classInfo->name, suffix);
+          char *outputFilePath = getOutputFileName(func->fileName, functionName, "dot", arguments.output_dir);
+          if (func->cfg != NULL)
+            writeCFGToDotFile(func->cfg, outputFilePath, arguments.ot);
+          func = func->next;
+          free(suffix);
+          free(functionName);
+          free(outputFilePath);
+        }
+        classInfo = classInfo->next;
+    }
 
     classInfo = prog->classes;
     while (classInfo != NULL) {
