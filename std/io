@@ -1,8 +1,12 @@
 class IO {
     private BuiltIn bi;
+    private ref intBuffer;
+    private ref longBuffer;
 
     public IO() {
         bi = new BuiltIn();
+        intBuffer = bi.__allocRef(intBufferSize());
+        longBuffer = bi.__allocRef(longBufferSize());
     }
 
     public int strlength(string str) {
@@ -59,25 +63,25 @@ class IO {
         0;
     }
 
-    public long intBufferSize() {
-        10;
+    private long intBufferSize() {
+        80;
     }
 
-    public long uintBufferSize() {
-        10;
+    private long uintBufferSize() {
+        80;
     }
 
-    public long longBufferSize() {
-        19;
+    private long longBufferSize() {
+        152;
     }
 
-    public long ulongBufferSize() {
-        19;
+    private long ulongBufferSize() {
+        152;
     }
 
 
-    public int printInt(int num, ref bufferRef) {
-        char[] buffer = bufferRef;
+    public int printInt(int num) {
+        char[] buffer = intBuffer;
 
         int temp = num;
         if (temp < 0) {
@@ -105,14 +109,14 @@ class IO {
         0;
     }
 
-    public int printlnInt(int num, ref bufferRef) {
-        printInt(num, bufferRef);
+    public int printlnInt(int num) {
+        printInt(num);
         println();
         0;
     }
 
-    public int printLong(long num, char[] bufferRef) {
-        char[] buffer = bufferRef;
+    public int printLong(long num) {
+        char[] buffer = longBuffer;
 
         long temp = num;
 
@@ -141,8 +145,8 @@ class IO {
         0;
     }
 
-    public int printlnLong(long num, char[] bufferRef) {
-        printLong(num, bufferRef);
+    public int printlnLong(long num) {
+        printLong(num);
         println();
         0;
     }

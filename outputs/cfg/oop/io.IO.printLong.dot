@@ -432,8 +432,8 @@ digraph CFG {
         node159 [label="write <char:1, reg: (null), spilled: 0, offset: 0>", color=blue];
         node160 [label="buffer <char:1, reg: AR, spilled: 0, offset: 0>", color=blue];
         node159 -> node160[color=blue];
-        node161 [label="read <char:1, reg: R0, spilled: 0, offset: 0>", color=blue];
-        node162 [label="bufferRef <char:1, reg: AR, spilled: 0, offset: 0>", color=blue];
+        node161 [label="read <ref:0, reg: R0, spilled: 0, offset: 0>", color=blue];
+        node162 [label="longBuffer <ref:0, reg: AR, spilled: 0, offset: 0>", color=blue];
         node161 -> node162[color=blue];
         node159 -> node161[color=blue];
         node152 -> node159[color=blue];
