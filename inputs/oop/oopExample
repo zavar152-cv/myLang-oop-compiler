@@ -1,0 +1,69 @@
+class Shape {
+    private string name;
+
+    public Shape(string nameArg) {
+        name = nameArg;
+    }
+
+    public int area() {
+        0;
+    }
+
+    public string getName() {
+        name;
+    }
+}
+
+class Rectangle extends Shape {
+    private int width;
+    private int height;
+
+    public Rectangle(int widthArg, int heightArg) {
+        Shape("Rectangle");
+        width = widthArg;
+        height = heightArg;
+    }
+
+    public int area() {
+        width * height;
+    }
+
+}
+
+class Circle extends Shape {
+    private int radius;
+
+    public Circle(int radiusArg) {
+        Shape("Circle");
+        radius = radiusArg;
+    }
+
+    public int area() {
+        (radius * radius * 314) / 100;
+    }
+
+}
+
+class Main {
+
+    public Main() {
+
+    }
+
+    public int main() {
+        BuiltIn bi = new BuiltIn();
+        IO io = new IO();
+        Shape[] shapes = bi.__allocRef(16); //8 * 2
+
+        shapes[0] = new Rectangle(3, 4);
+        shapes[1] = new Circle(10);
+
+        io.printlnString(shapes[0].getName());
+        io.printlnInt(shapes[0].area());
+
+        io.printlnString(shapes[1].getName());
+        io.printlnInt(shapes[1].area());
+
+        0; 
+    }
+}

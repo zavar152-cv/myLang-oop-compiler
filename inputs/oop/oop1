@@ -14,6 +14,7 @@ class MyClass extends BaseClass implements Interface1, Interface2 {
     }
 
     public int myMethod(int x) {
+        BuiltIn bi = new BuiltIn();
         IO io = new IO();
         io.printlnString("Hello, World!");
         // int a = 9;
@@ -24,6 +25,22 @@ class MyClass extends BaseClass implements Interface1, Interface2 {
 
         BaseClass base = instance;
         base.parentMethod2(0);
+
+        instance.varClass = new MyClass(8, 8);
+
+        Interface1 interface1 = instance.varClass;
+        interface1.doSomething(0);
+
+        interface1 = new A();
+        interface1.doSomething(0);
+
+        MyClass[] objectsArray = bi.__allocRef(16); //8 * 2
+        objectsArray[0] = new MyClass(1, 1);
+        objectsArray[1] = new MyClass(9, 9);
+
+        objectsArray[0].testMethod(89);
+        objectsArray[1].testMethod(12);
+
         // myField = 7;
         // myField2 = 1;
         // myField = myField2;
@@ -60,6 +77,9 @@ class MyClass extends BaseClass implements Interface1, Interface2 {
     }
 
     public int doSomething(byte b) {
+        IO io = new IO();
+        io.printlnString("MyClass#Interface1 doSomething");
+        io.printlnInt(myField);
         0;
     }
 
@@ -95,6 +115,8 @@ class A implements Interface1 {
     }
 
     public int doSomething(byte b) {
+        IO io = new IO();
+        io.printlnString("A#Interface1 doSomething");
         1;
     }
 

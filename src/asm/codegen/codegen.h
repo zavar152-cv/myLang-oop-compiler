@@ -28,6 +28,7 @@
 #define REG_SP "SP"
 #define REG_BP "BP"
 #define REG_THIS "THIS"
+#define REG_IID "IID"
 
 #define REG_BR1 "BR1"
 #define REG_BR2 "BR2"

@@ -1,530 +1,61 @@
     [section codeM]
 
-  LDI32 AR, classInfo_MyClass
+  LDI32 AR, classInfo_Main
   MOV THIS, ALR
-  NEW AR, 4
-  JMP MyClass_main
-A_doSomething5:
-
-.BB0:
-  ENTER 0
-.BB1:
-
-  ;OT at 102:9
-  LDI32 R0, 5
-  MOV RT, R0
-  JMP .BB2
-
-.BB2:
-  LEAVE 0
-  RET
-
-A_doSomething:
-
-.BB0:
-  ENTER 0
-.BB1:
-
-  ;OT at 98:9
-  LDI32 R0, 1
-  MOV RT, R0
-  JMP .BB2
-
-.BB2:
-  LEAVE 0
-  RET
-
-A_A:
-
-.BB0:
-  ENTER 0
-.BB1:
-  LEAVE 0
-  RET
-
-MegaBaseClass_MegaBaseClass:
-
-.BB0:
-  ENTER 0
-.BB1:
-  LEAVE 0
-  RET
-
-BaseClass_parentMethod2:
-
-.BB0:
-  ENTER 1
-.BB1:
-
-  ;OT at 77:12
-  PUSH THIS
-  LDI32 AR, classInfo_IO
-  MOV THIS, ALR
-  NEW AR, 3
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH N0
-  PUSH N1
-  PUSH N2
-  PUSH N3
-  PUSH N4
-  PUSH N5
-  PUSH N6
-  PUSH N7
-  CALL IO_IO
-  POP N7
-  POP N6
-  POP N5
-  POP N4
-  POP N3
-  POP N2
-  POP N1
-  POP N0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV R0, THIS
-  POP THIS
-  ;var io
-  ST q R0, [BP, -8]
-
-  ;OT at 78:12
-  LDI32 R1, BaseClass_parentMethod2_const0
-  MOV BR1, SP
-  PUSH THIS
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH N0
-  PUSH N1
-  PUSH N2
-  PUSH N3
-  PUSH N4
-  PUSH N5
-  PUSH N6
-  PUSH N7
-  ;var STR
-  PUSH R1
-  ;var io
-  LD q R0, [BP, -8]
-  MOV THIS, R0
-  MCALL R0, 72
-  ;var STR
-  POP R1
-  POP N7
-  POP N6
-  POP N5
-  POP N4
-  POP N3
-  POP N2
-  POP N1
-  POP N0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  POP THIS
-  MOV R2, RT
-
-  ;OT at 79:9
-  LDI32 R0, 0
-  MOV RT, R0
-  JMP .BB2
-
-.BB2:
-  LEAVE 1
-  RET
-
-BaseClass_BaseClass:
-
-.BB0:
-  ENTER 0
-.BB1:
-  LEAVE 0
-  RET
-
-MyClass_doSomething5:
-
-.BB0:
-  ENTER 0
-.BB1:
-
-  ;OT at 67:9
-  LDI32 R0, 8
-  MOV RT, R0
-  JMP .BB2
-
-.BB2:
-  LEAVE 0
-  RET
-
-MyClass_doSomething:
-
-.BB0:
-  ENTER 0
-.BB1:
-
-  ;OT at 63:9
-  LDI32 R0, 0
-  MOV RT, R0
-  JMP .BB2
-
-.BB2:
-  LEAVE 0
-  RET
-
-MyClass_parentMethod2:
-
-.BB0:
-  ENTER 1
-.BB1:
-
-  ;OT at 57:12
-  PUSH THIS
-  LDI32 AR, classInfo_IO
-  MOV THIS, ALR
-  NEW AR, 3
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH N0
-  PUSH N1
-  PUSH N2
-  PUSH N3
-  PUSH N4
-  PUSH N5
-  PUSH N6
-  PUSH N7
-  CALL IO_IO
-  POP N7
-  POP N6
-  POP N5
-  POP N4
-  POP N3
-  POP N2
-  POP N1
-  POP N0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV R0, THIS
-  POP THIS
-  ;var io
-  ST q R0, [BP, -8]
-
-  ;OT at 58:12
-  LDI32 R1, MyClass_parentMethod2_const0
-  MOV BR1, SP
-  PUSH THIS
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH N0
-  PUSH N1
-  PUSH N2
-  PUSH N3
-  PUSH N4
-  PUSH N5
-  PUSH N6
-  PUSH N7
-  ;var STR
-  PUSH R1
-  ;var io
-  LD q R0, [BP, -8]
-  MOV THIS, R0
-  MCALL R0, 72
-  ;var STR
-  POP R1
-  POP N7
-  POP N6
-  POP N5
-  POP N4
-  POP N3
-  POP N2
-  POP N1
-  POP N0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  POP THIS
-  MOV R2, RT
-
-  ;OT at 59:9
-  LDI32 R0, 1
-  MOV RT, R0
-  JMP .BB2
-
-.BB2:
-  LEAVE 1
-  RET
-
-MyClass_parentMethod:
-
-.BB0:
-  ENTER 0
-.BB1:
-
-  ;OT at 53:9
-  LDI32 R0, 0
-  MOV RT, R0
-  JMP .BB2
-
-.BB2:
-  LEAVE 0
-  RET
-
-MyClass_testMethod:
-
-.BB0:
-  ENTER 1
-.BB1:
-
-  ;OT at 45:12
-  PUSH THIS
-  LDI32 AR, classInfo_IO
-  MOV THIS, ALR
-  NEW AR, 3
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH N0
-  PUSH N1
-  PUSH N2
-  PUSH N3
-  PUSH N4
-  PUSH N5
-  PUSH N6
-  PUSH N7
-  CALL IO_IO
-  POP N7
-  POP N6
-  POP N5
-  POP N4
-  POP N3
-  POP N2
-  POP N1
-  POP N0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV R0, THIS
-  POP THIS
-  ;var io
-  ST q R0, [BP, -8]
-
-  ;OT at 46:12
-  LDI32 R1, MyClass_testMethod_const0
-  MOV BR1, SP
-  PUSH THIS
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH N0
-  PUSH N1
-  PUSH N2
-  PUSH N3
-  PUSH N4
-  PUSH N5
-  PUSH N6
-  PUSH N7
-  ;var STR
-  PUSH R1
-  ;var io
-  LD q R0, [BP, -8]
-  MOV THIS, R0
-  MCALL R0, 72
-  ;var STR
-  POP R1
-  POP N7
-  POP N6
-  POP N5
-  POP N4
-  POP N3
-  POP N2
-  POP N1
-  POP N0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  POP THIS
-  MOV R2, RT
-
-  ;OT at 47:12
-  ;var myField
-  FA AR, THIS, 0
-  LD d R1, AR
-  MOV BR1, SP
-  PUSH THIS
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH N0
-  PUSH N1
-  PUSH N2
-  PUSH N3
-  PUSH N4
-  PUSH N5
-  PUSH N6
-  PUSH N7
-  ;var myField
-  PUSH R1
-  ;var io
-  LD q R0, [BP, -8]
-  MOV THIS, R0
-  MCALL R0, 24
-  ;var myField
-  POP R1
-  POP N7
-  POP N6
-  POP N5
-  POP N4
-  POP N3
-  POP N2
-  POP N1
-  POP N0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  POP THIS
-  MOV R2, RT
-
-  ;OT at 48:12
-  ;var x
-  LD d R1, [BP, 16]
-  MOV BR1, SP
-  PUSH THIS
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH N0
-  PUSH N1
-  PUSH N2
-  PUSH N3
-  PUSH N4
-  PUSH N5
-  PUSH N6
-  PUSH N7
-  ;var x
-  PUSH R1
-  ;var io
-  LD q R0, [BP, -8]
-  MOV THIS, R0
-  MCALL R0, 24
-  ;var x
-  POP R1
-  POP N7
-  POP N6
-  POP N5
-  POP N4
-  POP N3
-  POP N2
-  POP N1
-  POP N0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  POP THIS
-  MOV R2, RT
-
-  ;OT at 49:9
-  LDI32 R0, 0
-  MOV RT, R0
-  JMP .BB2
-
-.BB2:
-  LEAVE 1
-  RET
-
-MyClass_myMethod:
+  NEW AR, 0
+  JMP Main_main
+main:
+Main_main:
 
 .BB0:
   ENTER 3
 .BB1:
 
-  ;OT at 17:12
+  ;OT at 54:17
+  PUSH THIS
+  LDI32 AR, classInfo_BuiltIn
+  MOV THIS, ALR
+  NEW AR, 0
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  CALL BuiltIn_BuiltIn
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  MOV R0, THIS
+  POP THIS
+  ;var bi
+  ST q R0, [BP, -8]
+
+  ;OT at 55:12
   PUSH THIS
   LDI32 AR, classInfo_IO
   MOV THIS, ALR
@@ -566,10 +97,10 @@ MyClass_myMethod:
   MOV R0, THIS
   POP THIS
   ;var io
-  ST q R0, [BP, -8]
+  ST q R0, [BP, -16]
 
-  ;OT at 18:12
-  LDI32 R1, MyClass_myMethod_const0
+  ;OT at 0:1
+  LDI32 R1, 16
   MOV BR1, SP
   PUSH THIS
   PUSH R0
@@ -588,13 +119,17 @@ MyClass_myMethod:
   PUSH N5
   PUSH N6
   PUSH N7
-  ;var STR
+  ;var DEC
   PUSH R1
-  ;var io
+  ;var bi
   LD q R0, [BP, -8]
   MOV THIS, R0
-  MCALL R0, 72
-  ;var STR
+  ENTER 0
+  LD q R0, [BP, 8]
+  MOV RT, ALR
+  ADD q ALR, R0
+  LEAVE 0
+  ;var DEC
   POP R1
   POP N7
   POP N6
@@ -614,14 +149,22 @@ MyClass_myMethod:
   POP R0
   POP THIS
   MOV R2, RT
+  ;var shapes
+  ST q R2, [BP, -24]
 
-  ;OT at 20:17
-  LDI32 R0, 1
-  LDI32 R1, 2
+  ;OT at 58:19
+  ;var shapes
+  LD q R1, [BP, -24]
+  LDI32 R2, 0
+  LDI32 BR2, 8
+  MUL q R2, BR2
+  ADD q R1, R2
+  LDI32 R2, 3
+  LDI32 R3, 4
   PUSH THIS
-  LDI32 AR, classInfo_MyClass
+  LDI32 AR, classInfo_Rectangle
   MOV THIS, ALR
-  NEW AR, 4
+  NEW AR, 2
   MOV BR1, SP
   PUSH R0
   PUSH R1
@@ -640,14 +183,14 @@ MyClass_myMethod:
   PUSH N6
   PUSH N7
   ;var DEC
-  PUSH R1
+  PUSH R3
   ;var DEC
-  PUSH R0
-  CALL MyClass_MyClass
+  PUSH R2
+  CALL Rectangle_Rectangle
   ;var DEC
-  POP R0
+  POP R2
   ;var DEC
-  POP R1
+  POP R3
   POP N7
   POP N6
   POP N5
@@ -664,13 +207,65 @@ MyClass_myMethod:
   POP R2
   POP R1
   POP R0
-  MOV R2, THIS
+  MOV R4, THIS
   POP THIS
-  ;var instance
-  ST q R2, [BP, -16]
+  ST q R4, R1
 
-  ;OT at 21:18
-  LDI32 R1, 6
+  ;OT at 59:19
+  ;var shapes
+  LD q R1, [BP, -24]
+  LDI32 R2, 1
+  LDI32 BR2, 8
+  MUL q R2, BR2
+  ADD q R1, R2
+  LDI32 R2, 10
+  PUSH THIS
+  LDI32 AR, classInfo_Circle
+  MOV THIS, ALR
+  NEW AR, 1
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  ;var DEC
+  PUSH R2
+  CALL Circle_Circle
+  ;var DEC
+  POP R2
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  MOV R3, THIS
+  POP THIS
+  ST q R3, R1
+
+  ;OT at 61:12
   MOV BR1, SP
   PUSH THIS
   PUSH R0
@@ -689,14 +284,15 @@ MyClass_myMethod:
   PUSH N5
   PUSH N6
   PUSH N7
-  ;var DEC
-  PUSH R1
-  ;var instance
-  LD q R0, [BP, -16]
-  MOV THIS, R0
-  MCALL R0, 56
-  ;var DEC
-  POP R1
+  ;var shapes
+  LD q R1, [BP, -24]
+  LDI32 R2, 0
+  LDI32 BR2, 8
+  MUL q R2, BR2
+  ADD q R1, R2
+  LD q R1, R1
+  MOV THIS, R1
+  MCALL R1, 8
   POP N7
   POP N6
   POP N5
@@ -715,57 +311,6 @@ MyClass_myMethod:
   POP R0
   POP THIS
   MOV R2, RT
-
-  ;OT at 23:9
-  LDI32 R0, 5
-  MOV BR1, SP
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH N0
-  PUSH N1
-  PUSH N2
-  PUSH N3
-  PUSH N4
-  PUSH N5
-  PUSH N6
-  PUSH N7
-  ;var DEC
-  PUSH R0
-  CALL MyClass_testMethod
-  ;var DEC
-  POP R0
-  POP N7
-  POP N6
-  POP N5
-  POP N4
-  POP N3
-  POP N2
-  POP N1
-  POP N0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  MOV R1, RT
-
-  ;OT at 25:19
-  ;var instance
-  LD q R0, [BP, -16]
-  ;var base
-  ST q R0, [BP, -24]
-
-  ;OT at 26:14
-  LDI32 R1, 0
   MOV BR1, SP
   PUSH THIS
   PUSH R0
@@ -784,14 +329,61 @@ MyClass_myMethod:
   PUSH N5
   PUSH N6
   PUSH N7
-  ;var DEC
-  PUSH R1
-  ;var base
-  LD q R0, [BP, -24]
+  ;var method
+  PUSH R2
+  ;var io
+  LD q R0, [BP, -16]
   MOV THIS, R0
-  MCALL R0, 16
-  ;var DEC
+  MCALL R0, 72
+  ;var method
+  POP R2
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
   POP R1
+  POP R0
+  POP THIS
+  MOV R3, RT
+
+  ;OT at 62:12
+  MOV BR1, SP
+  PUSH THIS
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  ;var shapes
+  LD q R1, [BP, -24]
+  LDI32 R2, 0
+  LDI32 BR2, 8
+  MUL q R2, BR2
+  ADD q R1, R2
+  LD q R1, R1
+  MOV THIS, R1
+  MCALL R1, 16
   POP N7
   POP N6
   POP N5
@@ -810,25 +402,283 @@ MyClass_myMethod:
   POP R0
   POP THIS
   MOV R2, RT
+  MOV BR1, SP
+  PUSH THIS
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  ;var method
+  PUSH R2
+  ;var io
+  LD q R0, [BP, -16]
+  MOV THIS, R0
+  MCALL R0, 24
+  ;var method
+  POP R2
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  POP THIS
+  MOV R3, RT
 
-  ;OT at 41:9
+  ;OT at 64:12
+  MOV BR1, SP
+  PUSH THIS
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  ;var shapes
+  LD q R1, [BP, -24]
+  LDI32 R2, 1
+  LDI32 BR2, 8
+  MUL q R2, BR2
+  ADD q R1, R2
+  LD q R1, R1
+  MOV THIS, R1
+  MCALL R1, 8
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  POP THIS
+  MOV R2, RT
+  MOV BR1, SP
+  PUSH THIS
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  ;var method
+  PUSH R2
+  ;var io
+  LD q R0, [BP, -16]
+  MOV THIS, R0
+  MCALL R0, 72
+  ;var method
+  POP R2
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  POP THIS
+  MOV R3, RT
+
+  ;OT at 65:12
+  MOV BR1, SP
+  PUSH THIS
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  ;var shapes
+  LD q R1, [BP, -24]
+  LDI32 R2, 1
+  LDI32 BR2, 8
+  MUL q R2, BR2
+  ADD q R1, R2
+  LD q R1, R1
+  MOV THIS, R1
+  MCALL R1, 16
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  POP THIS
+  MOV R2, RT
+  MOV BR1, SP
+  PUSH THIS
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  ;var method
+  PUSH R2
+  ;var io
+  LD q R0, [BP, -16]
+  MOV THIS, R0
+  MCALL R0, 24
+  ;var method
+  POP R2
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  POP THIS
+  MOV R3, RT
+
+  ;OT at 67:9
   LDI32 R0, 0
   MOV RT, R0
   JMP .BB2
 
 .BB2:
   LEAVE 3
+  HLT
+
+Main_Main:
+
+.BB0:
+  ENTER 0
+.BB1:
+  LEAVE 0
   RET
 
-main:
-MyClass_main:
+Circle_area:
 
 .BB0:
   ENTER 0
 .BB1:
 
-  ;OT at 12:9
-  LDI32 R0, 1
+  ;OT at 42:33
+  ;var radius
+  FA AR, THIS, 0
+  LD d R0, AR
+  ;var radius
+  FA AR, THIS, 0
+  LD d R1, AR
+  MUL d R0, R1
+  LDI32 R1, 314
+  MUL d R0, R1
+  LDI32 R1, 100
+  DIV d R0, R1
+  MOV RT, R0
+  JMP .BB2
+
+.BB2:
+  LEAVE 0
+  RET
+
+Circle_Circle:
+
+.BB0:
+  ENTER 0
+.BB1:
+
+  ;OT at 37:9
+  LDI32 R0, Circle_Circle_const0
   MOV BR1, SP
   PUSH R0
   PUSH R1
@@ -846,10 +696,10 @@ MyClass_main:
   PUSH N5
   PUSH N6
   PUSH N7
-  ;var DEC
+  ;var STR
   PUSH R0
-  CALL MyClass_myMethod
-  ;var DEC
+  CALL Shape_Shape
+  ;var STR
   POP R0
   POP N7
   POP N6
@@ -869,30 +719,150 @@ MyClass_main:
   POP R0
   MOV R1, RT
 
+  ;OT at 38:16
+  ;var radiusArg
+  LD d R0, [BP, 16]
+  ;var radius
+  FA AR, THIS, 0
+  ST d R0, AR
+  JMP .BB2
+
+.BB2:
+  LEAVE 0
+  RET
+
+Rectangle_area:
+
+.BB0:
+  ENTER 0
+.BB1:
+
+  ;OT at 28:15
+  ;var width
+  FA AR, THIS, 0
+  LD d R0, AR
+  ;var height
+  FA AR, THIS, 8
+  LD d R1, AR
+  MUL d R0, R1
+  MOV RT, R0
+  JMP .BB2
+
+.BB2:
+  LEAVE 0
+  RET
+
+Rectangle_Rectangle:
+
+.BB0:
+  ENTER 0
+.BB1:
+
+  ;OT at 22:9
+  LDI32 R0, Rectangle_Rectangle_const0
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  ;var STR
+  PUSH R0
+  CALL Shape_Shape
+  ;var STR
+  POP R0
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  MOV R1, RT
+
+  ;OT at 23:15
+  ;var widthArg
+  LD d R0, [BP, 16]
+  ;var width
+  FA AR, THIS, 0
+  ST d R0, AR
+
+  ;OT at 24:16
+  ;var heightArg
+  LD d R0, [BP, 24]
+  ;var height
+  FA AR, THIS, 8
+  ST d R0, AR
+  JMP .BB2
+
+.BB2:
+  LEAVE 0
+  RET
+
+Shape_getName:
+
+.BB0:
+  ENTER 0
+.BB1:
+
   ;OT at 13:9
+  ;var name
+  FA AR, THIS, 0
+  LD q R0, AR
+  MOV RT, R0
+  JMP .BB2
+
+.BB2:
+  LEAVE 0
+  RET
+
+Shape_area:
+
+.BB0:
+  ENTER 0
+.BB1:
+
+  ;OT at 9:9
   LDI32 R0, 0
   MOV RT, R0
   JMP .BB2
 
 .BB2:
   LEAVE 0
-  HLT
+  RET
 
-MyClass_MyClass:
+Shape_Shape:
 
 .BB0:
   ENTER 0
 .BB1:
 
-  ;OT at 8:17
-  ;var a
-  LD d R0, [BP, 16]
-  ;var b
-  LD d R1, [BP, 24]
-  ADD d R0, R1
-  ;var myField
+  ;OT at 5:14
+  ;var nameArg
+  LD q R0, [BP, 16]
+  ;var name
   FA AR, THIS, 0
-  ST d R0, AR
+  ST q R0, AR
   JMP .BB2
 
 .BB2:
@@ -3088,36 +3058,33 @@ Object_Object:
 
     [section constantsM]
 
-vtable_A:
+vtable_Main:
     dq Object_Object
-    dq A_doSomething5
-    dq A_doSomething
-    dq A_A
+    dq Main_main
+    dq Main_Main
 
-itable_Interface1_A:
-    dq A_doSomething5
-    dq A_doSomething
-
-
-classInfo_A:
+classInfo_Main:
     .typeId: dq 0x06
     .superPtr: dq classInfo_Object
-    .vtablePtr: dq vtable_A
+    .vtablePtr: dq vtable_Main
     .interfaceCount:
-        dq 0x01
+        dq 0x00
     .interfaceIds:
-        dq 0x08
+        dq 0x0
     .interfaceImpl:
-        dq itable_Interface1_A
+        dq 0x0
 
-vtable_MegaBaseClass:
+vtable_Circle:
     dq Object_Object
-    dq MegaBaseClass_MegaBaseClass
+    dq Shape_getName
+    dq Circle_area
+    dq Shape_Shape
+    dq Circle_Circle
 
-classInfo_MegaBaseClass:
+classInfo_Circle:
     .typeId: dq 0x05
-    .superPtr: dq classInfo_Object
-    .vtablePtr: dq vtable_MegaBaseClass
+    .superPtr: dq classInfo_Shape
+    .vtablePtr: dq vtable_Circle
     .interfaceCount:
         dq 0x00
     .interfaceIds:
@@ -3125,16 +3092,17 @@ classInfo_MegaBaseClass:
     .interfaceImpl:
         dq 0x0
 
-vtable_BaseClass:
+vtable_Rectangle:
     dq Object_Object
-    dq MegaBaseClass_MegaBaseClass
-    dq BaseClass_parentMethod2
-    dq BaseClass_BaseClass
+    dq Shape_getName
+    dq Rectangle_area
+    dq Shape_Shape
+    dq Rectangle_Rectangle
 
-classInfo_BaseClass:
+classInfo_Rectangle:
     .typeId: dq 0x04
-    .superPtr: dq classInfo_MegaBaseClass
-    .vtablePtr: dq vtable_BaseClass
+    .superPtr: dq classInfo_Shape
+    .vtablePtr: dq vtable_Rectangle
     .interfaceCount:
         dq 0x00
     .interfaceIds:
@@ -3142,38 +3110,22 @@ classInfo_BaseClass:
     .interfaceImpl:
         dq 0x0
 
-vtable_MyClass:
+vtable_Shape:
     dq Object_Object
-    dq MegaBaseClass_MegaBaseClass
-    dq MyClass_parentMethod2
-    dq BaseClass_BaseClass
-    dq MyClass_doSomething5
-    dq MyClass_doSomething
-    dq MyClass_parentMethod
-    dq MyClass_testMethod
-    dq MyClass_myMethod
-    dq MyClass_main
-    dq MyClass_MyClass
+    dq Shape_getName
+    dq Shape_area
+    dq Shape_Shape
 
-itable_Interface1_MyClass:
-    dq MyClass_doSomething5
-    dq MyClass_doSomething
-
-itable_Interface2_MyClass:
-
-
-classInfo_MyClass:
+classInfo_Shape:
     .typeId: dq 0x03
-    .superPtr: dq classInfo_BaseClass
-    .vtablePtr: dq vtable_MyClass
+    .superPtr: dq classInfo_Object
+    .vtablePtr: dq vtable_Shape
     .interfaceCount:
-        dq 0x02
+        dq 0x00
     .interfaceIds:
-        dq 0x08
-        dq 0x09
+        dq 0x0
     .interfaceImpl:
-        dq itable_Interface1_MyClass
-        dq itable_Interface2_MyClass
+        dq 0x0
 
 vtable_IO:
     dq Object_Object
@@ -3236,85 +3188,24 @@ classInfo_Object:
         dq 0x0
 
 
-BaseClass_parentMethod2_const0:
-  dq 0x42
-  dq 0x61
-  dq 0x73
-  dq 0x65
+Circle_Circle_const0:
   dq 0x43
-  dq 0x6C
-  dq 0x61
-  dq 0x73
-  dq 0x73
-  dq 0x20
-  dq 0x70
-  dq 0x61
+  dq 0x69
   dq 0x72
+  dq 0x63
+  dq 0x6C
   dq 0x65
+  dq 0x00
+Rectangle_Rectangle_const0:
+  dq 0x52
+  dq 0x65
+  dq 0x63
+  dq 0x74
+  dq 0x61
   dq 0x6E
-  dq 0x74
-  dq 0x4D
+  dq 0x67
+  dq 0x6C
   dq 0x65
-  dq 0x74
-  dq 0x68
-  dq 0x6F
-  dq 0x64
-  dq 0x32
-  dq 0x00
-MyClass_parentMethod2_const0:
-  dq 0x4D
-  dq 0x79
-  dq 0x43
-  dq 0x6C
-  dq 0x61
-  dq 0x73
-  dq 0x73
-  dq 0x20
-  dq 0x70
-  dq 0x61
-  dq 0x72
-  dq 0x65
-  dq 0x6E
-  dq 0x74
-  dq 0x4D
-  dq 0x65
-  dq 0x74
-  dq 0x68
-  dq 0x6F
-  dq 0x64
-  dq 0x32
-  dq 0x00
-MyClass_testMethod_const0:
-  dq 0x48
-  dq 0x65
-  dq 0x6C
-  dq 0x6C
-  dq 0x6F
-  dq 0x2C
-  dq 0x20
-  dq 0x57
-  dq 0x6F
-  dq 0x72
-  dq 0x6C
-  dq 0x64
-  dq 0x20
-  dq 0x32
-  dq 0x21
-  dq 0x00
-MyClass_myMethod_const0:
-  dq 0x48
-  dq 0x65
-  dq 0x6C
-  dq 0x6C
-  dq 0x6F
-  dq 0x2C
-  dq 0x20
-  dq 0x57
-  dq 0x6F
-  dq 0x72
-  dq 0x6C
-  dq 0x64
-  dq 0x21
   dq 0x00
 IO_ulongBufferSize_const0:
   dq 152

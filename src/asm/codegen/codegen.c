@@ -549,12 +549,36 @@ void generateASMForOTHelper(ClassInfo *classInfo, ClassInfo *classes, FunctionEn
                     }
 
                 } else {
-
+                    ClassVtableEntry *vtableEntry = instanceClassInfo->vtable->head;
+                    while (vtableEntry != NULL) {
+                        if (strcmp(vtableEntry->functionName, root->children[0]->children[0]->label) == 0) {
+                            commandMOV(buffer, REG_THIS, root->children[0]->children[1]->reg);
+                            char offsetBuffer[1024];
+                            snprintf(offsetBuffer, sizeof(offsetBuffer), "%ld", vtableEntry->offset);
+                            char typeIdBuffer[1024];
+                            snprintf(typeIdBuffer, sizeof(typeIdBuffer), "%ld", instanceClassInfo->typeId);
+                            commandLDI32(buffer, REG_IID, typeIdBuffer);
+                            commandICALL(buffer, root->children[0]->children[1]->reg, offsetBuffer);
+                            break;
+                        }
+                        vtableEntry = vtableEntry->next;
+                    }
                 }
             
             } else {
                 char *suffix = concatString("_", root->children[0]->label);
                 char *method = concatString(classInfo->name, suffix);
+
+                ClassVtableEntry *vtableEntry = classInfo->vtable->head;
+                while (vtableEntry != NULL) {
+                    if (strcmp(vtableEntry->functionName, root->children[0]->label) == 0) {
+                        free(method);
+                        method = concatString(vtableEntry->className, suffix);
+                        break;
+                    }
+                    vtableEntry = vtableEntry->next;
+                }
+                
                 commandCALL(buffer, method);
                 free(suffix);
                 free(method);
