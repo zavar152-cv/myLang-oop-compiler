@@ -71,6 +71,7 @@ typedef struct ClassVtableEntry {
     char *functionName;
     char *className;
     int64_t offset;
+    bool isBuiltin;
     struct ClassVtableEntry *next;
     struct ClassVtableEntry *prev;
 } ClassVtableEntry;

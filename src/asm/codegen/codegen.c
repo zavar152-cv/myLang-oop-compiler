@@ -449,6 +449,7 @@ void generateASMForOTHelper(ClassInfo *classInfo, ClassInfo *classes, FunctionEn
         }
 
         bool isNewOp = strcmp(root->label, OT_NEW) == 0;
+        bool isMethod = strcmp(root->children[0]->label, OT_METHOD) == 0;
 
         if (isNewOp) {
             char *classInfoString = concatString("classInfo_", root->children[0]->label);
@@ -471,6 +472,11 @@ void generateASMForOTHelper(ClassInfo *classInfo, ClassInfo *classes, FunctionEn
         }
 
         commandMOV(buffer, REG_BR1, REG_SP);
+
+
+        if (isMethod) {
+            commandPUSH(buffer, REG_THIS);
+        }
         commandPUSH(buffer, REG_R0);
         commandPUSH(buffer, REG_R1);
         commandPUSH(buffer, REG_R2);
@@ -513,8 +519,39 @@ void generateASMForOTHelper(ClassInfo *classInfo, ClassInfo *classes, FunctionEn
                 commandCALL(buffer, constructor);
                 free(suffix);
                 free(constructor);
-            } else if (strcmp(root->children[0]->label, OT_METHOD) == 0) {
+            } else if (isMethod) {
+                generateASMForOTHelper(classInfo, classes, entry, root->children[0]->children[1], buffer);
+            
+                ClassInfo *instanceClassInfo = classes;
+                while (instanceClassInfo != NULL) {
+                    if (strcmp(instanceClassInfo->name, root->children[0]->children[1]->type->typeName) == 0) {
+                        break;
+                    }
+                    instanceClassInfo = instanceClassInfo->next;
+                }
 
+                if (!instanceClassInfo->isInterface) {
+
+                    ClassVtableEntry *vtableEntry = instanceClassInfo->vtable->head;
+                    while (vtableEntry != NULL) {
+                        if (strcmp(vtableEntry->functionName, root->children[0]->children[0]->label) == 0) {
+                            commandMOV(buffer, REG_THIS, root->children[0]->children[1]->reg);
+                            if ((vtableEntry->functionName[0] == '_') && (vtableEntry->functionName[1] == '_')) {
+                                generateBuiltin(root->children[0]->children[0]->label, entry, root, buffer);
+                            } else {
+                                char offsetBuffer[1024];
+                                snprintf(offsetBuffer, sizeof(offsetBuffer), "%ld", vtableEntry->offset);
+                                commandMCALL(buffer, root->children[0]->children[1]->reg, offsetBuffer);
+                            }   
+                            break;
+                        }
+                        vtableEntry = vtableEntry->next;
+                    }
+
+                } else {
+
+                }
+            
             } else {
                 char *suffix = concatString("_", root->children[0]->label);
                 char *method = concatString(classInfo->name, suffix);
@@ -553,6 +590,10 @@ void generateASMForOTHelper(ClassInfo *classInfo, ClassInfo *classes, FunctionEn
         commandPOP(buffer, REG_R2);
         commandPOP(buffer, REG_R1);
         commandPOP(buffer, REG_R0);
+
+        if (isMethod) {
+            commandPOP(buffer, REG_THIS);
+        }
 
         if (isNewOp) { 
             commandMOV(buffer, root->reg, REG_THIS);

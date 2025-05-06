@@ -10,7 +10,7 @@ A_doSomething5:
   ENTER 0
 .BB1:
 
-  ;OT at 86:9
+  ;OT at 102:9
   LDI32 R0, 5
   MOV RT, R0
   JMP .BB2
@@ -25,7 +25,7 @@ A_doSomething:
   ENTER 0
 .BB1:
 
-  ;OT at 82:9
+  ;OT at 98:9
   LDI32 R0, 1
   MOV RT, R0
   JMP .BB2
@@ -53,16 +53,107 @@ MegaBaseClass_MegaBaseClass:
 BaseClass_parentMethod2:
 
 .BB0:
-  ENTER 0
+  ENTER 1
 .BB1:
 
-  ;OT at 63:9
+  ;OT at 77:12
+  PUSH THIS
+  LDI32 AR, classInfo_IO
+  MOV THIS, ALR
+  NEW AR, 3
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  CALL IO_IO
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  MOV R0, THIS
+  POP THIS
+  ;var io
+  ST q R0, [BP, -8]
+
+  ;OT at 78:12
+  LDI32 R1, BaseClass_parentMethod2_const0
+  MOV BR1, SP
+  PUSH THIS
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  ;var STR
+  PUSH R1
+  ;var io
+  LD q R0, [BP, -8]
+  MOV THIS, R0
+  MCALL R0, 72
+  ;var STR
+  POP R1
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  POP THIS
+  MOV R2, RT
+
+  ;OT at 79:9
   LDI32 R0, 0
   MOV RT, R0
   JMP .BB2
 
 .BB2:
-  LEAVE 0
+  LEAVE 1
   RET
 
 BaseClass_BaseClass:
@@ -79,7 +170,7 @@ MyClass_doSomething5:
   ENTER 0
 .BB1:
 
-  ;OT at 53:9
+  ;OT at 67:9
   LDI32 R0, 8
   MOV RT, R0
   JMP .BB2
@@ -94,7 +185,7 @@ MyClass_doSomething:
   ENTER 0
 .BB1:
 
-  ;OT at 49:9
+  ;OT at 63:9
   LDI32 R0, 0
   MOV RT, R0
   JMP .BB2
@@ -106,16 +197,107 @@ MyClass_doSomething:
 MyClass_parentMethod2:
 
 .BB0:
-  ENTER 0
+  ENTER 1
 .BB1:
 
-  ;OT at 45:9
+  ;OT at 57:12
+  PUSH THIS
+  LDI32 AR, classInfo_IO
+  MOV THIS, ALR
+  NEW AR, 3
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  CALL IO_IO
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  MOV R0, THIS
+  POP THIS
+  ;var io
+  ST q R0, [BP, -8]
+
+  ;OT at 58:12
+  LDI32 R1, MyClass_parentMethod2_const0
+  MOV BR1, SP
+  PUSH THIS
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  ;var STR
+  PUSH R1
+  ;var io
+  LD q R0, [BP, -8]
+  MOV THIS, R0
+  MCALL R0, 72
+  ;var STR
+  POP R1
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  POP THIS
+  MOV R2, RT
+
+  ;OT at 59:9
   LDI32 R0, 1
   MOV RT, R0
   JMP .BB2
 
 .BB2:
-  LEAVE 0
+  LEAVE 1
   RET
 
 MyClass_parentMethod:
@@ -124,7 +306,7 @@ MyClass_parentMethod:
   ENTER 0
 .BB1:
 
-  ;OT at 41:9
+  ;OT at 53:9
   LDI32 R0, 0
   MOV RT, R0
   JMP .BB2
@@ -136,30 +318,304 @@ MyClass_parentMethod:
 MyClass_testMethod:
 
 .BB0:
-  ENTER 0
+  ENTER 1
 .BB1:
 
-  ;OT at 37:9
+  ;OT at 45:12
+  PUSH THIS
+  LDI32 AR, classInfo_IO
+  MOV THIS, ALR
+  NEW AR, 3
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  CALL IO_IO
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  MOV R0, THIS
+  POP THIS
+  ;var io
+  ST q R0, [BP, -8]
+
+  ;OT at 46:12
+  LDI32 R1, MyClass_testMethod_const0
+  MOV BR1, SP
+  PUSH THIS
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  ;var STR
+  PUSH R1
+  ;var io
+  LD q R0, [BP, -8]
+  MOV THIS, R0
+  MCALL R0, 72
+  ;var STR
+  POP R1
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  POP THIS
+  MOV R2, RT
+
+  ;OT at 47:12
+  ;var myField
+  FA AR, THIS, 0
+  LD d R1, AR
+  MOV BR1, SP
+  PUSH THIS
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  ;var myField
+  PUSH R1
+  ;var io
+  LD q R0, [BP, -8]
+  MOV THIS, R0
+  MCALL R0, 24
+  ;var myField
+  POP R1
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  POP THIS
+  MOV R2, RT
+
+  ;OT at 48:12
+  ;var x
+  LD d R1, [BP, 16]
+  MOV BR1, SP
+  PUSH THIS
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  ;var x
+  PUSH R1
+  ;var io
+  LD q R0, [BP, -8]
+  MOV THIS, R0
+  MCALL R0, 24
+  ;var x
+  POP R1
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  POP THIS
+  MOV R2, RT
+
+  ;OT at 49:9
   LDI32 R0, 0
   MOV RT, R0
   JMP .BB2
 
 .BB2:
-  LEAVE 0
+  LEAVE 1
   RET
 
 MyClass_myMethod:
 
 .BB0:
-  ENTER 2
+  ENTER 3
 .BB1:
 
-  ;OT at 17:13
-  LDI32 R0, 9
-  ;var a
-  ST d R0, [BP, -8]
+  ;OT at 17:12
+  PUSH THIS
+  LDI32 AR, classInfo_IO
+  MOV THIS, ALR
+  NEW AR, 3
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  CALL IO_IO
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  MOV R0, THIS
+  POP THIS
+  ;var io
+  ST q R0, [BP, -8]
 
-  ;OT at 18:17
+  ;OT at 18:12
+  LDI32 R1, MyClass_myMethod_const0
+  MOV BR1, SP
+  PUSH THIS
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  ;var STR
+  PUSH R1
+  ;var io
+  LD q R0, [BP, -8]
+  MOV THIS, R0
+  MCALL R0, 72
+  ;var STR
+  POP R1
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  POP THIS
+  MOV R2, RT
+
+  ;OT at 20:17
   LDI32 R0, 1
   LDI32 R1, 2
   PUSH THIS
@@ -213,33 +669,55 @@ MyClass_myMethod:
   ;var instance
   ST q R2, [BP, -16]
 
-  ;OT at 19:17
-  LDI32 R0, 7
-  ;var myField
-  FA AR, THIS, 0
-  ST d R0, AR
-
-  ;OT at 20:18
-  LDI32 R0, 1
-  ;var myField2
-  FA AR, THIS, 8
-  ST d R0, AR
-
-  ;OT at 21:17
-  ;var myField2
-  FA AR, THIS, 8
-  LD d R0, AR
-  ;var myField
-  FA AR, THIS, 0
-  ST d R0, AR
-
-  ;OT at 22:27
-  LDI32 R1, 5
-  LDI32 R2, 5
+  ;OT at 21:18
+  LDI32 R1, 6
+  MOV BR1, SP
   PUSH THIS
-  LDI32 AR, classInfo_MyClass
-  MOV THIS, ALR
-  NEW AR, 4
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  ;var DEC
+  PUSH R1
+  ;var instance
+  LD q R0, [BP, -16]
+  MOV THIS, R0
+  MCALL R0, 56
+  ;var DEC
+  POP R1
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  POP THIS
+  MOV R2, RT
+
+  ;OT at 23:9
+  LDI32 R0, 5
   MOV BR1, SP
   PUSH R0
   PUSH R1
@@ -258,14 +736,10 @@ MyClass_myMethod:
   PUSH N6
   PUSH N7
   ;var DEC
-  PUSH R2
+  PUSH R0
+  CALL MyClass_testMethod
   ;var DEC
-  PUSH R1
-  CALL MyClass_MyClass
-  ;var DEC
-  POP R1
-  ;var DEC
-  POP R2
+  POP R0
   POP N7
   POP N6
   POP N5
@@ -282,28 +756,68 @@ MyClass_myMethod:
   POP R2
   POP R1
   POP R0
-  MOV R3, THIS
+  MOV R1, RT
+
+  ;OT at 25:19
+  ;var instance
+  LD q R0, [BP, -16]
+  ;var base
+  ST q R0, [BP, -24]
+
+  ;OT at 26:14
+  LDI32 R1, 0
+  MOV BR1, SP
+  PUSH THIS
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  ;var DEC
+  PUSH R1
+  ;var base
+  LD q R0, [BP, -24]
+  MOV THIS, R0
+  MCALL R0, 16
+  ;var DEC
+  POP R1
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
   POP THIS
-  ;var instance
-  LD q R0, [BP, -16]
-  FA R0, R0, 16
-  ST q R3, R0
+  MOV R2, RT
 
-  ;OT at 23:35
-  LDI32 R1, 78
-  ;var instance
-  LD q R0, [BP, -16]
-  LDF q R0, R0, 16
-  FA R0, R0, 0
-  ST q R1, R0
-
-  ;OT at 33:9
+  ;OT at 41:9
   LDI32 R0, 0
   MOV RT, R0
   JMP .BB2
 
 .BB2:
-  LEAVE 2
+  LEAVE 3
   RET
 
 main:
@@ -391,11 +905,9 @@ IO_printlnLong:
   ENTER 0
 .BB1:
 
-  ;OT at 145:9
+  ;OT at 149:9
   ;var num
   LD q R0, [BP, 16]
-  ;var bufferRef
-  LD q R1, [BP, 24]
   MOV BR1, SP
   PUSH R0
   PUSH R1
@@ -413,15 +925,11 @@ IO_printlnLong:
   PUSH N5
   PUSH N6
   PUSH N7
-  ;var bufferRef
-  PUSH R1
   ;var num
   PUSH R0
   CALL IO_printLong
   ;var num
   POP R0
-  ;var bufferRef
-  POP R1
   POP N7
   POP N6
   POP N5
@@ -438,9 +946,9 @@ IO_printlnLong:
   POP R2
   POP R1
   POP R0
-  MOV R2, RT
+  MOV R1, RT
 
-  ;OT at 146:9
+  ;OT at 150:9
   MOV BR1, SP
   PUSH R0
   PUSH R1
@@ -477,7 +985,7 @@ IO_printlnLong:
   POP R0
   MOV R0, RT
 
-  ;OT at 147:9
+  ;OT at 151:9
   LDI32 R0, 0
   MOV RT, R0
   JMP .BB2
@@ -493,12 +1001,13 @@ IO_printLong:
 .BB1:
 
   ;OT at 0:1
-  ;var bufferRef
-  LD q R0, [BP, 24]
+  ;var longBuffer
+  FA AR, THIS, 16
+  LD d R0, AR
   ;var buffer
   ST q R0, [BP, -16]
 
-  ;OT at 117:14
+  ;OT at 121:14
   ;var num
   LD q R0, [BP, 16]
   ;var temp
@@ -507,11 +1016,12 @@ IO_printLong:
 
 .BB2:
 
-  ;OT at 119:18
+  ;OT at 123:18
   ;var temp
   LD q R0, [BP, -24]
   LDI32 R2, 0
   MOV BR1, SP
+  PUSH THIS
   PUSH R0
   PUSH R1
   PUSH R2
@@ -530,6 +1040,14 @@ IO_printLong:
   PUSH N7
   ;var DEC
   PUSH R2
+  ;var bi
+  FA AR, THIS, 0
+  LD q R1, AR
+  MOV THIS, R1
+  ENTER 0
+  LD d R0, [BP, 8]
+  CDQ RT, R0
+  LEAVE 0
   ;var DEC
   POP R2
   POP N7
@@ -548,6 +1066,7 @@ IO_printLong:
   POP R2
   POP R1
   POP R0
+  POP THIS
   MOV R3, RT
   CMP q R0, R3
   LE R0
@@ -556,11 +1075,12 @@ IO_printLong:
 
 .BB3:
 
-  ;OT at 124:18
+  ;OT at 128:18
   ;var temp
   LD q R0, [BP, -24]
   LDI32 R2, 0
   MOV BR1, SP
+  PUSH THIS
   PUSH R0
   PUSH R1
   PUSH R2
@@ -579,6 +1099,14 @@ IO_printLong:
   PUSH N7
   ;var DEC
   PUSH R2
+  ;var bi
+  FA AR, THIS, 0
+  LD q R1, AR
+  MOV THIS, R1
+  ENTER 0
+  LD d R0, [BP, 8]
+  CDQ RT, R0
+  LEAVE 0
   ;var DEC
   POP R2
   POP N7
@@ -597,6 +1125,7 @@ IO_printLong:
   POP R2
   POP R1
   POP R0
+  POP THIS
   MOV R3, RT
   CMP q R0, R3
   EQ R0
@@ -605,9 +1134,10 @@ IO_printLong:
 
 .BB4:
 
-  ;OT at 120:16
+  ;OT at 124:16
   LDI32 R1, 0x2D
   MOV BR1, SP
+  PUSH THIS
   PUSH R0
   PUSH R1
   PUSH R2
@@ -626,6 +1156,15 @@ IO_printLong:
   PUSH N7
   ;var SYMB
   PUSH R1
+  ;var bi
+  FA AR, THIS, 0
+  LD q R0, AR
+  MOV THIS, R0
+  ENTER 0
+  LD q R0, [BP, 8]
+  MOV OUT, R0
+  LDI32 RT, 0
+  LEAVE 0
   ;var SYMB
   POP R1
   POP N7
@@ -644,9 +1183,10 @@ IO_printLong:
   POP R2
   POP R1
   POP R0
+  POP THIS
   MOV R2, RT
 
-  ;OT at 121:18
+  ;OT at 125:18
   ;var temp
   LD q R0, [BP, -24]
   NEG q R0
@@ -656,16 +1196,17 @@ IO_printLong:
 
 .BB5:
 
-  ;OT at 141:9
+  ;OT at 145:9
   LDI32 R0, 0
   MOV RT, R0
   JMP .BB14
 
 .BB6:
 
-  ;OT at 125:16
+  ;OT at 129:16
   LDI32 R1, 0x30
   MOV BR1, SP
+  PUSH THIS
   PUSH R0
   PUSH R1
   PUSH R2
@@ -684,6 +1225,15 @@ IO_printLong:
   PUSH N7
   ;var SYMB
   PUSH R1
+  ;var bi
+  FA AR, THIS, 0
+  LD q R0, AR
+  MOV THIS, R0
+  ENTER 0
+  LD q R0, [BP, 8]
+  MOV OUT, R0
+  LDI32 RT, 0
+  LEAVE 0
   ;var SYMB
   POP R1
   POP N7
@@ -702,12 +1252,13 @@ IO_printLong:
   POP R2
   POP R1
   POP R0
+  POP THIS
   MOV R2, RT
   JMP .BB5
 
 .BB7:
 
-  ;OT at 127:17
+  ;OT at 131:17
   LDI32 R0, 0
   ;var index
   ST d R0, [BP, -8]
@@ -715,11 +1266,12 @@ IO_printLong:
 
 .BB8:
 
-  ;OT at 129:25
+  ;OT at 133:25
   ;var temp
   LD q R0, [BP, -24]
   LDI32 R2, 0
   MOV BR1, SP
+  PUSH THIS
   PUSH R0
   PUSH R1
   PUSH R2
@@ -738,6 +1290,14 @@ IO_printLong:
   PUSH N7
   ;var DEC
   PUSH R2
+  ;var bi
+  FA AR, THIS, 0
+  LD q R1, AR
+  MOV THIS, R1
+  ENTER 0
+  LD d R0, [BP, 8]
+  CDQ RT, R0
+  LEAVE 0
   ;var DEC
   POP R2
   POP N7
@@ -756,6 +1316,7 @@ IO_printLong:
   POP R2
   POP R1
   POP R0
+  POP THIS
   MOV R3, RT
   CMP q R0, R3
   GR R0
@@ -764,7 +1325,7 @@ IO_printLong:
 
 .BB9:
 
-  ;OT at 135:19
+  ;OT at 139:19
   ;var index
   LD d R0, [BP, -8]
   LDI32 R1, 1
@@ -775,7 +1336,7 @@ IO_printLong:
 
 .BB10:
 
-  ;OT at 130:31
+  ;OT at 134:31
   ;var buffer
   LD q R1, [BP, -16]
   ;var index
@@ -787,6 +1348,7 @@ IO_printLong:
   LD q R3, [BP, -24]
   LDI32 R5, 10
   MOV BR1, SP
+  PUSH THIS
   PUSH R0
   PUSH R1
   PUSH R2
@@ -805,6 +1367,14 @@ IO_printLong:
   PUSH N7
   ;var DEC
   PUSH R5
+  ;var bi
+  FA AR, THIS, 0
+  LD q R4, AR
+  MOV THIS, R4
+  ENTER 0
+  LD d R0, [BP, 8]
+  CDQ RT, R0
+  LEAVE 0
   ;var DEC
   POP R5
   POP N7
@@ -823,10 +1393,12 @@ IO_printLong:
   POP R2
   POP R1
   POP R0
+  POP THIS
   MOV R6, RT
   MOD q R3, R6
   LDI32 R7, 48
   MOV BR1, SP
+  PUSH THIS
   PUSH R0
   PUSH R1
   PUSH R2
@@ -845,6 +1417,14 @@ IO_printLong:
   PUSH N7
   ;var HEX
   PUSH R7
+  ;var bi
+  FA AR, THIS, 0
+  LD q R6, AR
+  MOV THIS, R6
+  ENTER 0
+  LD d R0, [BP, 8]
+  CDQ RT, R0
+  LEAVE 0
   ;var HEX
   POP R7
   POP N7
@@ -863,9 +1443,11 @@ IO_printLong:
   POP R2
   POP R1
   POP R0
+  POP THIS
   MOV N0, RT
   OR q R3, N0
   MOV BR1, SP
+  PUSH THIS
   PUSH R0
   PUSH R1
   PUSH R2
@@ -884,6 +1466,14 @@ IO_printLong:
   PUSH N7
   ;var %
   PUSH R3
+  ;var bi
+  FA AR, THIS, 0
+  LD q R2, AR
+  MOV THIS, R2
+  ENTER 0
+  LD q R0, [BP, 8]
+  MOVT d RT, R0
+  LEAVE 0
   ;var %
   POP R3
   POP N7
@@ -902,10 +1492,11 @@ IO_printLong:
   POP R2
   POP R1
   POP R0
+  POP THIS
   MOV N0, RT
   ST q N0, R1
 
-  ;OT at 131:23
+  ;OT at 135:23
   ;var index
   LD d R0, [BP, -8]
   LDI32 R1, 1
@@ -913,11 +1504,12 @@ IO_printLong:
   ;var index
   ST d R0, [BP, -8]
 
-  ;OT at 132:22
+  ;OT at 136:22
   ;var temp
   LD q R0, [BP, -24]
   LDI32 R2, 10
   MOV BR1, SP
+  PUSH THIS
   PUSH R0
   PUSH R1
   PUSH R2
@@ -936,6 +1528,14 @@ IO_printLong:
   PUSH N7
   ;var DEC
   PUSH R2
+  ;var bi
+  FA AR, THIS, 0
+  LD q R1, AR
+  MOV THIS, R1
+  ENTER 0
+  LD d R0, [BP, 8]
+  CDQ RT, R0
+  LEAVE 0
   ;var DEC
   POP R2
   POP N7
@@ -954,6 +1554,7 @@ IO_printLong:
   POP R2
   POP R1
   POP R0
+  POP THIS
   MOV R3, RT
   DIV q R0, R3
   ;var temp
@@ -962,7 +1563,7 @@ IO_printLong:
 
 .BB11:
 
-  ;OT at 136:26
+  ;OT at 140:26
   ;var index
   LD d R0, [BP, -8]
   LDI32 R1, -1
@@ -976,7 +1577,7 @@ IO_printLong:
 
 .BB13:
 
-  ;OT at 137:20
+  ;OT at 141:20
   ;var buffer
   LD q R1, [BP, -16]
   ;var index
@@ -986,6 +1587,7 @@ IO_printLong:
   ADD q R1, R2
   LD q R1, R1
   MOV BR1, SP
+  PUSH THIS
   PUSH R0
   PUSH R1
   PUSH R2
@@ -1004,6 +1606,15 @@ IO_printLong:
   PUSH N7
   ;var read
   PUSH R1
+  ;var bi
+  FA AR, THIS, 0
+  LD q R0, AR
+  MOV THIS, R0
+  ENTER 0
+  LD q R0, [BP, 8]
+  MOV OUT, R0
+  LDI32 RT, 0
+  LEAVE 0
   ;var read
   POP R1
   POP N7
@@ -1022,9 +1633,10 @@ IO_printLong:
   POP R2
   POP R1
   POP R0
+  POP THIS
   MOV R2, RT
 
-  ;OT at 138:23
+  ;OT at 142:23
   ;var index
   LD d R0, [BP, -8]
   LDI32 R1, 1
@@ -1043,11 +1655,9 @@ IO_printlnInt:
   ENTER 0
 .BB1:
 
-  ;OT at 109:9
+  ;OT at 113:9
   ;var num
   LD d R0, [BP, 16]
-  ;var bufferRef
-  LD d R1, [BP, 24]
   MOV BR1, SP
   PUSH R0
   PUSH R1
@@ -1065,15 +1675,11 @@ IO_printlnInt:
   PUSH N5
   PUSH N6
   PUSH N7
-  ;var bufferRef
-  PUSH R1
   ;var num
   PUSH R0
   CALL IO_printInt
   ;var num
   POP R0
-  ;var bufferRef
-  POP R1
   POP N7
   POP N6
   POP N5
@@ -1090,9 +1696,9 @@ IO_printlnInt:
   POP R2
   POP R1
   POP R0
-  MOV R2, RT
+  MOV R1, RT
 
-  ;OT at 110:9
+  ;OT at 114:9
   MOV BR1, SP
   PUSH R0
   PUSH R1
@@ -1129,7 +1735,7 @@ IO_printlnInt:
   POP R0
   MOV R0, RT
 
-  ;OT at 111:9
+  ;OT at 115:9
   LDI32 R0, 0
   MOV RT, R0
   JMP .BB2
@@ -1145,12 +1751,13 @@ IO_printInt:
 .BB1:
 
   ;OT at 0:1
-  ;var bufferRef
-  LD d R0, [BP, 24]
+  ;var intBuffer
+  FA AR, THIS, 8
+  LD d R0, AR
   ;var buffer
   ST q R0, [BP, -16]
 
-  ;OT at 82:13
+  ;OT at 86:13
   ;var num
   LD d R0, [BP, 16]
   ;var temp
@@ -1159,7 +1766,7 @@ IO_printInt:
 
 .BB2:
 
-  ;OT at 83:18
+  ;OT at 87:18
   ;var temp
   LD d R0, [BP, -24]
   LDI32 R1, 0
@@ -1170,7 +1777,7 @@ IO_printInt:
 
 .BB3:
 
-  ;OT at 88:18
+  ;OT at 92:18
   ;var temp
   LD d R0, [BP, -24]
   LDI32 R1, 0
@@ -1181,9 +1788,10 @@ IO_printInt:
 
 .BB4:
 
-  ;OT at 84:16
+  ;OT at 88:16
   LDI32 R1, 0x2D
   MOV BR1, SP
+  PUSH THIS
   PUSH R0
   PUSH R1
   PUSH R2
@@ -1202,6 +1810,15 @@ IO_printInt:
   PUSH N7
   ;var SYMB
   PUSH R1
+  ;var bi
+  FA AR, THIS, 0
+  LD q R0, AR
+  MOV THIS, R0
+  ENTER 0
+  LD q R0, [BP, 8]
+  MOV OUT, R0
+  LDI32 RT, 0
+  LEAVE 0
   ;var SYMB
   POP R1
   POP N7
@@ -1220,9 +1837,10 @@ IO_printInt:
   POP R2
   POP R1
   POP R0
+  POP THIS
   MOV R2, RT
 
-  ;OT at 85:18
+  ;OT at 89:18
   ;var temp
   LD d R0, [BP, -24]
   NEG d R0
@@ -1232,16 +1850,17 @@ IO_printInt:
 
 .BB5:
 
-  ;OT at 105:9
+  ;OT at 109:9
   LDI32 R0, 0
   MOV RT, R0
   JMP .BB14
 
 .BB6:
 
-  ;OT at 89:16
+  ;OT at 93:16
   LDI32 R1, 0x30
   MOV BR1, SP
+  PUSH THIS
   PUSH R0
   PUSH R1
   PUSH R2
@@ -1260,6 +1879,15 @@ IO_printInt:
   PUSH N7
   ;var SYMB
   PUSH R1
+  ;var bi
+  FA AR, THIS, 0
+  LD q R0, AR
+  MOV THIS, R0
+  ENTER 0
+  LD q R0, [BP, 8]
+  MOV OUT, R0
+  LDI32 RT, 0
+  LEAVE 0
   ;var SYMB
   POP R1
   POP N7
@@ -1278,12 +1906,13 @@ IO_printInt:
   POP R2
   POP R1
   POP R0
+  POP THIS
   MOV R2, RT
   JMP .BB5
 
 .BB7:
 
-  ;OT at 91:17
+  ;OT at 95:17
   LDI32 R0, 0
   ;var index
   ST d R0, [BP, -8]
@@ -1291,7 +1920,7 @@ IO_printInt:
 
 .BB8:
 
-  ;OT at 93:25
+  ;OT at 97:25
   ;var temp
   LD d R0, [BP, -24]
   LDI32 R1, 0
@@ -1302,7 +1931,7 @@ IO_printInt:
 
 .BB9:
 
-  ;OT at 99:19
+  ;OT at 103:19
   ;var index
   LD d R0, [BP, -8]
   LDI32 R1, 1
@@ -1313,7 +1942,7 @@ IO_printInt:
 
 .BB10:
 
-  ;OT at 94:31
+  ;OT at 98:31
   ;var buffer
   LD q R1, [BP, -16]
   ;var index
@@ -1329,7 +1958,7 @@ IO_printInt:
   OR q R2, R3
   ST q R2, R1
 
-  ;OT at 95:23
+  ;OT at 99:23
   ;var index
   LD d R0, [BP, -8]
   LDI32 R1, 1
@@ -1337,7 +1966,7 @@ IO_printInt:
   ;var index
   ST d R0, [BP, -8]
 
-  ;OT at 96:22
+  ;OT at 100:22
   ;var temp
   LD d R0, [BP, -24]
   LDI32 R1, 10
@@ -1348,7 +1977,7 @@ IO_printInt:
 
 .BB11:
 
-  ;OT at 100:26
+  ;OT at 104:26
   ;var index
   LD d R0, [BP, -8]
   LDI32 R1, -1
@@ -1362,7 +1991,7 @@ IO_printInt:
 
 .BB13:
 
-  ;OT at 101:20
+  ;OT at 105:20
   ;var buffer
   LD q R1, [BP, -16]
   ;var index
@@ -1372,6 +2001,7 @@ IO_printInt:
   ADD q R1, R2
   LD q R1, R1
   MOV BR1, SP
+  PUSH THIS
   PUSH R0
   PUSH R1
   PUSH R2
@@ -1390,6 +2020,15 @@ IO_printInt:
   PUSH N7
   ;var read
   PUSH R1
+  ;var bi
+  FA AR, THIS, 0
+  LD q R0, AR
+  MOV THIS, R0
+  ENTER 0
+  LD q R0, [BP, 8]
+  MOV OUT, R0
+  LDI32 RT, 0
+  LEAVE 0
   ;var read
   POP R1
   POP N7
@@ -1408,9 +2047,10 @@ IO_printInt:
   POP R2
   POP R1
   POP R0
+  POP THIS
   MOV R2, RT
 
-  ;OT at 102:23
+  ;OT at 106:23
   ;var index
   LD d R0, [BP, -8]
   LDI32 R1, 1
@@ -1429,7 +2069,7 @@ IO_ulongBufferSize:
   ENTER 0
 .BB1:
 
-  ;OT at 75:9
+  ;OT at 79:9
   LDI32 AR, IO_ulongBufferSize_const0
   LDC64 R0, AR
   MOV RT, R0
@@ -1445,7 +2085,7 @@ IO_longBufferSize:
   ENTER 0
 .BB1:
 
-  ;OT at 71:9
+  ;OT at 75:9
   LDI32 AR, IO_longBufferSize_const0
   LDC64 R0, AR
   MOV RT, R0
@@ -1461,7 +2101,7 @@ IO_uintBufferSize:
   ENTER 0
 .BB1:
 
-  ;OT at 67:9
+  ;OT at 71:9
   LDI32 AR, IO_uintBufferSize_const0
   LDC64 R0, AR
   MOV RT, R0
@@ -1477,7 +2117,7 @@ IO_intBufferSize:
   ENTER 0
 .BB1:
 
-  ;OT at 63:9
+  ;OT at 67:9
   LDI32 AR, IO_intBufferSize_const0
   LDC64 R0, AR
   MOV RT, R0
@@ -1493,7 +2133,7 @@ IO_printlnString:
   ENTER 0
 .BB1:
 
-  ;OT at 57:9
+  ;OT at 61:9
   ;var s
   LD q R0, [BP, 16]
   MOV BR1, SP
@@ -1536,7 +2176,7 @@ IO_printlnString:
   POP R0
   MOV R1, RT
 
-  ;OT at 58:9
+  ;OT at 62:9
   MOV BR1, SP
   PUSH R0
   PUSH R1
@@ -1573,7 +2213,7 @@ IO_printlnString:
   POP R0
   MOV R0, RT
 
-  ;OT at 59:9
+  ;OT at 63:9
   LDI32 R0, 0
   MOV RT, R0
   JMP .BB2
@@ -1588,12 +2228,12 @@ IO_printString:
   ENTER 2
 .BB1:
 
-  ;OT at 47:13
+  ;OT at 51:13
   LDI32 R0, 0
   ;var i
   ST d R0, [BP, -8]
 
-  ;OT at 48:13
+  ;OT at 52:13
   ;var s
   LD q R0, [BP, 16]
   MOV BR1, SP
@@ -1641,7 +2281,7 @@ IO_printString:
 
 .BB2:
 
-  ;OT at 49:18
+  ;OT at 53:18
   ;var i
   LD d R0, [BP, -8]
   ;var l
@@ -1653,14 +2293,14 @@ IO_printString:
 
 .BB3:
 
-  ;OT at 53:9
+  ;OT at 57:9
   LDI32 R0, 0
   MOV RT, R0
   JMP .BB5
 
 .BB4:
 
-  ;OT at 50:16
+  ;OT at 54:16
   ;var s
   LD q R1, [BP, 16]
   ;var i
@@ -1670,6 +2310,7 @@ IO_printString:
   ADD q R1, R2
   LDC64 R1, R1
   MOV BR1, SP
+  PUSH THIS
   PUSH R0
   PUSH R1
   PUSH R2
@@ -1688,6 +2329,15 @@ IO_printString:
   PUSH N7
   ;var read
   PUSH R1
+  ;var bi
+  FA AR, THIS, 0
+  LD q R0, AR
+  MOV THIS, R0
+  ENTER 0
+  LD q R0, [BP, 8]
+  MOV OUT, R0
+  LDI32 RT, 0
+  LEAVE 0
   ;var read
   POP R1
   POP N7
@@ -1706,9 +2356,10 @@ IO_printString:
   POP R2
   POP R1
   POP R0
+  POP THIS
   MOV R2, RT
 
-  ;OT at 51:15
+  ;OT at 55:15
   ;var i
   LD d R0, [BP, -8]
   LDI32 R1, 1
@@ -1727,7 +2378,7 @@ IO_printlnChar:
   ENTER 0
 .BB1:
 
-  ;OT at 41:9
+  ;OT at 45:9
   ;var toOut
   LD b R0, [BP, 16]
   MOV BR1, SP
@@ -1770,7 +2421,7 @@ IO_printlnChar:
   POP R0
   MOV R1, RT
 
-  ;OT at 42:9
+  ;OT at 46:9
   MOV BR1, SP
   PUSH R0
   PUSH R1
@@ -1807,7 +2458,7 @@ IO_printlnChar:
   POP R0
   MOV R0, RT
 
-  ;OT at 43:9
+  ;OT at 47:9
   LDI32 R0, 0
   MOV RT, R0
   JMP .BB2
@@ -1822,10 +2473,11 @@ IO_printChar:
   ENTER 0
 .BB1:
 
-  ;OT at 36:12
+  ;OT at 40:12
   ;var toOut
   LD b R1, [BP, 16]
   MOV BR1, SP
+  PUSH THIS
   PUSH R0
   PUSH R1
   PUSH R2
@@ -1844,6 +2496,15 @@ IO_printChar:
   PUSH N7
   ;var toOut
   PUSH R1
+  ;var bi
+  FA AR, THIS, 0
+  LD q R0, AR
+  MOV THIS, R0
+  ENTER 0
+  LD q R0, [BP, 8]
+  MOV OUT, R0
+  LDI32 RT, 0
+  LEAVE 0
   ;var toOut
   POP R1
   POP N7
@@ -1862,9 +2523,10 @@ IO_printChar:
   POP R2
   POP R1
   POP R0
+  POP THIS
   MOV R2, RT
 
-  ;OT at 37:9
+  ;OT at 41:9
   LDI32 R0, 0
   MOV RT, R0
   JMP .BB2
@@ -1879,7 +2541,7 @@ IO_printlnByte:
   ENTER 0
 .BB1:
 
-  ;OT at 30:9
+  ;OT at 34:9
   ;var toOut
   LD b R0, [BP, 16]
   MOV BR1, SP
@@ -1922,7 +2584,7 @@ IO_printlnByte:
   POP R0
   MOV R1, RT
 
-  ;OT at 31:9
+  ;OT at 35:9
   MOV BR1, SP
   PUSH R0
   PUSH R1
@@ -1959,7 +2621,7 @@ IO_printlnByte:
   POP R0
   MOV R0, RT
 
-  ;OT at 32:9
+  ;OT at 36:9
   LDI32 R0, 0
   MOV RT, R0
   JMP .BB2
@@ -1974,10 +2636,11 @@ IO_printByte:
   ENTER 0
 .BB1:
 
-  ;OT at 25:12
+  ;OT at 29:12
   ;var toOut
   LD b R1, [BP, 16]
   MOV BR1, SP
+  PUSH THIS
   PUSH R0
   PUSH R1
   PUSH R2
@@ -1996,6 +2659,15 @@ IO_printByte:
   PUSH N7
   ;var toOut
   PUSH R1
+  ;var bi
+  FA AR, THIS, 0
+  LD q R0, AR
+  MOV THIS, R0
+  ENTER 0
+  LD q R0, [BP, 8]
+  MOV OUT, R0
+  LDI32 RT, 0
+  LEAVE 0
   ;var toOut
   POP R1
   POP N7
@@ -2014,9 +2686,10 @@ IO_printByte:
   POP R2
   POP R1
   POP R0
+  POP THIS
   MOV R2, RT
 
-  ;OT at 26:9
+  ;OT at 30:9
   LDI32 R0, 0
   MOV RT, R0
   JMP .BB2
@@ -2031,9 +2704,10 @@ IO_println:
   ENTER 0
 .BB1:
 
-  ;OT at 20:12
+  ;OT at 24:12
   LDI32 R1, 0x0A
   MOV BR1, SP
+  PUSH THIS
   PUSH R0
   PUSH R1
   PUSH R2
@@ -2052,6 +2726,15 @@ IO_println:
   PUSH N7
   ;var SYMB
   PUSH R1
+  ;var bi
+  FA AR, THIS, 0
+  LD q R0, AR
+  MOV THIS, R0
+  ENTER 0
+  LD q R0, [BP, 8]
+  MOV OUT, R0
+  LDI32 RT, 0
+  LEAVE 0
   ;var SYMB
   POP R1
   POP N7
@@ -2070,9 +2753,10 @@ IO_println:
   POP R2
   POP R1
   POP R0
+  POP THIS
   MOV R2, RT
 
-  ;OT at 21:9
+  ;OT at 25:9
   LDI32 R0, 0
   MOV RT, R0
   JMP .BB2
@@ -2087,7 +2771,7 @@ IO_strlength:
   ENTER 1
 .BB1:
 
-  ;OT at 9:13
+  ;OT at 13:13
   LDI32 R0, 0
   ;var len
   ST d R0, [BP, -8]
@@ -2095,7 +2779,7 @@ IO_strlength:
 
 .BB2:
 
-  ;OT at 10:21
+  ;OT at 14:21
   LDI32 R0, 1
   LDI32 R1, 1
   CMP q R0, R1
@@ -2105,7 +2789,7 @@ IO_strlength:
 
 .BB3:
 
-  ;OT at 16:9
+  ;OT at 20:9
   ;var len
   LD d R0, [BP, -8]
   MOV RT, R0
@@ -2116,7 +2800,7 @@ IO_strlength:
 
 .BB5:
 
-  ;OT at 11:26
+  ;OT at 15:26
   ;var str
   LD q R0, [BP, 16]
   ;var len
@@ -2133,7 +2817,7 @@ IO_strlength:
 
 .BB6:
 
-  ;OT at 14:17
+  ;OT at 18:17
   ;var len
   LD d R0, [BP, -8]
   LDI32 R1, 1
@@ -2144,7 +2828,7 @@ IO_strlength:
 
 .BB7:
 
-  ;OT at 12:17
+  ;OT at 16:17
   JMP .BB3
 
 .BB8:
@@ -2157,7 +2841,7 @@ IO_IO:
   ENTER 0
 .BB1:
 
-  ;OT at 5:12
+  ;OT at 7:12
   PUSH THIS
   LDI32 AR, classInfo_BuiltIn
   MOV THIS, ALR
@@ -2201,6 +2885,184 @@ IO_IO:
   ;var bi
   FA AR, THIS, 0
   ST q R0, AR
+
+  ;OT at 8:19
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  CALL IO_intBufferSize
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  MOV R1, RT
+  MOV BR1, SP
+  PUSH THIS
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  ;var intBufferSize
+  PUSH R1
+  ;var bi
+  FA AR, THIS, 0
+  LD q R0, AR
+  MOV THIS, R0
+  ENTER 0
+  LD q R0, [BP, 8]
+  MOV RT, ALR
+  ADD q ALR, R0
+  LEAVE 0
+  ;var intBufferSize
+  POP R1
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  POP THIS
+  MOV R2, RT
+  ;var intBuffer
+  FA AR, THIS, 8
+  ST d R2, AR
+
+  ;OT at 9:20
+  MOV BR1, SP
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  CALL IO_longBufferSize
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  MOV R1, RT
+  MOV BR1, SP
+  PUSH THIS
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  ;var longBufferSize
+  PUSH R1
+  ;var bi
+  FA AR, THIS, 0
+  LD q R0, AR
+  MOV THIS, R0
+  ENTER 0
+  LD q R0, [BP, 8]
+  MOV RT, ALR
+  ADD q ALR, R0
+  LEAVE 0
+  ;var longBufferSize
+  POP R1
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  POP THIS
+  MOV R2, RT
+  ;var longBuffer
+  FA AR, THIS, 16
+  ST d R2, AR
   JMP .BB2
 
 .BB2:
@@ -2374,14 +3236,94 @@ classInfo_Object:
         dq 0x0
 
 
+BaseClass_parentMethod2_const0:
+  dq 0x42
+  dq 0x61
+  dq 0x73
+  dq 0x65
+  dq 0x43
+  dq 0x6C
+  dq 0x61
+  dq 0x73
+  dq 0x73
+  dq 0x20
+  dq 0x70
+  dq 0x61
+  dq 0x72
+  dq 0x65
+  dq 0x6E
+  dq 0x74
+  dq 0x4D
+  dq 0x65
+  dq 0x74
+  dq 0x68
+  dq 0x6F
+  dq 0x64
+  dq 0x32
+  dq 0x00
+MyClass_parentMethod2_const0:
+  dq 0x4D
+  dq 0x79
+  dq 0x43
+  dq 0x6C
+  dq 0x61
+  dq 0x73
+  dq 0x73
+  dq 0x20
+  dq 0x70
+  dq 0x61
+  dq 0x72
+  dq 0x65
+  dq 0x6E
+  dq 0x74
+  dq 0x4D
+  dq 0x65
+  dq 0x74
+  dq 0x68
+  dq 0x6F
+  dq 0x64
+  dq 0x32
+  dq 0x00
+MyClass_testMethod_const0:
+  dq 0x48
+  dq 0x65
+  dq 0x6C
+  dq 0x6C
+  dq 0x6F
+  dq 0x2C
+  dq 0x20
+  dq 0x57
+  dq 0x6F
+  dq 0x72
+  dq 0x6C
+  dq 0x64
+  dq 0x20
+  dq 0x32
+  dq 0x21
+  dq 0x00
+MyClass_myMethod_const0:
+  dq 0x48
+  dq 0x65
+  dq 0x6C
+  dq 0x6C
+  dq 0x6F
+  dq 0x2C
+  dq 0x20
+  dq 0x57
+  dq 0x6F
+  dq 0x72
+  dq 0x6C
+  dq 0x64
+  dq 0x21
+  dq 0x00
 IO_ulongBufferSize_const0:
-  dq 19
+  dq 152
 
 IO_longBufferSize_const0:
-  dq 19
+  dq 152
 
 IO_uintBufferSize_const0:
-  dq 10
+  dq 80
 
 IO_intBufferSize_const0:
-  dq 10
+  dq 80

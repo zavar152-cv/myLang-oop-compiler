@@ -752,8 +752,7 @@ void prepareClassVtableHelper(ClassInfo *classInfo, ClassInfo *classes, ClassVta
       }
 
     } else {
-      if (!functionEntry->isBuiltin)
-        addVtableEntry(vtable, functionEntry->functionName, classInfo->name);
+      addVtableEntry(vtable, functionEntry->functionName, classInfo->name, functionEntry->isBuiltin);
     }
     functionEntry = functionEntry->next;
   }
@@ -1549,13 +1548,14 @@ ClassVtable *createVtable() {
   return vtable;
 }
 
-void addVtableEntry(ClassVtable *vtable, const char *functionName, const char *className) {
+void addVtableEntry(ClassVtable *vtable, const char *functionName, const char *className, bool isBuiltin) {
   ClassVtableEntry *newEntry = malloc(sizeof(*newEntry));
   newEntry->functionName = strdup(functionName);
   newEntry->className = strdup(className);
   newEntry->offset       = vtable->currentOffset;
   newEntry->next         = NULL;
   newEntry->prev         = NULL;
+  newEntry->isBuiltin = isBuiltin;
 
   if (vtable->head == NULL) {
       vtable->head = vtable->tail = newEntry;

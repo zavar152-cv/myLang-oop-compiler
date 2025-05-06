@@ -178,7 +178,7 @@ void freeField(FieldInfo *field);
 
 ClassVtable *createVtable();
 
-void addVtableEntry(ClassVtable *vtable, const char *functionName, const char *className);
+void addVtableEntry(ClassVtable *vtable, const char *functionName, const char *className, bool isBuiltin);
 
 void freeVtable(ClassVtable *vtable);
 

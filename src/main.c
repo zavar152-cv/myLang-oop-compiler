@@ -396,11 +396,13 @@ int main(int argc, char *argv[]) {
 
             ClassVtableEntry *vtableEntry = classInfo->vtable->head;
             while (vtableEntry != NULL) {
-                stringbuffer_append_string(buffer, "    dq ");
-                stringbuffer_append_string(buffer, vtableEntry->className);
-                stringbuffer_append_string(buffer, "_");
-                stringbuffer_append_string(buffer, vtableEntry->functionName);
-                stringbuffer_append_string(buffer, "\n");
+                if (!vtableEntry->isBuiltin) {
+                    stringbuffer_append_string(buffer, "    dq ");
+                    stringbuffer_append_string(buffer, vtableEntry->className);
+                    stringbuffer_append_string(buffer, "_");
+                    stringbuffer_append_string(buffer, vtableEntry->functionName);
+                    stringbuffer_append_string(buffer, "\n");
+                }
                 vtableEntry = vtableEntry->next;
             }
         }
