@@ -8,10 +8,10 @@ main:
 Main_main:
 
 .BB0:
-  ENTER 3
+  ENTER 4
 .BB1:
 
-  ;OT at 54:17
+  ;OT at 64:17
   PUSH THIS
   LDI32 AR, classInfo_BuiltIn
   MOV THIS, ALR
@@ -55,7 +55,7 @@ Main_main:
   ;var bi
   ST q R0, [BP, -8]
 
-  ;OT at 55:12
+  ;OT at 65:12
   PUSH THIS
   LDI32 AR, classInfo_IO
   MOV THIS, ALR
@@ -152,7 +152,7 @@ Main_main:
   ;var shapes
   ST q R2, [BP, -24]
 
-  ;OT at 58:19
+  ;OT at 68:19
   ;var shapes
   LD q R1, [BP, -24]
   LDI32 R2, 0
@@ -164,7 +164,7 @@ Main_main:
   PUSH THIS
   LDI32 AR, classInfo_Rectangle
   MOV THIS, ALR
-  NEW AR, 2
+  NEW AR, 3
   MOV BR1, SP
   PUSH R0
   PUSH R1
@@ -211,7 +211,7 @@ Main_main:
   POP THIS
   ST q R4, R1
 
-  ;OT at 59:19
+  ;OT at 69:19
   ;var shapes
   LD q R1, [BP, -24]
   LDI32 R2, 1
@@ -222,7 +222,7 @@ Main_main:
   PUSH THIS
   LDI32 AR, classInfo_Circle
   MOV THIS, ALR
-  NEW AR, 1
+  NEW AR, 2
   MOV BR1, SP
   PUSH R0
   PUSH R1
@@ -265,377 +265,227 @@ Main_main:
   POP THIS
   ST q R3, R1
 
-  ;OT at 61:12
-  MOV BR1, SP
-  PUSH THIS
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH N0
-  PUSH N1
-  PUSH N2
-  PUSH N3
-  PUSH N4
-  PUSH N5
-  PUSH N6
-  PUSH N7
-  ;var shapes
-  LD q R1, [BP, -24]
-  LDI32 R2, 0
-  LDI32 BR2, 8
-  MUL q R2, BR2
-  ADD q R1, R2
-  LD q R1, R1
-  MOV THIS, R1
-  MCALL R1, 8
-  POP N7
-  POP N6
-  POP N5
-  POP N4
-  POP N3
-  POP N2
-  POP N1
-  POP N0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  POP THIS
-  MOV R2, RT
-  MOV BR1, SP
-  PUSH THIS
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH N0
-  PUSH N1
-  PUSH N2
-  PUSH N3
-  PUSH N4
-  PUSH N5
-  PUSH N6
-  PUSH N7
-  ;var method
-  PUSH R2
-  ;var io
-  LD q R0, [BP, -16]
-  MOV THIS, R0
-  MCALL R0, 72
-  ;var method
-  POP R2
-  POP N7
-  POP N6
-  POP N5
-  POP N4
-  POP N3
-  POP N2
-  POP N1
-  POP N0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  POP THIS
-  MOV R3, RT
-
-  ;OT at 62:12
-  MOV BR1, SP
-  PUSH THIS
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH N0
-  PUSH N1
-  PUSH N2
-  PUSH N3
-  PUSH N4
-  PUSH N5
-  PUSH N6
-  PUSH N7
-  ;var shapes
-  LD q R1, [BP, -24]
-  LDI32 R2, 0
-  LDI32 BR2, 8
-  MUL q R2, BR2
-  ADD q R1, R2
-  LD q R1, R1
-  MOV THIS, R1
-  MCALL R1, 16
-  POP N7
-  POP N6
-  POP N5
-  POP N4
-  POP N3
-  POP N2
-  POP N1
-  POP N0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  POP THIS
-  MOV R2, RT
-  MOV BR1, SP
-  PUSH THIS
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH N0
-  PUSH N1
-  PUSH N2
-  PUSH N3
-  PUSH N4
-  PUSH N5
-  PUSH N6
-  PUSH N7
-  ;var method
-  PUSH R2
-  ;var io
-  LD q R0, [BP, -16]
-  MOV THIS, R0
-  MCALL R0, 24
-  ;var method
-  POP R2
-  POP N7
-  POP N6
-  POP N5
-  POP N4
-  POP N3
-  POP N2
-  POP N1
-  POP N0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  POP THIS
-  MOV R3, RT
-
-  ;OT at 64:12
-  MOV BR1, SP
-  PUSH THIS
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH N0
-  PUSH N1
-  PUSH N2
-  PUSH N3
-  PUSH N4
-  PUSH N5
-  PUSH N6
-  PUSH N7
-  ;var shapes
-  LD q R1, [BP, -24]
-  LDI32 R2, 1
-  LDI32 BR2, 8
-  MUL q R2, BR2
-  ADD q R1, R2
-  LD q R1, R1
-  MOV THIS, R1
-  MCALL R1, 8
-  POP N7
-  POP N6
-  POP N5
-  POP N4
-  POP N3
-  POP N2
-  POP N1
-  POP N0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  POP THIS
-  MOV R2, RT
-  MOV BR1, SP
-  PUSH THIS
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH N0
-  PUSH N1
-  PUSH N2
-  PUSH N3
-  PUSH N4
-  PUSH N5
-  PUSH N6
-  PUSH N7
-  ;var method
-  PUSH R2
-  ;var io
-  LD q R0, [BP, -16]
-  MOV THIS, R0
-  MCALL R0, 72
-  ;var method
-  POP R2
-  POP N7
-  POP N6
-  POP N5
-  POP N4
-  POP N3
-  POP N2
-  POP N1
-  POP N0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  POP THIS
-  MOV R3, RT
-
-  ;OT at 65:12
-  MOV BR1, SP
-  PUSH THIS
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH N0
-  PUSH N1
-  PUSH N2
-  PUSH N3
-  PUSH N4
-  PUSH N5
-  PUSH N6
-  PUSH N7
-  ;var shapes
-  LD q R1, [BP, -24]
-  LDI32 R2, 1
-  LDI32 BR2, 8
-  MUL q R2, BR2
-  ADD q R1, R2
-  LD q R1, R1
-  MOV THIS, R1
-  MCALL R1, 16
-  POP N7
-  POP N6
-  POP N5
-  POP N4
-  POP N3
-  POP N2
-  POP N1
-  POP N0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  POP THIS
-  MOV R2, RT
-  MOV BR1, SP
-  PUSH THIS
-  PUSH R0
-  PUSH R1
-  PUSH R2
-  PUSH R3
-  PUSH R4
-  PUSH R5
-  PUSH R6
-  PUSH R7
-  PUSH N0
-  PUSH N1
-  PUSH N2
-  PUSH N3
-  PUSH N4
-  PUSH N5
-  PUSH N6
-  PUSH N7
-  ;var method
-  PUSH R2
-  ;var io
-  LD q R0, [BP, -16]
-  MOV THIS, R0
-  MCALL R0, 24
-  ;var method
-  POP R2
-  POP N7
-  POP N6
-  POP N5
-  POP N4
-  POP N3
-  POP N2
-  POP N1
-  POP N0
-  POP R7
-  POP R6
-  POP R5
-  POP R4
-  POP R3
-  POP R2
-  POP R1
-  POP R0
-  POP THIS
-  MOV R3, RT
-
-  ;OT at 67:9
+  ;OT at 71:13
   LDI32 R0, 0
-  MOV RT, R0
+  ;var i
+  ST d R0, [BP, -32]
   JMP .BB2
 
 .BB2:
-  LEAVE 3
+
+  ;OT at 72:18
+  ;var i
+  LD d R0, [BP, -32]
+  LDI32 R1, 2
+  CMP d R0, R1
+  NEQ R0
+  JNZ .BB4
+  JZ .BB3
+
+.BB3:
+
+  ;OT at 83:9
+  LDI32 R0, 0
+  MOV RT, R0
+  JMP .BB5
+
+.BB4:
+
+  ;OT at 73:16
+  MOV BR1, SP
+  PUSH THIS
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  ;var shapes
+  LD q R1, [BP, -24]
+  ;var i
+  LD d R2, [BP, -32]
+  LDI32 BR2, 8
+  MUL q R2, BR2
+  ADD q R1, R2
+  LD q R1, R1
+  MOV THIS, R1
+  MCALL R1, 8
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  POP THIS
+  MOV R2, RT
+  MOV BR1, SP
+  PUSH THIS
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  ;var method
+  PUSH R2
+  ;var io
+  LD q R0, [BP, -16]
+  MOV THIS, R0
+  MCALL R0, 72
+  ;var method
+  POP R2
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  POP THIS
+  MOV R3, RT
+
+  ;OT at 74:16
+  MOV BR1, SP
+  PUSH THIS
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  ;var shapes
+  LD q R1, [BP, -24]
+  ;var i
+  LD d R2, [BP, -32]
+  LDI32 BR2, 8
+  MUL q R2, BR2
+  ADD q R1, R2
+  LD q R1, R1
+  MOV THIS, R1
+  MCALL R1, 16
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  POP THIS
+  MOV R2, RT
+  MOV BR1, SP
+  PUSH THIS
+  PUSH R0
+  PUSH R1
+  PUSH R2
+  PUSH R3
+  PUSH R4
+  PUSH R5
+  PUSH R6
+  PUSH R7
+  PUSH N0
+  PUSH N1
+  PUSH N2
+  PUSH N3
+  PUSH N4
+  PUSH N5
+  PUSH N6
+  PUSH N7
+  ;var method
+  PUSH R2
+  ;var io
+  LD q R0, [BP, -16]
+  MOV THIS, R0
+  MCALL R0, 24
+  ;var method
+  POP R2
+  POP N7
+  POP N6
+  POP N5
+  POP N4
+  POP N3
+  POP N2
+  POP N1
+  POP N0
+  POP R7
+  POP R6
+  POP R5
+  POP R4
+  POP R3
+  POP R2
+  POP R1
+  POP R0
+  POP THIS
+  MOV R3, RT
+
+  ;OT at 75:15
+  ;var i
+  LD d R0, [BP, -32]
+  LDI32 R1, 1
+  ADD d R0, R1
+  ;var i
+  ST d R0, [BP, -32]
+  JMP .BB2
+
+.BB5:
+  LEAVE 4
   HLT
 
 Main_Main:
@@ -652,12 +502,12 @@ Circle_area:
   ENTER 0
 .BB1:
 
-  ;OT at 42:33
+  ;OT at 52:33
   ;var radius
-  FA AR, THIS, 0
+  FA AR, THIS, 8
   LD d R0, AR
   ;var radius
-  FA AR, THIS, 0
+  FA AR, THIS, 8
   LD d R1, AR
   MUL d R0, R1
   LDI32 R1, 314
@@ -677,7 +527,7 @@ Circle_Circle:
   ENTER 0
 .BB1:
 
-  ;OT at 37:9
+  ;OT at 47:9
   LDI32 R0, Circle_Circle_const0
   MOV BR1, SP
   PUSH R0
@@ -719,15 +569,38 @@ Circle_Circle:
   POP R0
   MOV R1, RT
 
-  ;OT at 38:16
+  ;OT at 48:16
   ;var radiusArg
   LD d R0, [BP, 16]
   ;var radius
-  FA AR, THIS, 0
+  FA AR, THIS, 8
   ST d R0, AR
   JMP .BB2
 
 .BB2:
+  LEAVE 0
+  RET
+
+Rectangle2_getName:
+
+.BB0:
+  ENTER 0
+.BB1:
+
+  ;OT at 39:9
+  LDI32 R0, Rectangle2_getName_const0
+  MOV RT, R0
+  JMP .BB2
+
+.BB2:
+  LEAVE 0
+  RET
+
+Rectangle2_Rectangle2:
+
+.BB0:
+  ENTER 0
+.BB1:
   LEAVE 0
   RET
 
@@ -739,10 +612,10 @@ Rectangle_area:
 
   ;OT at 28:15
   ;var width
-  FA AR, THIS, 0
+  FA AR, THIS, 8
   LD d R0, AR
   ;var height
-  FA AR, THIS, 8
+  FA AR, THIS, 16
   LD d R1, AR
   MUL d R0, R1
   MOV RT, R0
@@ -804,14 +677,14 @@ Rectangle_Rectangle:
   ;var widthArg
   LD d R0, [BP, 16]
   ;var width
-  FA AR, THIS, 0
+  FA AR, THIS, 8
   ST d R0, AR
 
   ;OT at 24:16
   ;var heightArg
   LD d R0, [BP, 24]
   ;var height
-  FA AR, THIS, 8
+  FA AR, THIS, 16
   ST d R0, AR
   JMP .BB2
 
@@ -3064,7 +2937,7 @@ vtable_Main:
     dq Main_Main
 
 classInfo_Main:
-    .typeId: dq 0x06
+    .typeId: dq 0x07
     .superPtr: dq classInfo_Object
     .vtablePtr: dq vtable_Main
     .interfaceCount:
@@ -3082,9 +2955,28 @@ vtable_Circle:
     dq Circle_Circle
 
 classInfo_Circle:
-    .typeId: dq 0x05
+    .typeId: dq 0x06
     .superPtr: dq classInfo_Shape
     .vtablePtr: dq vtable_Circle
+    .interfaceCount:
+        dq 0x00
+    .interfaceIds:
+        dq 0x0
+    .interfaceImpl:
+        dq 0x0
+
+vtable_Rectangle2:
+    dq Object_Object
+    dq Rectangle2_getName
+    dq Rectangle_area
+    dq Shape_Shape
+    dq Rectangle_Rectangle
+    dq Rectangle2_Rectangle2
+
+classInfo_Rectangle2:
+    .typeId: dq 0x05
+    .superPtr: dq classInfo_Rectangle
+    .vtablePtr: dq vtable_Rectangle2
     .interfaceCount:
         dq 0x00
     .interfaceIds:
@@ -3194,6 +3086,12 @@ Circle_Circle_const0:
   dq 0x72
   dq 0x63
   dq 0x6C
+  dq 0x65
+  dq 0x00
+Rectangle2_getName_const0:
+  dq 0x6E
+  dq 0x61
+  dq 0x6D
   dq 0x65
   dq 0x00
 Rectangle_Rectangle_const0:

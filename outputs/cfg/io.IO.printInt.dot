@@ -363,7 +363,7 @@ digraph CFG {
         node125 [label="buffer <char:1, reg: (null), spilled: 0, offset: 0>", color=blue];
         node124 -> node125[color=blue];
         node126 [label="read <ref:0, reg: (null), spilled: 0, offset: 0>", color=blue];
-        node127 [label="bufferRef <ref:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node127 [label="intBuffer <ref:0, reg: (null), spilled: 0, offset: 0>", color=blue];
         node126 -> node127[color=blue];
         node124 -> node126[color=blue];
         node117 -> node124[color=blue];

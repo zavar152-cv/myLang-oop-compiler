@@ -30,6 +30,16 @@ class Rectangle extends Shape {
 
 }
 
+class Rectangle2 extends Rectangle {
+    public Rectangle2() {
+        
+    }
+
+    public string getName() {
+        "name";
+    }
+}
+
 class Circle extends Shape {
     private int radius;
 
@@ -58,11 +68,17 @@ class Main {
         shapes[0] = new Rectangle(3, 4);
         shapes[1] = new Circle(10);
 
-        io.printlnString(shapes[0].getName());
-        io.printlnInt(shapes[0].area());
+        int i = 0;
+        while (i != 2) {
+            io.printlnString(shapes[i].getName());
+            io.printlnInt(shapes[i].area());
+            i = i + 1;
+        }
+        // io.printlnString(shapes[0].getName());
+        // io.printlnInt(shapes[0].area());
 
-        io.printlnString(shapes[1].getName());
-        io.printlnInt(shapes[1].area());
+        // io.printlnString(shapes[1].getName());
+        // io.printlnInt(shapes[1].area());
 
         0; 
     }

@@ -1061,53 +1061,84 @@ ClassProgram *buildClassProgram(FilesToAnalyze *files, bool debug) {
   }
 
   ClassInfo *classInfo = classProgram->classes;
+
+  while (classInfo != NULL) {
+    
+    char *parentName = classInfo->parentName;
+    ClassInfo *parentClassInfo = findClassWithName(classProgram->classes, parentName);
+    uint64_t allParentFieldsCount = 0;
+
+    while (parentClassInfo != NULL) {
+      allParentFieldsCount = allParentFieldsCount + parentClassInfo->fieldsCount;
+      parentClassInfo = findClassWithName(classProgram->classes, parentClassInfo->parentName);
+    }
+
+    FieldInfo *fields = classInfo->fields;
+
+    while (fields != NULL) {
+      fields->offset = fields->offset + allParentFieldsCount * 8;
+      fields = fields->next;
+    }
+    classInfo->allParentFieldsCount = allParentFieldsCount;
+
+    classInfo = classInfo->next;
+  }
+
+  classInfo = classProgram->classes;
+
   while (classInfo != NULL) {
     if (strcmp(classInfo->name, "Object") != 0) {
 
+      bool parentFuncFound = false;
       char *parentName = classInfo->parentName;
       ClassInfo *parentClassInfo = findClassWithName(classProgram->classes, parentName);
       
-      if (parentClassInfo == NULL) {
-        char buffer[1024];
-        snprintf(buffer, sizeof(buffer),
-          "Extend error. Parent '%s' of '%s' isn't exist\n", parentName, classInfo->name);
-        ProgramErrorInfo* error = createProgramErrorInfo(buffer);
-        addProgramError(classInfo->program, error);
-      } else {
-        FunctionTable *parentFuncTable = parentClassInfo->program->functionTable;
-        
-        FunctionEntry *parentEntry = parentFuncTable->entry;
-        while (parentEntry != NULL) {
-          FunctionEntry *childEntry = findFunctionEntryWithName(classInfo->program->functionTable, parentEntry->functionName);
-          if (childEntry != NULL) {
-            if (!(equalsArgumentList(childEntry->arguments, parentEntry->arguments) 
-                  && childEntry->argumentsCount == parentEntry->argumentsCount)) {
-              char buffer[1024];
-              snprintf(buffer, sizeof(buffer),
-                "Override error. Parent function '%s' of '%s' has different arguments in child function '%s' of class '%s'\n", 
-                parentEntry->functionName, parentClassInfo->name, childEntry->functionName, classInfo->name);
-              ProgramErrorInfo* error = createProgramErrorInfo(buffer);
-              addProgramError(classInfo->program, error);
-            } else if (!equalsTypeInfo(childEntry->returnType, parentEntry->returnType)) {
-              char buffer[1024];
-              snprintf(buffer, sizeof(buffer),
-                "Override error. Parent function '%s' of '%s' has different return type in child function '%s' of class '%s'\n", 
-                parentEntry->functionName, parentClassInfo->name, childEntry->functionName, classInfo->name);
-              ProgramErrorInfo* error = createProgramErrorInfo(buffer);
-              addProgramError(classInfo->program, error);
-            }
-            FunctionInfo *funcInfo = classInfo->program->functions;
-            while (funcInfo != NULL) {
-              if (strcmp(funcInfo->functionName, childEntry->functionName) == 0) {
-                funcInfo->isOverride = true;
-                break;
+      while (!parentFuncFound && strcmp(parentName, "Object") != 0) {
+        if (parentClassInfo == NULL) {
+          char buffer[1024];
+          snprintf(buffer, sizeof(buffer),
+            "Extend error. Parent '%s' of '%s' isn't exist\n", parentName, classInfo->name);
+          ProgramErrorInfo* error = createProgramErrorInfo(buffer);
+          addProgramError(classInfo->program, error);
+          break;
+        } else {
+          FunctionTable *parentFuncTable = parentClassInfo->program->functionTable;
+          
+          FunctionEntry *parentEntry = parentFuncTable->entry;
+          while (parentEntry != NULL) {
+            FunctionEntry *childEntry = findFunctionEntryWithName(classInfo->program->functionTable, parentEntry->functionName);
+            if (childEntry != NULL) {
+              if (!(equalsArgumentList(childEntry->arguments, parentEntry->arguments) 
+                    && childEntry->argumentsCount == parentEntry->argumentsCount)) {
+                char buffer[1024];
+                snprintf(buffer, sizeof(buffer),
+                  "Override error. Parent function '%s' of '%s' has different arguments in child function '%s' of class '%s'\n", 
+                  parentEntry->functionName, parentClassInfo->name, childEntry->functionName, classInfo->name);
+                ProgramErrorInfo* error = createProgramErrorInfo(buffer);
+                addProgramError(classInfo->program, error);
+              } else if (!equalsTypeInfo(childEntry->returnType, parentEntry->returnType)) {
+                char buffer[1024];
+                snprintf(buffer, sizeof(buffer),
+                  "Override error. Parent function '%s' of '%s' has different return type in child function '%s' of class '%s'\n", 
+                  parentEntry->functionName, parentClassInfo->name, childEntry->functionName, classInfo->name);
+                ProgramErrorInfo* error = createProgramErrorInfo(buffer);
+                addProgramError(classInfo->program, error);
               }
-              funcInfo = funcInfo->next;
+              FunctionInfo *funcInfo = classInfo->program->functions;
+              while (funcInfo != NULL) {
+                if (strcmp(funcInfo->functionName, childEntry->functionName) == 0) {
+                  funcInfo->isOverride = true;
+                  parentFuncFound = true;
+                  break;
+                }
+                funcInfo = funcInfo->next;
+              }
+              childEntry->isOverride = true;
             }
-            childEntry->isOverride = true;
+            parentEntry = parentEntry->next;
           }
-          parentEntry = parentEntry->next;
         }
+        parentClassInfo = findClassWithName(classProgram->classes, parentClassInfo->parentName);
       }
 
       for (int i = 0; i < classInfo->interfaceCount; i++) {
@@ -1467,6 +1498,7 @@ ClassInfo* createClassInfo(const char* name, const char* parentName, const char*
   info->program = NULL;
   info->fields = NULL;
   info->fieldsCount = 0;
+  info->allParentFieldsCount = 0;
   info->next = NULL;
   info->body = classBody;
   info->fileName = strdup(fileName);

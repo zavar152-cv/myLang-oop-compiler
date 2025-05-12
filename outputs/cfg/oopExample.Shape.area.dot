@@ -10,11 +10,11 @@ digraph CFG {
         style=rounded;
         color=blue;
         entry0 [shape=point, style=invis];
-        node0 [label="return <long:0, reg: (null), spilled: 0, offset: 0>", color=blue];
-        node1 [label="litRead <long:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node0 [label="return <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node1 [label="litRead <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
         node2 [label="DEC", color=blue];
         node1 -> node2[color=blue];
-        node3 [label="80 <long:0, reg: (null), spilled: 0, offset: 0>", color=blue];
+        node3 [label="0 <int:0, reg: (null), spilled: 0, offset: 0>", color=blue];
         node1 -> node3[color=blue];
         node0 -> node1[color=blue];
     }

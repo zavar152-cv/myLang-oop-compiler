@@ -1,0 +1,4 @@
+digraph Tree {
+    node [shape=hexagon];
+    node_0 [label="Tree Error Node"]
+}

@@ -90,6 +90,7 @@ typedef struct ClassInfo {
     bool isInterface;
     FieldInfo *fields;
     uint64_t fieldsCount;
+    uint64_t allParentFieldsCount;
     MyAstNode *body;
     char *fileName;
     uint64_t typeId;

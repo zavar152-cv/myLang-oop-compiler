@@ -466,7 +466,7 @@ void generateASMForOTHelper(ClassInfo *classInfo, ClassInfo *classes, FunctionEn
                 classToCreate = classToCreate->next;
             }
             char fieldsCountBuffer[1024];
-            snprintf(fieldsCountBuffer, sizeof(fieldsCountBuffer), "%ld", classToCreate->fieldsCount);
+            snprintf(fieldsCountBuffer, sizeof(fieldsCountBuffer), "%ld", classToCreate->fieldsCount + classToCreate->allParentFieldsCount);
             commandNEW(buffer, REG_AR, fieldsCountBuffer);
             free(classInfoString);
         }
