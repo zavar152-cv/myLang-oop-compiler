@@ -568,11 +568,29 @@ bool prepareClassDeclaration(ClassInfo *classInfo, MyAstNode* classBody, char *f
       MyAstNode* var = funcDefs[j]->children[1];
 
       for (uint32_t i = 1; i < var->childCount; i = i + 2) {
-        TypeInfo *typeInfo = parseTyperef(var->children[0]);
-        FieldInfo *fieldInfo = createFieldInfo(typeInfo, var->children[i]->children[0]->label, var->children[i]->children[0]->line, var->children[i]->children[0]->pos);
-        fieldInfo->isPrivate = isPrivate;
-        fieldInfo->isStatic = isStatic;
-        addField(classInfo, fieldInfo);
+        FieldInfo *existingFieldInfo = classInfo->fields;
+        bool fieldFound = false;
+        while (existingFieldInfo != NULL) {
+          if (strcmp(existingFieldInfo->name, var->children[i]->children[0]->label) == 0) {
+            fieldFound = true;
+            char buffer[1024];
+            snprintf(buffer, sizeof(buffer),
+              "Field error. Field of '%s' at %s:%d:%d was previously declared at %s:%d:%d\n",
+              classInfo->name, classInfo->fileName, var->children[i]->children[0]->line, var->children[i]->children[0]->pos + 1, classInfo->fileName, existingFieldInfo->line, existingFieldInfo->pos + 1);
+            ProgramErrorInfo* error = createProgramErrorInfo(buffer);
+            addProgramError(classInfo->program, error);
+            break;
+          }
+          existingFieldInfo = existingFieldInfo->next;
+        }
+
+        if (!fieldFound) {
+          TypeInfo *typeInfo = parseTyperef(var->children[0]);
+          FieldInfo *fieldInfo = createFieldInfo(typeInfo, var->children[i]->children[0]->label, var->children[i]->children[0]->line, var->children[i]->children[0]->pos);
+          fieldInfo->isPrivate = isPrivate;
+          fieldInfo->isStatic = isStatic;
+          addField(classInfo, fieldInfo);
+        }
       }
 
       continue;
