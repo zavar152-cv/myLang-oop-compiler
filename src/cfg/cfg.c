@@ -1156,6 +1156,9 @@ ClassProgram *buildClassProgram(FilesToAnalyze *files, bool debug) {
             parentEntry = parentEntry->next;
           }
         }
+        if (parentClassInfo->parentName == NULL) {
+          break;
+        }
         parentClassInfo = findClassWithName(classProgram->classes, parentClassInfo->parentName);
       }
 
