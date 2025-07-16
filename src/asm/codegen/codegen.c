@@ -27,9 +27,11 @@ void calcMaxRegs(OperationTreeNode *root, uint8_t *maxRegs) {
 }
 
 void prepareRegsAndTempsHelper(OperationTreeNode *root, StringStack *stack, bool stackOnly, bool debug) {
-    if (strcmp(root->label, WRITE) == 0) {
+    if (strcmp(root->label, OT_WRITE) == 0) {
         if (root->children[0]->childCount == 0) {
             root->children[0]->reg = strdup(REG_AR);
+        } else if (strcmp(root->children[0]->label, OT_FIELD) == 0) {
+            prepareRegsAndTempsHelper(root->children[0], stack, stackOnly, debug);
         } else {
             char *reg = popStack(stack);
             root->children[0]->reg = reg;
@@ -37,7 +39,7 @@ void prepareRegsAndTempsHelper(OperationTreeNode *root, StringStack *stack, bool
             free(reg);
         }
         prepareRegsAndTempsHelper(root->children[1], stack, stackOnly, debug);
-    } else if (strcmp(root->label, INDEX) == 0 || strcmp(root->label, INDEXR) == 0) {
+    } else if (strcmp(root->label, OT_INDEX) == 0 || strcmp(root->label, OT_INDEXR) == 0) {
         if (root->children[0]->childCount == 0) {
             root->children[0]->reg = strdup(REG_AR);
         } else {
@@ -55,7 +57,10 @@ void prepareRegsAndTempsHelper(OperationTreeNode *root, StringStack *stack, bool
         }        
         if (debug)
             printf("Index result in reg %s\n", root->reg);
-    } else if (strcmp(root->label, OT_CALL) == 0) {
+    } else if (strcmp(root->label, OT_CALL) == 0 || strcmp(root->label, OT_NEW) == 0) {
+        if (strcmp(root->children[0]->label, OT_METHOD) == 0) {
+            prepareRegsAndTempsHelper(root->children[0]->children[1], stack, stackOnly, debug);
+        }
         uint8_t offset = 0;
         StringStack *stackForCall = (StringStack *)malloc(sizeof(StringStack));
         initStack(stackForCall);
@@ -84,6 +89,9 @@ void prepareRegsAndTempsHelper(OperationTreeNode *root, StringStack *stack, bool
         root->reg = reg;
         if (debug)
             printf("Call result in reg %s\n", root->reg);
+    } else if (strcmp(root->label, OT_FIELD) == 0) {
+        prepareRegsAndTempsHelper(root->children[1], stack, stackOnly, debug);
+        root->reg = strdup(root->children[1]->reg);
     } else if (strcmp(root->label, OP_PLUS) == 0 ||
                 strcmp(root->label, OP_MINUS) == 0 ||
                 strcmp(root->label, OP_DIV) == 0 ||
@@ -123,7 +131,7 @@ void prepareRegsAndTempsHelper(OperationTreeNode *root, StringStack *stack, bool
         }
         if (debug)
             printf("Unary operation '%s' result in reg %s\n", root->label, root->reg);
-    } else if (strcmp(root->label, LIT_READ) == 0) {
+    } else if (strcmp(root->label, OT_LIT_READ) == 0) {
         char *reg = popStack(stack);
         root->reg = strdup(reg);
         if (strcmp(root->children[1]->type->typeName, "string") == 0 ||
@@ -135,14 +143,14 @@ void prepareRegsAndTempsHelper(OperationTreeNode *root, StringStack *stack, bool
         if (debug)
             printf("Literal %s in reg %s\n", root->children[1]->label, reg);
         free(reg);
-    } else if (strcmp(root->label, READ) == 0) {
+    } else if (strcmp(root->label, OT_READ) == 0) {
         char *reg = popStack(stack);
         root->reg = strdup(reg);
         root->children[0]->reg = strdup(REG_AR);
         if (debug)
             printf("Var %s in reg %s\n", root->children[0]->label, reg);
         free(reg);
-    } else if (strcmp(root->label, RETURN) == 0) {
+    } else if (strcmp(root->label, OT_RETURN) == 0) {
         prepareRegsAndTempsHelper(root->children[0], stack, stackOnly, debug);
         root->reg = strdup(REG_RT);
         if (debug)
@@ -153,6 +161,14 @@ void prepareRegsAndTempsHelper(OperationTreeNode *root, StringStack *stack, bool
 void prepareRegsAndTemps(OperationTreeNode *root, bool debug) {
     StringStack *stack = (StringStack *)malloc(sizeof(StringStack));
     initStack(stack);
+    pushStack(stack, REG_N7);
+    pushStack(stack, REG_N6);
+    pushStack(stack, REG_N5);
+    pushStack(stack, REG_N4);
+    pushStack(stack, REG_N3);
+    pushStack(stack, REG_N2);
+    pushStack(stack, REG_N1);
+    pushStack(stack, REG_N0);
     pushStack(stack, REG_R7);
     pushStack(stack, REG_R6);
     pushStack(stack, REG_R5);
@@ -163,19 +179,19 @@ void prepareRegsAndTemps(OperationTreeNode *root, bool debug) {
     pushStack(stack, REG_R0);
 
 
-    if (strcmp(root->label, DECLARE) == 0 && root->childCount == 3) {
+    if (strcmp(root->label, OT_DECLARE) == 0 && root->childCount == 3) {
         uint8_t maxRegs = 0;
         calcMaxRegs(root->children[2], &maxRegs);
 
-        bool stackOnly = maxRegs > 8;
+        bool stackOnly = maxRegs > 16;
         prepareRegsAndTempsHelper(root->children[2], stack, stackOnly, debug);
-    } else if (strcmp(root->label, SEQ_DECLARE) == 0) {
+    } else if (strcmp(root->label, OT_SEQ_DECLARE) == 0) {
         for (uint32_t i = 0; i < root->childCount; i++) {
-            if (strcmp(root->label, DECLARE) == 0 && root->childCount == 3) {
+            if (strcmp(root->label, OT_DECLARE) == 0 && root->childCount == 3) {
                 uint8_t maxRegs = 0;
                 calcMaxRegs(root->children[i], &maxRegs);
 
-                bool stackOnly = maxRegs > 8;
+                bool stackOnly = maxRegs > 16;
                 prepareRegsAndTempsHelper(root->children[i], stack, stackOnly, debug);
             } 
         }
@@ -183,7 +199,7 @@ void prepareRegsAndTemps(OperationTreeNode *root, bool debug) {
         uint8_t maxRegs = 0;
         calcMaxRegs(root, &maxRegs);
 
-        bool stackOnly = maxRegs > 8;
+        bool stackOnly = maxRegs > 16;
         prepareRegsAndTempsHelper(root, stack, stackOnly, debug);
     }
     
@@ -297,10 +313,23 @@ char parseEscapedChar(const char *str) {
     }
 }
 
-void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struct StringBuffer *buffer) {
-    if (strcmp(root->label, WRITE) == 0) {
+char *concatString(char *original, char *suffix) {
+    char *newString = NULL;
+    size_t originalLength = strlen(original);
+    size_t suffixLength = strlen(suffix);
+    size_t totalLength = originalLength + suffixLength + 1;
+  
+    newString = malloc(totalLength);
+    strcpy(newString, original);
+  
+    strcat(newString, suffix);
+    return newString;
+  }
+
+void generateASMForOTHelper(ClassInfo *classInfo, ClassInfo *classes, FunctionEntry *entry, OperationTreeNode *root, struct StringBuffer *buffer) {
+    if (strcmp(root->label, OT_WRITE) == 0) {
         if (root->children[0]->childCount == 0) {
-            generateASMForOTHelper(entry, root->children[1], buffer);
+            generateASMForOTHelper(classInfo, classes, entry, root->children[1], buffer);
             bool found = false;
             for (int i = 0; i < entry->locals->size; i++) {
                 HashNode *node = entry->locals->buckets[i];
@@ -321,14 +350,74 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
                     node = node->next;
                 }
             }
+
+            if (!found) {
+                FieldInfo *fieldInfo = classInfo->fields;
+                while (fieldInfo != NULL) {
+                    if (strcmp(fieldInfo->name, root->children[0]->label) == 0) {
+                        char offsetBuffer[1024];
+                        snprintf(offsetBuffer, sizeof(offsetBuffer), "%ld", fieldInfo->offset);
+                        commentVar(buffer, root->children[0]->label);
+                        commandFA(buffer, root->children[0]->reg, REG_THIS, offsetBuffer);
+                        commandST(buffer, getSizeValueByType(root->children[0]->type->typeName, root->children[0]->type->arrayDim), root->children[1]->reg, root->children[0]->reg);
+                        break;
+                    }
+                    fieldInfo = fieldInfo->next;
+                }
+            }
+
+        } else if (strcmp(root->children[0]->label, OT_FIELD) == 0) {
+            generateASMForOTHelper(classInfo, classes, entry, root->children[1], buffer);
+            generateASMForOTHelper(classInfo, classes, entry, root->children[0]->children[1], buffer);
+            
+            ClassInfo *typeClassInfo = classes;
+            while (typeClassInfo != NULL) {
+                if (strcmp(typeClassInfo->name, root->children[0]->children[1]->type->typeName) == 0) {
+                    break;
+                }
+                typeClassInfo = typeClassInfo->next;
+            }
+            
+            FieldInfo *fieldInfo = typeClassInfo->fields;
+            while (fieldInfo != NULL) {
+                if (strcmp(fieldInfo->name, root->children[0]->children[0]->label) == 0) {
+                    char offsetBuffer[1024];
+                    snprintf(offsetBuffer, sizeof(offsetBuffer), "%ld", fieldInfo->offset);
+                    commandFA(buffer, root->children[0]->reg, root->children[0]->children[1]->reg, offsetBuffer);
+                    commandST(buffer, "q", root->children[1]->reg, root->children[0]->reg);
+                    break;
+                }
+                fieldInfo = fieldInfo->next;
+            }
         } else {
-            generateASMForOTHelper(entry, root->children[0], buffer);
-            generateASMForOTHelper(entry, root->children[1], buffer);
+            generateASMForOTHelper(classInfo, classes, entry, root->children[0], buffer);
+            generateASMForOTHelper(classInfo, classes, entry, root->children[1], buffer);
             commandST(buffer, "q", root->children[1]->reg, root->children[0]->reg);
         }
-    } else if (strcmp(root->label, INDEX) == 0) {
-        generateASMForOTHelper(entry, root->children[0], buffer);
-        generateASMForOTHelper(entry, root->children[1], buffer);
+    } else if (strcmp(root->label, OT_FIELD) == 0) {
+        generateASMForOTHelper(classInfo, classes, entry, root->children[1], buffer);
+            
+        ClassInfo *typeClassInfo = classes;
+        while (typeClassInfo != NULL) {
+            if (strcmp(typeClassInfo->name, root->children[0]->type->typeName) == 0) {
+                break;
+            }
+            typeClassInfo = typeClassInfo->next;
+        }
+        
+        FieldInfo *fieldInfo = typeClassInfo->fields;
+        while (fieldInfo != NULL) {
+            if (strcmp(fieldInfo->name, root->children[0]->label) == 0) {
+                char offsetBuffer[1024];
+                snprintf(offsetBuffer, sizeof(offsetBuffer), "%ld", fieldInfo->offset);
+                commandLDF(buffer, getSizeValueByType(root->children[0]->type->typeName, root->children[0]->type->arrayDim), root->reg, root->children[1]->reg, offsetBuffer);
+                break;
+            }
+            fieldInfo = fieldInfo->next;
+        }
+    } else if (strcmp(root->label, OT_INDEX) == 0) {
+        generateASMForOTHelper(classInfo, classes, entry, root->children[0], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[1], buffer);
         commandLDI32(buffer, REG_BR2, "8");
         commandMUL(buffer, "q", root->children[1]->reg, REG_BR2);
         commandADD(buffer, "q", root->children[0]->reg, root->children[1]->reg);
@@ -340,9 +429,9 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
-    } else if (strcmp(root->label, INDEXR) == 0) {
-        generateASMForOTHelper(entry, root->children[0], buffer);
-        generateASMForOTHelper(entry, root->children[1], buffer);
+    } else if (strcmp(root->label, OT_INDEXR) == 0) {
+        generateASMForOTHelper(classInfo, classes, entry, root->children[0], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[1], buffer);
         commandLDI32(buffer, REG_BR2, "8");
         commandMUL(buffer, "q", root->children[1]->reg, REG_BR2);
         commandADD(buffer, "q", root->children[0]->reg, root->children[1]->reg);
@@ -354,12 +443,40 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
-    } else if (strcmp(root->label, OT_CALL) == 0) {
+    } else if (strcmp(root->label, OT_CALL) == 0 | strcmp(root->label, OT_NEW) == 0) {
         for (uint32_t i = 1; i <= root->childCount - 1; i++) {
-            generateASMForOTHelper(entry, root->children[i], buffer);
+            generateASMForOTHelper(classInfo, classes, entry, root->children[i], buffer);
+        }
+
+        bool isNewOp = strcmp(root->label, OT_NEW) == 0;
+        bool isMethod = strcmp(root->children[0]->label, OT_METHOD) == 0;
+
+        if (isNewOp) {
+            char *classInfoString = concatString("classInfo_", root->children[0]->label);
+            commandPUSH(buffer, REG_THIS);
+            commandLDI32(buffer, REG_AR, classInfoString);
+            commandMOV(buffer, REG_THIS, REG_ALR);
+            
+            ClassInfo *classToCreate = classes;
+            
+            while (classToCreate != NULL) {
+                if (strcmp(classToCreate->name, root->children[0]->label) == 0) {
+                    break;
+                }
+                classToCreate = classToCreate->next;
+            }
+            char fieldsCountBuffer[1024];
+            snprintf(fieldsCountBuffer, sizeof(fieldsCountBuffer), "%ld", classToCreate->fieldsCount + classToCreate->allParentFieldsCount);
+            commandNEW(buffer, REG_AR, fieldsCountBuffer);
+            free(classInfoString);
         }
 
         commandMOV(buffer, REG_BR1, REG_SP);
+
+
+        if (isMethod) {
+            commandPUSH(buffer, REG_THIS);
+        }
         commandPUSH(buffer, REG_R0);
         commandPUSH(buffer, REG_R1);
         commandPUSH(buffer, REG_R2);
@@ -368,6 +485,15 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
         commandPUSH(buffer, REG_R5);
         commandPUSH(buffer, REG_R6);
         commandPUSH(buffer, REG_R7);
+        commandPUSH(buffer, REG_N0);
+        commandPUSH(buffer, REG_N1);
+        commandPUSH(buffer, REG_N2);
+        commandPUSH(buffer, REG_N3);
+        commandPUSH(buffer, REG_N4);
+        commandPUSH(buffer, REG_N5);
+        commandPUSH(buffer, REG_N6);
+        commandPUSH(buffer, REG_N7);
+
 
         bool wasSpilled = false;
         for (uint32_t i = root->childCount - 1; i > 0; i--) {
@@ -387,7 +513,76 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
         if ((root->children[0]->label[0] == '_') && (root->children[0]->label[1] == '_')) {
             generateBuiltin(root->children[0]->label, entry, root, buffer);
         } else {
-            commandCALL(buffer, root->children[0]->label);
+            if (isNewOp) {
+                char *suffix = concatString("_", root->children[0]->label);
+                char *constructor = concatString(root->children[0]->label, suffix);
+                commandCALL(buffer, constructor);
+                free(suffix);
+                free(constructor);
+            } else if (isMethod) {
+                generateASMForOTHelper(classInfo, classes, entry, root->children[0]->children[1], buffer);
+            
+                ClassInfo *instanceClassInfo = classes;
+                while (instanceClassInfo != NULL) {
+                    if (strcmp(instanceClassInfo->name, root->children[0]->children[1]->type->typeName) == 0) {
+                        break;
+                    }
+                    instanceClassInfo = instanceClassInfo->next;
+                }
+
+                if (!instanceClassInfo->isInterface) {
+
+                    ClassVtableEntry *vtableEntry = instanceClassInfo->vtable->head;
+                    while (vtableEntry != NULL) {
+                        if (strcmp(vtableEntry->functionName, root->children[0]->children[0]->label) == 0) {
+                            commandMOV(buffer, REG_THIS, root->children[0]->children[1]->reg);
+                            if ((vtableEntry->functionName[0] == '_') && (vtableEntry->functionName[1] == '_')) {
+                                generateBuiltin(root->children[0]->children[0]->label, entry, root, buffer);
+                            } else {
+                                char offsetBuffer[1024];
+                                snprintf(offsetBuffer, sizeof(offsetBuffer), "%ld", vtableEntry->offset);
+                                commandMCALL(buffer, root->children[0]->children[1]->reg, offsetBuffer);
+                            }   
+                            break;
+                        }
+                        vtableEntry = vtableEntry->next;
+                    }
+
+                } else {
+                    ClassVtableEntry *vtableEntry = instanceClassInfo->vtable->head;
+                    while (vtableEntry != NULL) {
+                        if (strcmp(vtableEntry->functionName, root->children[0]->children[0]->label) == 0) {
+                            commandMOV(buffer, REG_THIS, root->children[0]->children[1]->reg);
+                            char offsetBuffer[1024];
+                            snprintf(offsetBuffer, sizeof(offsetBuffer), "%ld", vtableEntry->offset);
+                            char typeIdBuffer[1024];
+                            snprintf(typeIdBuffer, sizeof(typeIdBuffer), "%ld", instanceClassInfo->typeId);
+                            commandLDI32(buffer, REG_IID, typeIdBuffer);
+                            commandICALL(buffer, root->children[0]->children[1]->reg, offsetBuffer);
+                            break;
+                        }
+                        vtableEntry = vtableEntry->next;
+                    }
+                }
+            
+            } else {
+                char *suffix = concatString("_", root->children[0]->label);
+                char *method = concatString(classInfo->name, suffix);
+
+                ClassVtableEntry *vtableEntry = classInfo->vtable->head;
+                while (vtableEntry != NULL) {
+                    if (strcmp(vtableEntry->functionName, root->children[0]->label) == 0) {
+                        free(method);
+                        method = concatString(vtableEntry->className, suffix);
+                        break;
+                    }
+                    vtableEntry = vtableEntry->next;
+                }
+                
+                commandCALL(buffer, method);
+                free(suffix);
+                free(method);
+            }
         }
 
         for (uint32_t i = 1; i <= root->childCount - 1; i++) {
@@ -403,6 +598,14 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
         }
             
 
+        commandPOP(buffer, REG_N7);
+        commandPOP(buffer, REG_N6);
+        commandPOP(buffer, REG_N5);
+        commandPOP(buffer, REG_N4);
+        commandPOP(buffer, REG_N3);
+        commandPOP(buffer, REG_N2);
+        commandPOP(buffer, REG_N1);
+        commandPOP(buffer, REG_N0);
         commandPOP(buffer, REG_R7);
         commandPOP(buffer, REG_R6);
         commandPOP(buffer, REG_R5);
@@ -412,121 +615,133 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
         commandPOP(buffer, REG_R1);
         commandPOP(buffer, REG_R0);
 
-        commandMOV(buffer, root->reg, REG_RT);
+        if (isMethod) {
+            commandPOP(buffer, REG_THIS);
+        }
+
+        if (isNewOp) { 
+            commandMOV(buffer, root->reg, REG_THIS);
+        } else {
+            commandMOV(buffer, root->reg, REG_RT);
+        }
+
+        if (isNewOp) { 
+            commandPOP(buffer, REG_THIS);
+        }
 
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
     } else if (strcmp(root->label, OP_PLUS) == 0) {
-        generateASMForOTHelper(entry, root->children[0], buffer);
-        generateASMForOTHelper(entry, root->children[1], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[0], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[1], buffer);
         commandADD(buffer, getSizeValueByType(root->type->typeName, root->type->arrayDim), root->children[0]->reg, root->children[1]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
     } else if (strcmp(root->label, OP_MINUS) == 0) {
-        generateASMForOTHelper(entry, root->children[0], buffer);
-        generateASMForOTHelper(entry, root->children[1], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[0], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[1], buffer);
         commandSUB(buffer, getSizeValueByType(root->type->typeName, root->type->arrayDim), root->children[0]->reg, root->children[1]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
     } else if (strcmp(root->label, OP_DIV) == 0) {
-        generateASMForOTHelper(entry, root->children[0], buffer);
-        generateASMForOTHelper(entry, root->children[1], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[0], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[1], buffer);
         commandDIV(buffer, getSizeValueByType(root->type->typeName, root->type->arrayDim), root->children[0]->reg, root->children[1]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
     } else if (strcmp(root->label, OP_MUL) == 0) {
-        generateASMForOTHelper(entry, root->children[0], buffer);
-        generateASMForOTHelper(entry, root->children[1], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[0], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[1], buffer);
         commandMUL(buffer, getSizeValueByType(root->type->typeName, root->type->arrayDim), root->children[0]->reg, root->children[1]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
     } else if (strcmp(root->label, OP_MOD) == 0) {
-        generateASMForOTHelper(entry, root->children[0], buffer);
-        generateASMForOTHelper(entry, root->children[1], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[0], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[1], buffer);
         commandMOD(buffer, getSizeValueByType(root->type->typeName, root->type->arrayDim), root->children[0]->reg, root->children[1]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
     } else if (strcmp(root->label, OP_EQ) == 0) {
-        generateASMForOTHelper(entry, root->children[0], buffer);
-        generateASMForOTHelper(entry, root->children[1], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[0], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[1], buffer);
         commandCMP(buffer, getSizeValueByType(root->children[0]->type->typeName, root->children[0]->type->arrayDim), root->children[0]->reg, root->children[1]->reg);
         commandEQ(buffer, root->children[0]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
     } else if (strcmp(root->label, OP_NEQ) == 0) {
-        generateASMForOTHelper(entry, root->children[0], buffer);
-        generateASMForOTHelper(entry, root->children[1], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[0], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[1], buffer);
         commandCMP(buffer, getSizeValueByType(root->children[0]->type->typeName, root->children[0]->type->arrayDim), root->children[0]->reg, root->children[1]->reg);
         commandNEQ(buffer, root->children[0]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
     } else if (strcmp(root->label, OP_GR) == 0) {
-        generateASMForOTHelper(entry, root->children[0], buffer);
-        generateASMForOTHelper(entry, root->children[1], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[0], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[1], buffer);
         commandCMP(buffer, getSizeValueByType(root->children[0]->type->typeName, root->children[0]->type->arrayDim), root->children[0]->reg, root->children[1]->reg);
         commandGR(buffer, root->children[0]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
     } else if (strcmp(root->label, OP_LE) == 0) {
-        generateASMForOTHelper(entry, root->children[0], buffer);
-        generateASMForOTHelper(entry, root->children[1], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[0], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[1], buffer);
         commandCMP(buffer, getSizeValueByType(root->children[0]->type->typeName, root->children[0]->type->arrayDim), root->children[0]->reg, root->children[1]->reg);
         commandLE(buffer, root->children[0]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
     } else if (strcmp(root->label, OP_GREQ) == 0) {
-        generateASMForOTHelper(entry, root->children[0], buffer);
-        generateASMForOTHelper(entry, root->children[1], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[0], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[1], buffer);
         commandCMP(buffer, getSizeValueByType(root->children[0]->type->typeName, root->children[0]->type->arrayDim), root->children[0]->reg, root->children[1]->reg);
         commandGREQ(buffer, root->children[0]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
     } else if (strcmp(root->label, OP_LEEQ) == 0) {
-        generateASMForOTHelper(entry, root->children[0], buffer);
-        generateASMForOTHelper(entry, root->children[1], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[0], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[1], buffer);
         commandCMP(buffer, getSizeValueByType(root->children[0]->type->typeName, root->children[0]->type->arrayDim), root->children[0]->reg, root->children[1]->reg);
         commandLEEQ(buffer, root->children[0]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
     } else if (strcmp(root->label, OP_AND) == 0) {
-        generateASMForOTHelper(entry, root->children[0], buffer);
-        generateASMForOTHelper(entry, root->children[1], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[0], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[1], buffer);
         commandAND(buffer, "q", root->children[0]->reg, root->children[1]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
     } else if (strcmp(root->label, OP_OR) == 0) {
-        generateASMForOTHelper(entry, root->children[0], buffer);
-        generateASMForOTHelper(entry, root->children[1], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[0], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[1], buffer);
         commandOR(buffer, "q", root->children[0]->reg, root->children[1]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
     } else if (strcmp(root->label, OP_NOT) == 0) {
-        generateASMForOTHelper(entry, root->children[0], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[0], buffer);
         commandNOT(buffer, getSizeValueByType(root->type->typeName, root->type->arrayDim), root->children[0]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
     } else if (strcmp(root->label, OP_NEG) == 0) {
-        generateASMForOTHelper(entry, root->children[0], buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root->children[0], buffer);
         commandNEG(buffer, getSizeValueByType(root->type->typeName, root->type->arrayDim), root->children[0]->reg);
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
-    } else if (strcmp(root->label, LIT_READ) == 0) {
+    } else if (strcmp(root->label, OT_LIT_READ) == 0) {
         if (strcmp(root->children[1]->type->typeName, "ulong") == 0 || 
             strcmp(root->children[1]->type->typeName, "long") == 0) {
             for (int i = 0; i < entry->consts->size; i++) {
@@ -571,7 +786,7 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
-    } else if (strcmp(root->label, READ) == 0) {
+    } else if (strcmp(root->label, OT_READ) == 0) {
         bool found = false;
         for (int i = 0; i < entry->locals->size; i++) {
             HashNode *node = entry->locals->buckets[i];
@@ -617,46 +832,62 @@ void generateASMForOTHelper(FunctionEntry *entry, OperationTreeNode *root, struc
                     break;
             }            
         }
+
+        if (!found) {
+            FieldInfo *fieldInfo = classInfo->fields;
+            while (fieldInfo != NULL) {
+                if (strcmp(fieldInfo->name, root->children[0]->label) == 0) {
+                    char offsetBuffer[1024];
+                    snprintf(offsetBuffer, sizeof(offsetBuffer), "%ld", fieldInfo->offset);
+                    commentVar(buffer, root->children[0]->label);
+                    commandFA(buffer, root->children[0]->reg, REG_THIS, offsetBuffer);
+                    commandLD(buffer, getSizeValueByType(root->type->typeName, root->type->arrayDim), root->reg, root->children[0]->reg);
+                    break;
+                }
+                fieldInfo = fieldInfo->next;
+            }
+        }
+
         if (root->isSpilled) {
             commandPUSH(buffer, root->reg);
         }
-    } else if (strcmp(root->label, RETURN) == 0) {
-        generateASMForOTHelper(entry, root->children[0], buffer);
+    } else if (strcmp(root->label, OT_RETURN) == 0) {
+        generateASMForOTHelper(classInfo, classes, entry, root->children[0], buffer);
         commandMOV(buffer, root->reg, root->children[0]->reg);
     }
 }
 
-void generateASMForOT(FunctionEntry *entry, OperationTreeNode *root, struct StringBuffer *buffer) {
+void generateASMForOT(ClassInfo *classInfo, ClassInfo *classes, FunctionEntry *entry, OperationTreeNode *root, struct StringBuffer *buffer) {
     commentOTPosition(buffer, root->line, root->pos);
-    if (strcmp(root->label, DECLARE) == 0 && root->childCount == 3) {
-        generateASMForOTHelper(entry, root->children[2], buffer);
-    } else if (strcmp(root->label, SEQ_DECLARE) == 0) {
+    if (strcmp(root->label, OT_DECLARE) == 0 && root->childCount == 3) {
+        generateASMForOTHelper(classInfo, classes, entry, root->children[2], buffer);
+    } else if (strcmp(root->label, OT_SEQ_DECLARE) == 0) {
         for (uint32_t i = 0; i < root->childCount; i++) {
-            if (strcmp(root->label, DECLARE) == 0 && root->childCount == 3) {
-                generateASMForOTHelper(entry, root->children[i], buffer);
+            if (strcmp(root->label, OT_DECLARE) == 0 && root->childCount == 3) {
+                generateASMForOTHelper(classInfo, classes, entry, root->children[i], buffer);
             } 
         }
     } else {
-        generateASMForOTHelper(entry, root, buffer);
+        generateASMForOTHelper(classInfo, classes, entry, root, buffer);
     }
 }
 
-void generateASMForUnconditionalBlock(struct StringBuffer *buffer, BasicBlock *block, FunctionEntry *entry, char *nextLabel) {
+void generateASMForUnconditionalBlock(ClassInfo *classInfo, ClassInfo *classes, struct StringBuffer *buffer, BasicBlock *block, FunctionEntry *entry, char *nextLabel) {
     stringbuffer_append_string(buffer, ".BB");
     stringbuffer_append_long(buffer, block->id);
     stringbuffer_append_string(buffer, ":\n");
     for (int i = 0; i < block->instructionCount; i++) {
-        generateASMForOT(entry, block->instructions[i].otRoot, buffer);
+        generateASMForOT(classInfo, classes, entry, block->instructions[i].otRoot, buffer);
     }
     commandJMP(buffer, nextLabel);    
 }
 
-void generateASMForConditionalBlock(struct StringBuffer *buffer, BasicBlock *block, FunctionEntry *entry, char *trueLabel, char *falseLabel) {
+void generateASMForConditionalBlock(ClassInfo *classInfo, ClassInfo *classes, struct StringBuffer *buffer, BasicBlock *block, FunctionEntry *entry, char *trueLabel, char *falseLabel) {
     stringbuffer_append_string(buffer, ".BB");
     stringbuffer_append_long(buffer, block->id);
     stringbuffer_append_string(buffer, ":\n");
     for (int i = 0; i < block->instructionCount; i++) {
-        generateASMForOT(entry, block->instructions[i].otRoot, buffer);
+        generateASMForOT(classInfo, classes, entry, block->instructions[i].otRoot, buffer);
     }
     commandJNZ(buffer, trueLabel); 
     commandJZ(buffer, falseLabel);   
@@ -700,7 +931,13 @@ int compareBlocks(const void *a, const void *b) {
     return (blockA->id - blockB->id);
 }
 
-void generateASMForFunction(struct StringBuffer *buffer, FunctionInfo *func, FunctionEntry *funcE, bool main, bool debug) {
+void generateASMForFunction(ClassInfo *classInfo, ClassInfo *classes, struct StringBuffer *buffer, FunctionInfo *func, FunctionEntry *funcE, bool main, bool debug) {
+    if (strcmp(func->functionName, "main") == 0) {
+        stringbuffer_append_string(buffer, "main");
+        stringbuffer_append_string(buffer, ":\n");
+    }
+    stringbuffer_append_string(buffer, classInfo->name);
+    stringbuffer_append_string(buffer, "_");
     stringbuffer_append_string(buffer, func->functionName);
     stringbuffer_append_string(buffer, ":\n\n");
 
@@ -730,7 +967,7 @@ void generateASMForFunction(struct StringBuffer *buffer, FunctionInfo *func, Fun
             stringbuffer_append_long(trueBlockBuffer, array[i].outEdges->nextOut->targetBlock->id);
             char *trueOut = stringbuffer_to_string(trueBlockBuffer); 
 
-            generateASMForConditionalBlock(buffer, &array[i], funcE, trueOut, falseOut);
+            generateASMForConditionalBlock(classInfo, classes, buffer, &array[i], funcE, trueOut, falseOut);
 
             free(falseOut);
             free(trueOut);
@@ -742,7 +979,7 @@ void generateASMForFunction(struct StringBuffer *buffer, FunctionInfo *func, Fun
             stringbuffer_append_long(blockBuffer, array[i].outEdges->targetBlock->id);
             char *out = stringbuffer_to_string(blockBuffer);
             
-            generateASMForUnconditionalBlock(buffer, &array[i], funcE, out);
+            generateASMForUnconditionalBlock(classInfo, classes, buffer, &array[i], funcE, out);
             
             free(out);
             stringbuffer_release(blockBuffer);

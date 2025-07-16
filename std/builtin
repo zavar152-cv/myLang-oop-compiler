@@ -1,45 +1,51 @@
-//register __castToByte
-byte __toByteFromInt(int i);
-byte __toByteFromUint(uint ui);
-byte __toByteFromLong(long l);
-byte __toByteFromUlong(ulong ul);
+class BuiltIn {
+    public BuiltIn() {
 
-//register __castToInt
-int __toIntFromByte(byte b);
-int __toIntFromUint(uint ui);
-int __toIntFromLong(long l);
-int __toIntFromUlong(ulong ul);
+    }
 
-//register __castToUint
-uint __toUintFromByte(byte b);
-uint __toUintFromInt(int i);
-uint __toUintFromLong(long l);
-uint __toUintFromUlong(ulong ul);
+    //register __castToByte
+    public static compiler byte __toByteFromInt(int i);
+    public static compiler byte __toByteFromUint(uint ui);
+    public static compiler byte __toByteFromLong(long l);
+    public static compiler byte __toByteFromUlong(ulong ul);
 
-//register __castToLong
-long __toLongFromByte(byte ul);
-long __toLongFromInt(int ul);
-long __toLongFromUint(uint ul);
-long __toLongFromUlong(ulong ul);
+    //register __castToInt
+    public static compiler int __toIntFromByte(byte b);
+    public static compiler int __toIntFromUint(uint ui);
+    public static compiler int __toIntFromLong(long l);
+    public static compiler int __toIntFromUlong(ulong ul);
 
-//register __castToUlong
-ulong __toUlongFromByte(byte b);
-ulong __toUlongFromInt(int i);
-ulong __toUlongFromUint(uint l);
-ulong __toUlongFromLong(long l);
+    //register __castToUint
+    public static compiler uint __toUintFromByte(byte b);
+    public static compiler uint __toUintFromInt(int i);
+    public static compiler uint __toUintFromLong(long l);
+    public static compiler uint __toUintFromUlong(ulong ul);
 
-//memory allocation
-ref __allocRef(long size);
-bool __cmpRef(ref current, int expected);
+    //register __castToLong
+    public static compiler long __toLongFromByte(byte ul);
+    public static compiler long __toLongFromInt(int ul);
+    public static compiler long __toLongFromUint(uint ul);
+    public static compiler long __toLongFromUlong(ulong ul);
 
-//base input
-byte __read();
-char __readChar();
+    //register __castToUlong
+    public static compiler ulong __toUlongFromByte(byte b);
+    public static compiler ulong __toUlongFromInt(int i);
+    public static compiler ulong __toUlongFromUint(uint l);
+    public static compiler ulong __toUlongFromLong(long l);
 
-//base output
-void __write(byte b);
-void __writeChar(char c);
+    //memory allocation
+    public static compiler ref __allocRef(long size);
+    public static compiler bool __cmpRef(ref current, int expected);
 
-//service, debug
-ref __lastALR();
-ref __lastSP();
+    //base input
+    public static compiler byte __read();
+    public static compiler char __readChar();
+
+    //base output
+    public static compiler void __write(byte b);
+    public static compiler void __writeChar(char c);
+
+    //service, debug
+    public static compiler ref __lastALR();
+    public static compiler ref __lastSP();
+}

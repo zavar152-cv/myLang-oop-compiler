@@ -12,7 +12,7 @@
 #include "scope/scope.h"
 #include "../asm/symbols.h"
 
-BasicBlock *parseBlock(MyAstNode* block, Program *program, const char* filename, bool isLoop, BasicBlock* prevBlock, BasicBlock* existingBlock, BasicBlock* loopBlock, CFG *cfg, ScopeManager *sm, FunctionTable *functionTable, uint32_t *uid);
+BasicBlock *parseBlock(MyAstNode* block, Program *program, const char* filename, bool isLoop, BasicBlock* prevBlock, BasicBlock* existingBlock, BasicBlock* loopBlock, CFG *cfg, ScopeManager *sm, ClassInfo *classes, ClassInfo *currentClass, FunctionTable *functionTable, uint32_t *uid);
 
 BasicBlock *createBasicBlock(int id, BlockType type, const char *name) {
   BasicBlock *block = (BasicBlock *)malloc(sizeof(BasicBlock));
@@ -79,6 +79,90 @@ void addBasicBlock(CFG *cfg, BasicBlock *block) {
   cfg->blocks = block;
 }
 
+void printClassInfoTable(ClassInfo* head) {
+  printf("%-20s %-15s %-10s %-11s %-20s %-18s %s\n", 
+      "Class Name", "Parent", "IntfCount", "IsInterface", "File Name", "Type ID", "Interfaces");
+
+  printf("---------------------------------------------------------------------------------------------------------------\n");
+
+  for (ClassInfo* cls = head; cls != NULL; cls = cls->next) {
+  printf("%-20s %-15s %-10d %-11s %-20s 0x%016llx ", 
+          cls->name ? cls->name : "NULL",
+          cls->parentName ? cls->parentName : "None",
+          cls->interfaceCount,
+          cls->isInterface ? "true" : "false",
+          cls->fileName ? cls->fileName : "NULL",
+          (unsigned long long)cls->typeId);
+
+  if (cls->interfaceNames && cls->interfaceCount > 0) {
+      for (int i = 0; i < cls->interfaceCount; ++i) {
+          printf("%s%s", cls->interfaceNames[i], (i < cls->interfaceCount - 1) ? ", " : "");
+      }
+  } else {
+      printf("None");
+  }
+
+  printf("\n");
+  }
+}
+
+void printFunctionInfoTable(const ClassInfo* cls) {
+  if (!cls->program || !cls->program->functions) {
+      printf("\nNo functions found for class %s.\n", cls->name);
+      return;
+  }
+
+  printf("\nFunctions of class %s:\n", cls->name);
+  printf("%-20s %-15s %-10s %-10s %-10s %-10s %-10s %-11s %-9s %-9s\n", 
+         "Function Name", "Return Type", "Varargs", "Builtin", "Private", "Static", "Override", "Constructor", "Line", "Pos");
+
+  printf("------------------------------------------------------------------------------------------------------------------------\n");
+
+  for (FunctionInfo* fn = cls->program->functions; fn != NULL; fn = fn->next) {
+      printf("%-20s %-15s %-10s %-10s %-10s %-10s %-10s %-11s %-9u %-9u\n",
+             fn->functionName ? fn->functionName : "NULL",
+             fn->returnType && fn->returnType->typeName ? fn->returnType->typeName : "void",
+             fn->isVarargs ? "true" : "false",
+             fn->isBuiltin ? "true" : "false",
+             fn->isPrivate ? "true" : "false",
+             fn->isStatic ? "true" : "false",
+             fn->isOverride ? "true" : "false",
+             fn->isConstructor ? "true" : "false",
+             fn->line,
+             fn->pos);
+  }
+}
+
+
+void printFieldInfoTable(const ClassInfo* cls) {
+  printf("\nFields of class %s:\n", cls->name);
+  printf("%-20s %-15s %-10s %-10s %-5s %-5s %-10s\n", 
+         "Field Name", "Type", "Private", "Static", "Line", "Pos", "Offset");
+
+  printf("------------------------------------------------------------------------------------------------------------------------\n");
+
+  for (FieldInfo* field = cls->fields; field != NULL; field = field->next) {
+      printf("%-20s %-15s %-10s %-10s %-5u %-5u %-10lld\n", 
+             field->name ? field->name : "NULL",
+             field->type && field->type->typeName ? field->type->typeName : "NULL",
+             field->isPrivate ? "true" : "false",
+             field->isStatic ? "true" : "false",
+             field->line,
+             field->pos,
+             (long long)field->offset);
+  }
+}
+
+void printAllClassesInfoTable(ClassInfo* head) {
+  printClassInfoTable(head);
+
+  for (ClassInfo* cls = head; cls != NULL; cls = cls->next) {
+      printFieldInfoTable(cls);
+      printFunctionInfoTable(cls);
+      printVtable(cls->vtable);
+  }
+}
+
 TypeInfo* parseTyperef(MyAstNode* typeRef) {
   assert(typeRef->childCount == 1 || typeRef->childCount == 2 || typeRef->childCount >= 3);
 
@@ -138,11 +222,11 @@ void parseArgdefList(MyAstNode* argdefList, FunctionInfo* info, Program *program
   }
 }
 
-void parseVar(MyAstNode* var, BasicBlock *currentBlock, Program *program, const char* filename, ScopeManager *sm, FunctionTable *functionTable) {
+void parseVar(MyAstNode* var, BasicBlock *currentBlock, Program *program, const char* filename, ScopeManager *sm, ClassInfo* classes, ClassInfo *currentClass, FunctionTable *functionTable) {
   OperationTreeErrorContainer *errorContainer = (OperationTreeErrorContainer*)malloc(sizeof(OperationTreeErrorContainer));
   errorContainer->error = NULL;
   TypeInfo *typeInfo = parseTyperef(var->children[0]);
-  OperationTreeNode *otNode = buildVarOperationTreeFromAstNode(var, errorContainer, typeInfo, sm, functionTable, filename);
+  OperationTreeNode *otNode = buildVarOperationTreeFromAstNode(var, errorContainer, typeInfo, sm, functionTable, classes, currentClass, filename);
   addInstruction(currentBlock, var->label, otNode);
   freeTypeInfo(typeInfo);
 
@@ -156,11 +240,11 @@ void parseVar(MyAstNode* var, BasicBlock *currentBlock, Program *program, const 
   free(errorContainer);
 }
 
-void parseExpr(MyAstNode* expr, BasicBlock *currentBlock, Program *program, ScopeManager *sm, FunctionTable *functionTable, const char* filename) {
+void parseExpr(MyAstNode* expr, BasicBlock *currentBlock, Program *program, ScopeManager *sm, FunctionTable *functionTable, ClassInfo* classes, ClassInfo *currentClass, const char* filename) {
   assert(strcmp(expr->label, EXPR) == 0);
   OperationTreeErrorContainer *errorContainer = (OperationTreeErrorContainer*)malloc(sizeof(OperationTreeErrorContainer));
   errorContainer->error = NULL;
-  OperationTreeNode *otNode = buildExprOperationTreeFromAstNode(expr->children[0], false, false, errorContainer, sm, functionTable, filename);
+  OperationTreeNode *otNode = buildExprOperationTreeFromAstNode(expr->children[0], false, false, false, errorContainer, sm, functionTable, classes, currentClass, filename);
   addInstruction(currentBlock, expr->children[0]->label, otNode);
 
   OperationTreeErrorInfo *errorInfo = errorContainer->error;
@@ -225,7 +309,7 @@ void mergeBasicBlocks(CFG *cfg, BasicBlock *block1, BasicBlock *block2) {
     free(block2);
 }
 
-BasicBlock* parseDoWhile(MyAstNode* doWhileBlock, Program *program, const char* filename, BasicBlock* prevBlock, BasicBlock* existingBlock, BasicBlock* loopExitBlock, CFG *cfg, ScopeManager *sm, FunctionTable *functionTable, uint32_t *uid) {
+BasicBlock* parseDoWhile(MyAstNode* doWhileBlock, Program *program, const char* filename, BasicBlock* prevBlock, BasicBlock* existingBlock, BasicBlock* loopExitBlock, CFG *cfg, ScopeManager *sm, ClassInfo *classes, ClassInfo *currentClass, FunctionTable *functionTable, uint32_t *uid) {
   assert(strcmp(doWhileBlock->label, DO_WHILE) == 0);
   BasicBlock *bodyBlock;
   if (existingBlock == NULL) {
@@ -246,7 +330,7 @@ BasicBlock* parseDoWhile(MyAstNode* doWhileBlock, Program *program, const char* 
 
   OperationTreeErrorContainer *errorContainer = (OperationTreeErrorContainer*)malloc(sizeof(OperationTreeErrorContainer));
   errorContainer->error = NULL;
-  OperationTreeNode *otNode = buildExprOperationTreeFromAstNode(doWhileBlock->children[1]->children[0], false, false, errorContainer, sm, functionTable, filename);
+  OperationTreeNode *otNode = buildExprOperationTreeFromAstNode(doWhileBlock->children[1]->children[0], false, false, false, errorContainer, sm, functionTable, classes, currentClass, filename);
   addInstruction(conditionBlock, doWhileBlock->children[1]->label, otNode);
 
   OperationTreeErrorInfo *errorInfo = errorContainer->error;
@@ -261,14 +345,14 @@ BasicBlock* parseDoWhile(MyAstNode* doWhileBlock, Program *program, const char* 
   addEdge(conditionBlock, bodyBlock, TRUE_CONDITION, NULL);
   addEdge(conditionBlock, emptyBlock, FALSE_CONDITION, NULL);
 
-  BasicBlock *bodyExitBlock = parseBlock(doWhileBlock->children[0], program, filename, true, conditionBlock, bodyBlock, conditionBlock, cfg, sm, functionTable, uid);
+  BasicBlock *bodyExitBlock = parseBlock(doWhileBlock->children[0], program, filename, true, conditionBlock, bodyBlock, conditionBlock, cfg, sm, classes, currentClass, functionTable, uid);
 
   addEdge(bodyExitBlock, conditionBlock, UNCONDITIONAL_JUMP, NULL);
 
   return emptyBlock;
 }
 
-BasicBlock* parseWhile(MyAstNode* whileBlock, Program *program, const char* filename, BasicBlock* prevBlock, BasicBlock* existingBlock, BasicBlock* loopExitBlock, CFG *cfg, ScopeManager *sm, FunctionTable *functionTable, uint32_t *uid) {
+BasicBlock* parseWhile(MyAstNode* whileBlock, Program *program, const char* filename, BasicBlock* prevBlock, BasicBlock* existingBlock, BasicBlock* loopExitBlock, CFG *cfg, ScopeManager *sm, ClassInfo *classes, ClassInfo *currentClass, FunctionTable *functionTable, uint32_t *uid) {
     assert(strcmp(whileBlock->label, WHILE) == 0);
 
     BasicBlock *conditionBlock;            
@@ -289,7 +373,7 @@ BasicBlock* parseWhile(MyAstNode* whileBlock, Program *program, const char* file
 
     OperationTreeErrorContainer *errorContainer = (OperationTreeErrorContainer*)malloc(sizeof(OperationTreeErrorContainer));
     errorContainer->error = NULL;
-    OperationTreeNode *otNode = buildExprOperationTreeFromAstNode(whileBlock->children[0]->children[0], false, false, errorContainer, sm, functionTable, filename);
+    OperationTreeNode *otNode = buildExprOperationTreeFromAstNode(whileBlock->children[0]->children[0], false, false, false, errorContainer, sm, functionTable, classes, currentClass, filename);
     addInstruction(conditionBlock, whileBlock->children[0]->label, otNode);
 
     OperationTreeErrorInfo *errorInfo = errorContainer->error;
@@ -307,14 +391,14 @@ BasicBlock* parseWhile(MyAstNode* whileBlock, Program *program, const char* file
     addEdge(conditionBlock, bodyBlock, TRUE_CONDITION, NULL);
     addEdge(conditionBlock, emptyBlock, FALSE_CONDITION, NULL);
 
-    BasicBlock *bodyExitBlock = parseBlock(whileBlock->children[1], program, filename, true, conditionBlock, bodyBlock, emptyBlock, cfg, sm, functionTable, uid);
+    BasicBlock *bodyExitBlock = parseBlock(whileBlock->children[1], program, filename, true, conditionBlock, bodyBlock, emptyBlock, cfg, sm, classes, currentClass, functionTable, uid);
 
     addEdge(bodyExitBlock, conditionBlock, UNCONDITIONAL_JUMP, NULL);
 
     return emptyBlock;
 }
 
-BasicBlock *parseIf(MyAstNode* ifBlock, Program *program, const char* filename, bool isLoop, BasicBlock* prevBlock, BasicBlock* existingBlock, BasicBlock* loopExitBlock, CFG *cfg, ScopeManager *sm, FunctionTable *functionTable, uint32_t *uid) {
+BasicBlock *parseIf(MyAstNode* ifBlock, Program *program, const char* filename, bool isLoop, BasicBlock* prevBlock, BasicBlock* existingBlock, BasicBlock* loopExitBlock, CFG *cfg, ScopeManager *sm, ClassInfo *classes, ClassInfo *currentClass, FunctionTable *functionTable, uint32_t *uid) {
     assert(strcmp(ifBlock->label, IF) == 0);
 
     BasicBlock *conditionBlock;
@@ -334,7 +418,7 @@ BasicBlock *parseIf(MyAstNode* ifBlock, Program *program, const char* filename, 
 
     OperationTreeErrorContainer *errorContainer = (OperationTreeErrorContainer*)malloc(sizeof(OperationTreeErrorContainer));
     errorContainer->error = NULL;
-    OperationTreeNode *otNode = buildExprOperationTreeFromAstNode(ifBlock->children[0]->children[0], false, false, errorContainer, sm, functionTable, filename);
+    OperationTreeNode *otNode = buildExprOperationTreeFromAstNode(ifBlock->children[0]->children[0], false, false, false, errorContainer, sm, functionTable, classes, currentClass, filename);
     addInstruction(conditionBlock, ifBlock->children[0]->label, otNode);
 
     OperationTreeErrorInfo *errorInfo = errorContainer->error;
@@ -363,18 +447,18 @@ BasicBlock *parseIf(MyAstNode* ifBlock, Program *program, const char* filename, 
         addEdge(conditionBlock, emptyBlock, FALSE_CONDITION, NULL);
     }
 
-    BasicBlock *thenExitBlock = parseBlock(ifBlock->children[1], program, filename, isLoop, conditionBlock, thenBlock, loopExitBlock, cfg, sm, functionTable, uid);
+    BasicBlock *thenExitBlock = parseBlock(ifBlock->children[1], program, filename, isLoop, conditionBlock, thenBlock, loopExitBlock, cfg, sm, classes, currentClass, functionTable, uid);
 
     addEdge(thenExitBlock, emptyBlock, UNCONDITIONAL_JUMP, NULL);
 
     if (elseBlock != NULL) {
-        BasicBlock *elseExitBlock = parseBlock(ifBlock->children[2]->children[0], program, filename, isLoop, conditionBlock, elseBlock, loopExitBlock, cfg, sm, functionTable, uid);
+        BasicBlock *elseExitBlock = parseBlock(ifBlock->children[2]->children[0], program, filename, isLoop, conditionBlock, elseBlock, loopExitBlock, cfg, sm, classes, currentClass, functionTable, uid);
         addEdge(elseExitBlock, emptyBlock, UNCONDITIONAL_JUMP, NULL);
     }
     return emptyBlock;
 }
 
-BasicBlock *parseBlock(MyAstNode* block, Program *program, const char* filename, bool isLoop, BasicBlock* prevBlock, BasicBlock* existingBlock, BasicBlock* loopExitBlock, CFG *cfg, ScopeManager *sm, FunctionTable *functionTable, uint32_t *uid) {
+BasicBlock *parseBlock(MyAstNode* block, Program *program, const char* filename, bool isLoop, BasicBlock* prevBlock, BasicBlock* existingBlock, BasicBlock* loopExitBlock, CFG *cfg, ScopeManager *sm, ClassInfo *classes, ClassInfo *currentClass, FunctionTable *functionTable, uint32_t *uid) {
   //assert(strcmp(block->label, BLOCK) == 0);
   enterScope(sm);
   BasicBlock *currentBlock;
@@ -402,22 +486,22 @@ BasicBlock *parseBlock(MyAstNode* block, Program *program, const char* filename,
       currentBlock->name = strdup("Base block");
     }
     if (strcmp(block->children[i]->label, VAR) == 0) {
-      parseVar(block->children[i], currentBlock, program, filename, sm, functionTable);
+      parseVar(block->children[i], currentBlock, program, filename, sm, classes, currentClass, functionTable);
     } else if (strcmp(block->children[i]->label, BLOCK) == 0) {
       BasicBlock *toExistingBlock = currentBlock->isEmpty ? currentBlock : NULL;
-      BasicBlock *nestedExitBlock = parseBlock(block->children[i], program, filename, isLoop, currentBlock, toExistingBlock, loopExitBlock, cfg, sm, functionTable, uid);
+      BasicBlock *nestedExitBlock = parseBlock(block->children[i], program, filename, isLoop, currentBlock, toExistingBlock, loopExitBlock, cfg, sm, classes, currentClass, functionTable, uid);
       currentBlock = nestedExitBlock;
     } else if (strcmp(block->children[i]->label, IF) == 0) {
       BasicBlock *toExistingBlock = currentBlock->isEmpty ? currentBlock : NULL;
-      BasicBlock *nestedExitBlock = parseIf(block->children[i], program, filename, isLoop, currentBlock, toExistingBlock, loopExitBlock, cfg, sm, functionTable, uid);
+      BasicBlock *nestedExitBlock = parseIf(block->children[i], program, filename, isLoop, currentBlock, toExistingBlock, loopExitBlock, cfg, sm, classes, currentClass, functionTable, uid);
       currentBlock = nestedExitBlock;
     } else if (strcmp(block->children[i]->label, WHILE) == 0) {
       BasicBlock *toExistingBlock = currentBlock->isEmpty ? currentBlock : NULL;
-      BasicBlock *nestedExitBlock = parseWhile(block->children[i], program, filename, currentBlock, toExistingBlock, loopExitBlock, cfg, sm, functionTable, uid);
+      BasicBlock *nestedExitBlock = parseWhile(block->children[i], program, filename, currentBlock, toExistingBlock, loopExitBlock, cfg, sm, classes, currentClass, functionTable, uid);
       currentBlock = nestedExitBlock;
     } else if (strcmp(block->children[i]->label, DO_WHILE) == 0) {
       BasicBlock *toExistingBlock = currentBlock->isEmpty ? currentBlock : NULL;
-      BasicBlock *nestedExitBlock = parseDoWhile(block->children[i], program, filename, currentBlock, toExistingBlock, loopExitBlock, cfg, sm, functionTable, uid);
+      BasicBlock *nestedExitBlock = parseDoWhile(block->children[i], program, filename, currentBlock, toExistingBlock, loopExitBlock, cfg, sm, classes, currentClass, functionTable, uid);
       currentBlock = nestedExitBlock;      
     } else if (strcmp(block->children[i]->label, BREAK) == 0) {
       OperationTreeNode *breakOtNode = newOperationTreeNode(OT_BREAK, 0, block->children[i]->children[0]->line, block->children[i]->children[0]->pos, false);
@@ -445,7 +529,7 @@ BasicBlock *parseBlock(MyAstNode* block, Program *program, const char* filename,
         addProgramError(program, error);
       }
     } else if (strcmp(block->children[i]->label, EXPR) == 0) {
-      parseExpr(block->children[i], currentBlock, program, sm, functionTable, filename);
+      parseExpr(block->children[i], currentBlock, program, sm, functionTable, classes, currentClass, filename);
     }
   }
 
@@ -460,217 +544,683 @@ BasicBlock *parseBlock(MyAstNode* block, Program *program, const char* filename,
   return currentBlock;
 }
 
-
-Program *buildProgram(FilesToAnalyze *files, bool debug) {
-  Program *program = (Program *)malloc(sizeof(Program));
-  program->functions = NULL;
-  program->functionTable = NULL;
-  program->errors = NULL;
-  program->warnings = NULL;
+bool prepareClassDeclaration(ClassInfo *classInfo, MyAstNode* classBody, char *fileName, bool debug, bool isInterface) {
+  classInfo->program = (Program *)malloc(sizeof(Program));
+  classInfo->program->functions = NULL;
+  classInfo->program->functionTable = NULL;
+  classInfo->program->errors = NULL;
+  classInfo->program->warnings = NULL;
   FunctionTable *functionTable = createFunctionTable();
-
+  classInfo->program->functionTable = functionTable;
   bool redef = false;
-  for (uint32_t i = 0; i < files->filesCount; i++) {
-    MyLangResult* result = files->result[i];
-    MyAstNode** funcDefs = result->tree->children;
-    uint32_t childCount = result->tree->childCount;
-    for (uint32_t j = 0; j < childCount; j++) {
-      MyAstNode* funcSignature = funcDefs[j]->children[0];
-      assert(strcmp(funcSignature->label, FUNC_SIGNATURE) == 0);
 
-      MyAstNode* typeRef = NULL;
-      MyAstNode* name = NULL;
-      MyAstNode* argdefList = NULL;
+  MyAstNode** funcDefs = classBody->children;
+  uint32_t childCount = classBody->childCount;
+  bool constructorFound = false;
+  uint32_t cLine = 0;
+  uint32_t cPos = 0;
+  for (uint32_t j = 0; j < childCount; j++) {
+    if (strcmp(funcDefs[j]->label, FIELD) == 0) {
+      assert(strcmp(funcDefs[j]->children[0]->label, ACCESS_MODIFIER) == 0);
+      bool isPrivate = strcmp("private", funcDefs[j]->children[0]->children[0]->label) == 0;
+      bool isStatic = funcDefs[j]->children[0]->childCount == 2 && strcmp("static", funcDefs[j]->children[0]->children[1]->label) == 0;
+      assert(strcmp(funcDefs[j]->children[1]->label, VAR) == 0);
+      MyAstNode* var = funcDefs[j]->children[1];
 
-      assert(funcSignature->childCount == 3 || funcSignature->childCount == 2);
-
-      if (funcSignature->childCount == 2) {
-        name = funcSignature->children[0];
-        argdefList = funcSignature->children[1];
-        assert(strcmp(name->label, NAME) == 0);
-        assert(strcmp(argdefList->label, ARGDEF_LIST) == 0);
-      } else if (funcSignature->childCount == 3) {
-        typeRef = funcSignature->children[0];
-        name = funcSignature->children[1];
-        argdefList = funcSignature->children[2];
-        assert(strcmp(typeRef->label, TYPEREF) == 0);
-        assert(strcmp(name->label, NAME) == 0);
-        assert(strcmp(argdefList->label, ARGDEF_LIST) == 0);
-      }
-
-      TypeInfo* returnType;
-      if (typeRef == NULL) {
-        returnType = createTypeInfo("void", false, false, 0, name->line, name->pos);
-      } else {
-        returnType = parseTyperef(typeRef);
-      }
-
-      FunctionInfo* info = createFunctionInfo(files->fileName[i], name->children[0]->label, returnType, name->children[0]->line, name->children[0]->pos);
-      parseArgdefList(argdefList, info, program, files->fileName[i]);
-
-      if ((info->functionName[0] == '_') && (info->functionName[1] == '_')) {
-        info->isBuiltin = true;
-      }
-
-      FunctionInfo *func = program->functions;
-      while (func != NULL) {
-        FunctionInfo *nextFunc = func->next;
-        if (strcmp(func->functionName, info->functionName) == 0) {
-          char buffer[1024];
-          redef = true;
-          snprintf(buffer, sizeof(buffer),
-            "Redeclaration error. Function %s at %s:%d:%d was previously declared at %s:%d:%d\n",
-            info->functionName, info->fileName, info->line, info->pos + 1,
-            func->fileName, func->line, func->pos + 1);
-          ProgramErrorInfo* error = createProgramErrorInfo(buffer);
-          addProgramError(program, error);
-          break;
-        }
-        func = nextFunc;
-      }
-
-      addFunctionToProgram(program, info);
-      TypeInfo *returnTypeCopy = createTypeInfo(info->returnType->typeName, info->returnType->custom, info->returnType->isArray, info->returnType->arrayDim, info->returnType->line, info->returnType->pos);
-      FunctionEntry *entry = createFunctionEntry(info->fileName, info->functionName, returnTypeCopy, copyArgumentInfo(info->arguments), info->isVarargs, info->isBuiltin, argdefList->childCount - (info->isVarargs ? 1 : 0), info->line, info->pos);
-      addFunctionTable(functionTable, entry);
-    }
-  }
-
-  if (!redef) {
-    for (uint32_t i = 0; i < files->filesCount; i++) {
-      MyLangResult *result = files->result[i];
-      MyAstNode **funcDefs = result->tree->children;
-      uint32_t childCount = result->tree->childCount;
-      for (uint32_t j = 0; j < childCount && funcDefs[j]->childCount != 1; j++) {
-        MyAstNode *block = funcDefs[j]->children[1];
-        assert(strcmp(block->label, BLOCK) == 0);
-        MyAstNode* funcSignature = funcDefs[j]->children[0];
-        assert(strcmp(funcSignature->label, FUNC_SIGNATURE) == 0);
-        MyAstNode* name;
-        if (funcSignature->childCount == 2) {
-          name = funcSignature->children[0];
-          assert(strcmp(name->label, NAME) == 0);
-        } else if (funcSignature->childCount == 3) {
-          name = funcSignature->children[1];
-          assert(strcmp(name->label, NAME) == 0);
-        }
-
-        FunctionInfo *func = program->functions;
-        while (func != NULL) {
-          if (strcmp(func->functionName, name->children[0]->label) == 0) {
+      for (uint32_t i = 1; i < var->childCount; i = i + 2) {
+        FieldInfo *existingFieldInfo = classInfo->fields;
+        bool fieldFound = false;
+        while (existingFieldInfo != NULL) {
+          if (strcmp(existingFieldInfo->name, var->children[i]->children[0]->label) == 0) {
+            fieldFound = true;
+            char buffer[1024];
+            snprintf(buffer, sizeof(buffer),
+              "Field error. Field of '%s' at %s:%d:%d was previously declared at %s:%d:%d\n",
+              classInfo->name, classInfo->fileName, var->children[i]->children[0]->line, var->children[i]->children[0]->pos + 1, classInfo->fileName, existingFieldInfo->line, existingFieldInfo->pos + 1);
+            ProgramErrorInfo* error = createProgramErrorInfo(buffer);
+            addProgramError(classInfo->program, error);
             break;
           }
-          func = func->next;
+          existingFieldInfo = existingFieldInfo->next;
         }
 
-
-        CFG *cfg = createCFG();
-        uint32_t uid = 0;
-        BasicBlock *startBlock = createBasicBlock(uid, UNCONDITIONAL, "START");
-        cfg->entryBlock = startBlock;
-        addBasicBlock(cfg, startBlock);
-
-        ScopeManager sm = {NULL, 0, func->functionName};
-        enterScope(&sm);
-        ArgumentInfo *funcArg = func->arguments;
-        while (funcArg != NULL) {
-          if (func->isVarargs) {
-            funcArg->type->isArray = true;
-            funcArg->type->arrayDim = 1;
-          }
-          addSymbol(&sm, funcArg->name, funcArg->type->typeName, funcArg->type->custom, funcArg->type->isArray, funcArg->type->arrayDim, funcArg->line, funcArg->pos);
-          funcArg = funcArg->next;
+        if (!fieldFound) {
+          TypeInfo *typeInfo = parseTyperef(var->children[0]);
+          FieldInfo *fieldInfo = createFieldInfo(typeInfo, var->children[i]->children[0]->label, var->children[i]->children[0]->line, var->children[i]->children[0]->pos);
+          fieldInfo->isPrivate = isPrivate;
+          fieldInfo->isStatic = isStatic;
+          addField(classInfo, fieldInfo);
         }
-        BasicBlock *lastBlock = parseBlock(block, program, files->fileName[i], false, startBlock, NULL, NULL, cfg, &sm, functionTable, &uid);
-        exitScope(&sm);
-        BasicBlock *retCheckBlock;
-        if (lastBlock->isEmpty) {
-          lastBlock->type = TERMINAL;
-          free(lastBlock->name);
-          lastBlock->name = strdup("END");
-          retCheckBlock = lastBlock;
-        } else {
-          BasicBlock *endBlock = createBasicBlock(++uid, TERMINAL, "END");
-          addBasicBlock(cfg, endBlock);
-          addEdge(lastBlock, endBlock, UNCONDITIONAL_JUMP, NULL);
-          retCheckBlock = endBlock;
+      }
+
+      continue;
+    }
+
+    MyAstNode* funcSignature;
+    MyAstNode* accessModifier;
+    bool isPrivate;
+    bool isBuiltin;
+    bool isStatic;
+    bool isConstructor;
+    if (!isInterface) {
+      funcSignature = funcDefs[j]->children[1];
+      accessModifier = funcDefs[j]->children[0];
+      assert(strcmp(funcSignature->label, FUNC_SIGNATURE) == 0);
+      assert(strcmp(accessModifier->label, ACCESS_MODIFIER) == 0);
+  
+      isPrivate = strcmp("private", accessModifier->children[0]->label) == 0;
+      isBuiltin = false;
+      isStatic = false;
+      isConstructor = false;
+  
+      if (accessModifier->childCount == 2) {
+        if (strcmp(COMPILER, accessModifier->children[1]->label) == 0) {
+          isBuiltin = true;
+        } else if (strcmp(STATIC, accessModifier->children[1]->label) == 0) {
+          isStatic = true;
         }
+      } else if (accessModifier->childCount == 3) {
+        //bad but works
+        isBuiltin = true;
+        isStatic = true;
+      }
+    } else {
+      funcSignature = funcDefs[j]->children[0];
+      assert(strcmp(funcSignature->label, FUNC_SIGNATURE) == 0);
+      isPrivate = false;
+      isBuiltin = false;
+      isStatic = false;
+      isConstructor = false;
+    }
 
-        Edge *inEdge = retCheckBlock->inEdges;
-        while (inEdge != NULL) {
-            BasicBlock *incomingBlock = inEdge->fromBlock;
-            if (incomingBlock->instructionCount > 0) {
-              OperationTreeNode *lastOperation = incomingBlock->instructions[incomingBlock->instructionCount - 1].otRoot;
-              if (incomingBlock->type == UNCONDITIONAL && (isBinaryOp(lastOperation->label) ||
-                  isUnaryOp(lastOperation->label) ||
-                  strcmp(lastOperation->label, LIT_READ) == 0 ||
-                  strcmp(lastOperation->label, READ) == 0 ||
-                  strcmp(lastOperation->label, OT_CALL) == 0 ||
-                  strcmp(lastOperation->label, INDEX) == 0)) {
-                  OperationTreeNode *returnNode = newOperationTreeNode(RETURN, 1, lastOperation->line, lastOperation->pos, false);
-                  returnNode->children[0] = lastOperation;
-                  returnNode->type = copyTypeInfo(func->returnType);
-                  incomingBlock->instructions[incomingBlock->instructionCount - 1].otRoot = returnNode;
+    MyAstNode* typeRef = NULL;
+    MyAstNode* name = NULL;
+    MyAstNode* argdefList = NULL;
 
-                  OperationTreeErrorContainer *errorContainer = (OperationTreeErrorContainer*)malloc(sizeof(OperationTreeErrorContainer));
-                  errorContainer->error = NULL;
+    assert(funcSignature->childCount == 3 || funcSignature->childCount == 2);
 
-                  checkTypeCompatibility(returnNode, lastOperation, errorContainer, files->fileName[i]);
-                  OperationTreeErrorInfo *errorInfo = errorContainer->error;
-                  while (errorInfo != NULL) {
-                    ProgramErrorInfo* error = createProgramErrorInfo(errorInfo->message);
-                    addProgramError(program, error);
-                    errorInfo = errorInfo->next;
-                  }
-                  freeOperationTreeErrors(errorContainer->error);
-                  free(errorContainer);
+    if (funcSignature->childCount == 2) {
+      name = funcSignature->children[0];
+      argdefList = funcSignature->children[1];
+      assert(strcmp(name->label, NAME) == 0);
+      assert(strcmp(argdefList->label, ARGDEF_LIST) == 0);
+    } else if (funcSignature->childCount == 3) {
+      typeRef = funcSignature->children[0];
+      name = funcSignature->children[1];
+      argdefList = funcSignature->children[2];
+      assert(strcmp(typeRef->label, TYPEREF) == 0);
+      assert(strcmp(name->label, NAME) == 0);
+      assert(strcmp(argdefList->label, ARGDEF_LIST) == 0);
+    }
 
-                  if (!(strcmp(returnNode->type->typeName, func->returnType->typeName) == 0 && (returnNode->type->isArray == func->returnType->isArray))) {
-                     char buffer[1024];
-                     
-                     snprintf(buffer, sizeof(buffer), 
-                    "Type error. Return type doesn't match function signature (%s and %s) at %s:%d:%d\n",
-                            returnNode->type->typeName, func->returnType->typeName,
-                            files->fileName[i], lastOperation->line, lastOperation->pos + 1);
-                    ProgramErrorInfo* error = createProgramErrorInfo(buffer);
-                    addProgramError(program, error);
-                  }
-              } else {
+    TypeInfo* returnType;
+    if (typeRef == NULL) {
+      returnType = createTypeInfo("_", false, false, 0, name->line, name->pos);
+    } else {
+      returnType = parseTyperef(typeRef);
+    }
+
+
+    FunctionInfo* info = createFunctionInfo(fileName, name->children[0]->label, returnType, name->children[0]->line, name->children[0]->pos);
+    parseArgdefList(argdefList, info, classInfo->program, fileName);
+    
+    if (typeRef == NULL && strcmp(name->children[0]->label, classInfo->name) == 0) {
+      if (!constructorFound) {
+        constructorFound = true;
+        isConstructor = true;
+        cLine = info->line;
+        cPos = info->pos;
+        freeTypeInfo(info->returnType);
+        info->returnType = createTypeInfo(name->children[0]->label, true, false, 0, name->line, name->pos);
+        if (isBuiltin || isStatic || isPrivate) {
+          char buffer[1024];
+          snprintf(buffer, sizeof(buffer),
+            "Constructor error. Constructor of '%s' at %s:%d:%d can't be builtin, static or private\n",
+            classInfo->name, info->fileName, info->line, info->pos + 1);
+          ProgramErrorInfo* error = createProgramErrorInfo(buffer);
+          addProgramError(classInfo->program, error);
+        }
+        if (isInterface) {
+          char buffer[1024];
+          snprintf(buffer, sizeof(buffer),
+            "Constructor error. Constructor of '%s' at %s:%d:%d isn't allowed in interfaces\n",
+            classInfo->name, info->fileName, info->line, info->pos + 1);
+          ProgramErrorInfo* error = createProgramErrorInfo(buffer);
+          addProgramError(classInfo->program, error);
+        }
+      } else {
+        isConstructor = false;
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer),
+          "Constructor error. Constructor of '%s' at %s:%d:%d was previously declared at %s:%d:%d\n",
+          classInfo->name, info->fileName, info->line, info->pos + 1,
+          info->fileName, cLine, cPos + 1);
+        ProgramErrorInfo* error = createProgramErrorInfo(buffer);
+        addProgramError(classInfo->program, error);
+      }
+    }
+    
+    info->isBuiltin = isBuiltin;
+    info->isStatic = isStatic;
+    info->isPrivate = isPrivate;
+    info->isConstructor = isConstructor;
+
+    FunctionInfo *func = classInfo->program->functions;
+    while (func != NULL) {
+      FunctionInfo *nextFunc = func->next;
+      if (strcmp(func->functionName, info->functionName) == 0) {
+        char buffer[1024];
+        redef = true;
+        snprintf(buffer, sizeof(buffer),
+          "Redeclaration error. Function '%s' at %s:%d:%d was previously declared at %s:%d:%d\n",
+          info->functionName, info->fileName, info->line, info->pos + 1,
+          func->fileName, func->line, func->pos + 1);
+        ProgramErrorInfo* error = createProgramErrorInfo(buffer);
+        addProgramError(classInfo->program, error);
+        break;
+      }
+      func = nextFunc;
+    }
+
+    addFunctionToProgram(classInfo->program, info);
+    TypeInfo *returnTypeCopy = createTypeInfo(info->returnType->typeName, info->returnType->custom, info->returnType->isArray, info->returnType->arrayDim, info->returnType->line, info->returnType->pos);
+    FunctionEntry *entry = createFunctionEntry(info->fileName, info->functionName, returnTypeCopy, copyArgumentInfo(info->arguments), info->isVarargs, info->isBuiltin, info->isStatic, info->isPrivate, info->isConstructor, argdefList->childCount - (info->isVarargs ? 1 : 0), info->line, info->pos);
+    addFunctionTable(functionTable, entry);
+  }
+
+  if (!constructorFound && !classInfo->isInterface) {
+    char buffer[1024];
+    snprintf(buffer, sizeof(buffer),
+      "Constructor error. Constructor of '%s' in %s not found\n",
+      classInfo->name, classInfo->fileName);
+    ProgramErrorInfo* error = createProgramErrorInfo(buffer);
+    addProgramError(classInfo->program, error);
+  }
+  return redef;
+}
+
+void prepareClassVtable(ClassInfo *classInfo, ClassInfo *classes) {
+  ClassVtable *vtable = createVtable();
+  prepareClassVtableHelper(classInfo, classes, vtable);
+  size_t count = 0;
+  prepareOffset(vtable, &count);
+  classInfo->vtable = vtable;
+}
+
+void prepareClassVtableHelper(ClassInfo *classInfo, ClassInfo *classes, ClassVtable *vtable) {
+
+  ClassInfo *parentClass = findClassWithName(classes, classInfo->parentName);
+
+  if (parentClass != NULL && !classInfo->isInterface) {
+    prepareClassVtableHelper(parentClass, classes, vtable);
+  }
+  FunctionEntry *functionEntry = classInfo->program->functionTable->entry;
+  while (functionEntry != NULL) {
+
+    if (functionEntry->isOverride) {
+      ClassVtableEntry *currentEntry = vtable->head;
+
+      while (currentEntry != NULL) {
+        if (strcmp(currentEntry->functionName, functionEntry->functionName) == 0) {
+          free(currentEntry->className);
+          currentEntry->className = strdup(classInfo->name);
+          break;
+        }
+        currentEntry = currentEntry->next;
+      }
+
+    } else {
+      addVtableEntry(vtable, functionEntry->functionName, classInfo->name, functionEntry->isBuiltin);
+    }
+    functionEntry = functionEntry->next;
+  }
+}
+
+
+void prepareCFGForProgram(ClassInfo *classInfo, ClassInfo* classes, MyAstNode* classBody, char *fileName, bool debug) {
+    MyAstNode **funcDefs = classBody->children;
+    uint32_t childCount = classBody->childCount;
+    for (uint32_t j = 0; j < childCount && funcDefs[j]->childCount != 1; j++) {
+      if (strcmp(funcDefs[j]->label, FIELD) == 0)
+        continue;
+      MyAstNode* funcSignature = funcDefs[j]->children[1];
+      assert(strcmp(funcSignature->label, FUNC_SIGNATURE) == 0);
+      MyAstNode* name;
+      if (funcSignature->childCount == 2) {
+        name = funcSignature->children[0];
+        assert(strcmp(name->label, NAME) == 0);
+      } else if (funcSignature->childCount == 3) {
+        name = funcSignature->children[1];
+        assert(strcmp(name->label, NAME) == 0);
+      }
+
+      FunctionInfo *func = classInfo->program->functions;
+      while (func != NULL) {
+        if (strcmp(func->functionName, name->children[0]->label) == 0) {
+          break;
+        }
+        func = func->next;
+      }
+
+      if (func->isBuiltin)
+        continue;
+
+      MyAstNode *block = funcDefs[j]->children[2];
+      assert(strcmp(block->label, BLOCK) == 0);
+
+      CFG *cfg = createCFG();
+      uint32_t uid = 0;
+      BasicBlock *startBlock = createBasicBlock(uid, UNCONDITIONAL, "START");
+      cfg->entryBlock = startBlock;
+      addBasicBlock(cfg, startBlock);
+
+      ScopeManager sm = {NULL, 0, func->functionName};
+      
+      enterScope(&sm);
+      FieldInfo *fieldInfo = classInfo->fields;
+      while (fieldInfo != NULL) {
+        addSymbol(&sm, fieldInfo->name, fieldInfo->type->typeName, fieldInfo->type->custom, fieldInfo->type->isArray, fieldInfo->type->arrayDim, fieldInfo->line, fieldInfo->pos);
+        fieldInfo = fieldInfo->next;
+      }
+      enterScope(&sm);
+      ArgumentInfo *funcArg = func->arguments;
+      while (funcArg != NULL) {
+        if (func->isVarargs) {
+          funcArg->type->isArray = true;
+          funcArg->type->arrayDim = 1;
+        }
+        addSymbol(&sm, funcArg->name, funcArg->type->typeName, funcArg->type->custom, funcArg->type->isArray, funcArg->type->arrayDim, funcArg->line, funcArg->pos);
+        funcArg = funcArg->next;
+      }
+      BasicBlock *lastBlock = parseBlock(block, classInfo->program, fileName, false, startBlock, NULL, NULL, cfg, &sm, classes, classInfo, classInfo->program->functionTable, &uid);
+      exitScope(&sm);
+      BasicBlock *retCheckBlock;
+      if (lastBlock->isEmpty) {
+        lastBlock->type = TERMINAL;
+        free(lastBlock->name);
+        lastBlock->name = strdup("END");
+        retCheckBlock = lastBlock;
+      } else {
+        BasicBlock *endBlock = createBasicBlock(++uid, TERMINAL, "END");
+        addBasicBlock(cfg, endBlock);
+        addEdge(lastBlock, endBlock, UNCONDITIONAL_JUMP, NULL);
+        retCheckBlock = endBlock;
+      }
+
+      Edge *inEdge = retCheckBlock->inEdges;
+      while (inEdge != NULL) {
+          BasicBlock *incomingBlock = inEdge->fromBlock;
+          if (incomingBlock->instructionCount > 0) {
+            OperationTreeNode *lastOperation = incomingBlock->instructions[incomingBlock->instructionCount - 1].otRoot;
+            if (incomingBlock->type == UNCONDITIONAL && (isBinaryOp(lastOperation->label) ||
+                isUnaryOp(lastOperation->label) ||
+                strcmp(lastOperation->label, OT_LIT_READ) == 0 ||
+                strcmp(lastOperation->label, OT_READ) == 0 ||
+                strcmp(lastOperation->label, OT_CALL) == 0 ||
+                strcmp(lastOperation->label, OT_INDEX) == 0)) {
+                OperationTreeNode *returnNode = newOperationTreeNode(OT_RETURN, 1, lastOperation->line, lastOperation->pos, false);
+                returnNode->children[0] = lastOperation;
+                returnNode->type = copyTypeInfo(func->returnType);
+                incomingBlock->instructions[incomingBlock->instructionCount - 1].otRoot = returnNode;
+
+                OperationTreeErrorContainer *errorContainer = (OperationTreeErrorContainer*)malloc(sizeof(OperationTreeErrorContainer));
+                errorContainer->error = NULL;
+
+                checkTypeCompatibility(returnNode, lastOperation, errorContainer, classes, fileName);
+                OperationTreeErrorInfo *errorInfo = errorContainer->error;
+                while (errorInfo != NULL) {
+                  ProgramErrorInfo* error = createProgramErrorInfo(errorInfo->message);
+                  addProgramError(classInfo->program, error);
+                  errorInfo = errorInfo->next;
+                }
+                freeOperationTreeErrors(errorContainer->error);
+                free(errorContainer);
+
+                if (!(strcmp(returnNode->type->typeName, func->returnType->typeName) == 0 && (returnNode->type->isArray == func->returnType->isArray))) {
+                    char buffer[1024];
+                    
+                    snprintf(buffer, sizeof(buffer), 
+                  "Type error. Return type doesn't match function signature (%s and %s) at %s:%d:%d\n",
+                          returnNode->type->typeName, func->returnType->typeName,
+                          fileName, lastOperation->line, lastOperation->pos + 1);
+                  ProgramErrorInfo* error = createProgramErrorInfo(buffer);
+                  addProgramError(classInfo->program, error);
+                }
+            } else {
+              if (!func->isConstructor) {
                 char buffer[1024];
                 
                 snprintf(buffer, sizeof(buffer), 
-                "No return warning. Can't use instruction at %s:%d:%d as a return value",
-                        files->fileName[i], lastOperation->line, lastOperation->pos + 1);
+                "No return warning. Can't use instruction at %s:%d:%d as a return value\n",
+                fileName, lastOperation->line, lastOperation->pos + 1);
                 ProgramWarningInfo* warning = createProgramWarningInfo(buffer);
-                addProgramWarning(program, warning);
+                addProgramWarning(classInfo->program, warning);
               }
-            } else {
+            }
+          } else {
+            if (!func->isConstructor) {
               char buffer[1024];
 
               snprintf(buffer, sizeof(buffer), 
-              "No return warning. There is no instructions to use as a return value at %s in function %s",
-                      files->fileName[i], name->children[0]->label);
+              "No return warning. There is no instructions to use as a return value at %s:%d:%d in function '%s'\n",
+              fileName, name->children[0]->line, name->children[0]->pos + 1, name->children[0]->label);
               ProgramWarningInfo* warning = createProgramWarningInfo(buffer);
-              addProgramWarning(program, warning);
+              addProgramWarning(classInfo->program, warning);
             }
-            inEdge = inEdge->nextIn;
-        }
-
-        func->cfg = cfg;
+          }
+          inEdge = inEdge->nextIn;
       }
+      exitScope(&sm);
+      func->cfg = cfg;
     }
 
     if (debug) {
-      FunctionInfo *func = program->functions;
+      FunctionInfo *func = classInfo->program->functions;
       while (func != NULL) {
         printFunctionInfo(func);
         func = func->next;
       }
     }
+}
+
+bool equalsTypeInfo(TypeInfo *a, TypeInfo *b) {
+  if (a == b) return true;
+  if (a == NULL || b == NULL) return false;
+
+  if ((a->typeName == NULL && b->typeName != NULL) || 
+      (a->typeName != NULL && b->typeName == NULL)) {
+      return false;
   }
 
-  program->functionTable = functionTable;
-  return program;
+  if (a->typeName && b->typeName && strcmp(a->typeName, b->typeName) != 0)
+      return false;
+
+  return a->custom == b->custom &&
+         a->isArray == b->isArray &&
+         a->isVarargs == b->isVarargs;
+}
+
+bool equalsArgumentList(ArgumentInfo *a, ArgumentInfo *b) {
+  while (a != NULL && b != NULL) {
+      if ((a->name == NULL && b->name != NULL) ||
+          (a->name != NULL && b->name == NULL)) {
+          return false;
+      }
+
+      if (a->name && b->name && strcmp(a->name, b->name) != 0) {
+          return false;
+      }
+
+      if (!equalsTypeInfo(a->type, b->type)) {
+          return false;
+      }
+
+      a = a->next;
+      b = b->next;
+  }
+
+  return a == NULL && b == NULL;
+}
+
+ClassProgram *buildClassProgram(FilesToAnalyze *files, bool debug) {
+  ClassProgram *classProgram = createClassProgram();
+  uint64_t typeId = 1;
+  for (uint32_t i = 0; i < files->filesCount; i++) {
+    MyLangResult* result = files->result[i];
+    MyAstNode** classDefs = result->tree->children;
+    uint32_t childCount = result->tree->childCount;
+    
+    for (uint32_t j = 0; j < childCount; j++) {
+      MyAstNode* class = classDefs[j];
+      assert(strcmp(class->label, CLASS_DECL) == 0 || strcmp(class->label, INTERFACE_DECL) == 0);
+      if (strcmp(class->label, CLASS_DECL) == 0) {
+        //if 4
+        //0 - NAME [value]
+        //1 - EXTENDS [value]
+        //2 - IMPLEMENTS [list]
+        //3 - CLASS_BODY -> FIELD || METHOD
+
+        //if 3
+        //0 - NAME [value]
+        //1 - EXTENDS [value] || IMPLEMENTS [list]
+        //2 - CLASS_BODY -> FIELD || METHOD
+
+        //if 2
+        //0 - NAME [value]
+        //1 - CLASS_BODY -> FIELD || METHOD
+
+        //METHOD
+        //0 - ACCESS_MODIFIER
+        //1 - FUNC_SIGNATURE
+        //2 - BLOCK
+        if (class->childCount == 4) {
+          MyAstNode* name = class->children[0];
+          MyAstNode* extends = class->children[1];
+          MyAstNode* implements = class->children[2];
+          MyAstNode* classBody = class->children[3];
+
+          assert(strcmp(name->label, NAME) == 0);
+          assert(strcmp(extends->label, EXTENDS) == 0);
+          assert(strcmp(implements->label, IMPLEMENTS) == 0);
+          assert(strcmp(classBody->label, CLASS_BODY) == 0);
+
+          const char **interfaces = malloc(implements->childCount * sizeof(char *));
+          for (uint32_t i = 0; i < implements->childCount; i++) {
+            interfaces[i] = implements->children[i]->label;
+          }
+          ClassInfo *classInfo = createClassInfo(name->children[0]->label, extends->children[0]->label, interfaces, implements->childCount, classBody, files->fileName[i], typeId);
+          typeId++;
+          addClassInfo(classProgram, classInfo);
+          free(interfaces);
+          prepareClassDeclaration(classInfo, classBody, files->fileName[i], debug, false);
+        } else if (class->childCount == 3) {
+          MyAstNode* name = class->children[0];
+          MyAstNode* classBody = class->children[2];
+
+          assert(strcmp(name->label, NAME) == 0);
+          assert(strcmp(classBody->label, CLASS_BODY) == 0);
+
+          MyAstNode* oopModifier = class->children[1];
+
+          assert(strcmp(oopModifier->label, EXTENDS) == 0 || strcmp(oopModifier->label, IMPLEMENTS) == 0);
+          ClassInfo *classInfo;
+          if (strcmp(oopModifier->label, EXTENDS) == 0) {
+            classInfo = createClassInfo(name->children[0]->label, oopModifier->children[0]->label, NULL, 0, classBody, files->fileName[i], typeId);
+            typeId++;
+            addClassInfo(classProgram, classInfo);
+            prepareClassDeclaration(classInfo, classBody, files->fileName[i], debug, false);
+          } else if (strcmp(oopModifier->label, IMPLEMENTS) == 0) {
+            const char **interfaces = malloc(oopModifier->childCount * sizeof(char *));
+            for (uint32_t i = 0; i < oopModifier->childCount; i++) {
+              interfaces[i] = oopModifier->children[i]->label;
+            }
+            classInfo = createClassInfo(name->children[0]->label, "Object", interfaces, oopModifier->childCount, classBody, files->fileName[i], typeId);
+            typeId++;
+            addClassInfo(classProgram, classInfo);
+            free(interfaces);
+            prepareClassDeclaration(classInfo, classBody, files->fileName[i], debug, false);
+          }
+
+        } else if (class->childCount == 2) {
+          MyAstNode* name = class->children[0];
+          MyAstNode* classBody = class->children[1];
+
+          assert(strcmp(name->label, NAME) == 0);
+          assert(strcmp(classBody->label, CLASS_BODY) == 0);
+
+          bool isObjectClass = strcmp(name->children[0]->label, "Object") == 0;
+
+          ClassInfo *classInfo = createClassInfo(name->children[0]->label, isObjectClass ? NULL : "Object", NULL, 0, classBody, files->fileName[i], isObjectClass ? 0 : typeId);
+          if (!isObjectClass) {
+            typeId++;
+          }
+          addClassInfo(classProgram, classInfo);
+          prepareClassDeclaration(classInfo, classBody, files->fileName[i], debug, false);
+        }
+
+      } else if (strcmp(class->label, INTERFACE_DECL) == 0) {
+        //0 - NAME [value]
+        //1 - INTERFACE_BODY -> METHOD
+
+        //METHOD
+        //0 - FUNC_SIGNATURE
+        MyAstNode* name = class->children[0];
+        MyAstNode* interfaceBody = class->children[1];
+
+        assert(strcmp(name->label, NAME) == 0);
+        assert(strcmp(interfaceBody->label, INTERFACE_BODY) == 0);
+        ClassInfo *classInfo = createClassInfo(name->children[0]->label, "Object", NULL, 0, interfaceBody, files->fileName[i], typeId);
+        typeId++;
+        classInfo->isInterface = true;
+        addClassInfo(classProgram, classInfo);
+        prepareClassDeclaration(classInfo, interfaceBody, files->fileName[i], debug, true);
+      }
+    }
+  }
+
+  ClassInfo *classInfo = classProgram->classes;
+
+  while (classInfo != NULL) {
+    
+    char *parentName = classInfo->parentName;
+    ClassInfo *parentClassInfo = findClassWithName(classProgram->classes, parentName);
+    uint64_t allParentFieldsCount = 0;
+
+    while (parentClassInfo != NULL) {
+      allParentFieldsCount = allParentFieldsCount + parentClassInfo->fieldsCount;
+      parentClassInfo = findClassWithName(classProgram->classes, parentClassInfo->parentName);
+    }
+
+    FieldInfo *fields = classInfo->fields;
+
+    while (fields != NULL) {
+      fields->offset = fields->offset + allParentFieldsCount * 8;
+      fields = fields->next;
+    }
+    classInfo->allParentFieldsCount = allParentFieldsCount;
+
+    classInfo = classInfo->next;
+  }
+
+  classInfo = classProgram->classes;
+
+  while (classInfo != NULL) {
+    if (strcmp(classInfo->name, "Object") != 0) {
+
+      bool parentFuncFound = false;
+      char *parentName = classInfo->parentName;
+      ClassInfo *parentClassInfo = findClassWithName(classProgram->classes, parentName);
+      
+      while (!parentFuncFound && strcmp(parentName, "Object") != 0) {
+        if (parentClassInfo == NULL) {
+          char buffer[1024];
+          snprintf(buffer, sizeof(buffer),
+            "Extend error. Parent '%s' of '%s' isn't exist\n", parentName, classInfo->name);
+          ProgramErrorInfo* error = createProgramErrorInfo(buffer);
+          addProgramError(classInfo->program, error);
+          break;
+        } else {
+          FunctionTable *parentFuncTable = parentClassInfo->program->functionTable;
+          
+          FunctionEntry *parentEntry = parentFuncTable->entry;
+          while (parentEntry != NULL) {
+            FunctionEntry *childEntry = findFunctionEntryWithName(classInfo->program->functionTable, parentEntry->functionName);
+            if (childEntry != NULL) {
+              if (!(equalsArgumentList(childEntry->arguments, parentEntry->arguments) 
+                    && childEntry->argumentsCount == parentEntry->argumentsCount)) {
+                char buffer[1024];
+                snprintf(buffer, sizeof(buffer),
+                  "Override error. Parent function '%s' of '%s' has different arguments in child function '%s' of class '%s'\n", 
+                  parentEntry->functionName, parentClassInfo->name, childEntry->functionName, classInfo->name);
+                ProgramErrorInfo* error = createProgramErrorInfo(buffer);
+                addProgramError(classInfo->program, error);
+              } else if (!equalsTypeInfo(childEntry->returnType, parentEntry->returnType)) {
+                char buffer[1024];
+                snprintf(buffer, sizeof(buffer),
+                  "Override error. Parent function '%s' of '%s' has different return type in child function '%s' of class '%s'\n", 
+                  parentEntry->functionName, parentClassInfo->name, childEntry->functionName, classInfo->name);
+                ProgramErrorInfo* error = createProgramErrorInfo(buffer);
+                addProgramError(classInfo->program, error);
+              }
+              FunctionInfo *funcInfo = classInfo->program->functions;
+              while (funcInfo != NULL) {
+                if (strcmp(funcInfo->functionName, childEntry->functionName) == 0) {
+                  funcInfo->isOverride = true;
+                  parentFuncFound = true;
+                  break;
+                }
+                funcInfo = funcInfo->next;
+              }
+              childEntry->isOverride = true;
+            }
+            parentEntry = parentEntry->next;
+          }
+        }
+        if (parentClassInfo->parentName == NULL) {
+          break;
+        }
+        parentClassInfo = findClassWithName(classProgram->classes, parentClassInfo->parentName);
+      }
+
+      for (int i = 0; i < classInfo->interfaceCount; i++) {
+        ClassInfo *interfaceInfo = findClassWithName(classProgram->classes, classInfo->interfaceNames[i]);
+        if (interfaceInfo == NULL) {
+          char buffer[1024];
+          snprintf(buffer, sizeof(buffer),
+            "Interface error. Interface '%s' for '%s' isn't exist\n", classInfo->interfaceNames[i], classInfo->name);
+          ProgramErrorInfo* error = createProgramErrorInfo(buffer);
+          addProgramError(classInfo->program, error);
+        } else {
+          FunctionTable *interfaceFuncTable = interfaceInfo->program->functionTable;
+          FunctionEntry *interfaceEntry = interfaceFuncTable->entry;
+          while (interfaceEntry != NULL) {
+            FunctionEntry *childEntry = findFunctionEntryWithName(classInfo->program->functionTable, interfaceEntry->functionName);
+            if (childEntry != NULL) {
+              if (!(equalsArgumentList(childEntry->arguments, interfaceEntry->arguments) 
+              && childEntry->argumentsCount == interfaceEntry->argumentsCount)) {
+                char buffer[1024];
+                snprintf(buffer, sizeof(buffer),
+                  "Implement error. Interface function '%s' of '%s' has different arguments in child function '%s' of class '%s'\n", 
+                  interfaceEntry->functionName, interfaceInfo->name, childEntry->functionName, classInfo->name);
+                ProgramErrorInfo* error = createProgramErrorInfo(buffer);
+                addProgramError(classInfo->program, error);
+              } else if (!equalsTypeInfo(childEntry->returnType, interfaceEntry->returnType)) {
+                char buffer[1024];
+                snprintf(buffer, sizeof(buffer),
+                  "Implement error. Interface function '%s' of '%s' has different return type of child function '%s' in class '%s'\n", 
+                  interfaceEntry->functionName, interfaceInfo->name, childEntry->functionName, classInfo->name);
+                ProgramErrorInfo* error = createProgramErrorInfo(buffer);
+                addProgramError(classInfo->program, error);
+              }
+            } else {
+              char buffer[1024];
+              snprintf(buffer, sizeof(buffer),
+                "Implementation error. Interface '%s' function '%s' for '%s' isn't implement\n", classInfo->interfaceNames[i], interfaceEntry->functionName, classInfo->name);
+              ProgramErrorInfo* error = createProgramErrorInfo(buffer);
+              addProgramError(classInfo->program, error);
+            }
+            interfaceEntry = interfaceEntry->next;
+          }
+        }
+      }
+    }
+    if (!classInfo->isInterface)
+      prepareCFGForProgram(classInfo, classProgram->classes, classInfo->body, classInfo->fileName, debug);
+    classInfo = classInfo->next;
+  }
+
+  classInfo = classProgram->classes;
+  while (classInfo != NULL) {
+    prepareClassVtable(classInfo, classProgram->classes);
+    classInfo = classInfo->next;
+  }
+
+  if (debug) {
+    printAllClassesInfo(classProgram->classes);
+    printAllClassesInfoTable(classProgram->classes);
+  }
+
+  return classProgram;
 }
 
 CFG *createCFG() {
@@ -781,6 +1331,42 @@ void freeTypeInfo(TypeInfo *head) {
     }
 }
 
+FieldInfo *createFieldInfo(TypeInfo *type, const char *name, uint32_t line, uint32_t pos) {
+  FieldInfo *fieldInfo = (FieldInfo *)malloc(sizeof(FieldInfo));
+  fieldInfo->type = type;
+  fieldInfo->name = strdup(name);
+  fieldInfo->next = NULL;
+  fieldInfo->line = line;
+  fieldInfo->pos = pos;
+  fieldInfo->offset = 0;
+  fieldInfo->isPrivate = false;
+  fieldInfo->isStatic = false;
+  return fieldInfo;
+}
+
+void addField(ClassInfo *classInfo, FieldInfo *fieldInfo) {
+  if (classInfo->fields != NULL) {
+    fieldInfo->offset = classInfo->fields->offset + 8;
+  }
+  fieldInfo->next = classInfo->fields;
+  classInfo->fields = fieldInfo;
+  classInfo->fieldsCount = classInfo->fieldsCount + 1;
+}
+
+void freeField(FieldInfo *field) {
+  while (field != NULL) {
+    FieldInfo *nextField = field->next;
+    if (field->type != NULL) {
+      freeTypeInfo(field->type);
+    }
+    if (field->name != NULL) {
+      free(field->name);
+    }
+    free(field);
+    field = nextField;
+  }
+}
+
 ArgumentInfo *createArgumentInfo(TypeInfo *type, const char *name, uint32_t line, uint32_t pos) {
   ArgumentInfo *argInfo = (ArgumentInfo *)malloc(sizeof(ArgumentInfo));
   argInfo->type = type;
@@ -825,6 +1411,10 @@ FunctionInfo *createFunctionInfo(const char *fileName, const char *functionName,
   funcInfo->pos = pos;
   funcInfo->isVarargs = false;
   funcInfo->isBuiltin = false;
+  funcInfo->isStatic = false;
+  funcInfo->isPrivate = false;
+  funcInfo->isConstructor = false;
+  funcInfo->isOverride = false;
   return funcInfo;
 }
 
@@ -908,20 +1498,283 @@ void freeProgramWarnings(ProgramWarningInfo *warning) {
     }
 }
 
+ClassInfo* createClassInfo(const char* name, const char* parentName, const char** interfaceNames, int interfaceCount, MyAstNode* classBody, char* fileName, uint64_t typeId) {
+  ClassInfo* info = (ClassInfo*)malloc(sizeof(ClassInfo));
+  if (!info) return NULL;
+
+  info->name = strdup(name);
+  info->parentName = parentName ? strdup(parentName) : NULL;
+
+  if (interfaceCount > 0 && interfaceNames) {
+      info->interfaceNames = (char**)malloc(interfaceCount * sizeof(char*));
+      for (int i = 0; i < interfaceCount; i++) {
+          info->interfaceNames[i] = strdup(interfaceNames[i]);
+      }
+  } else {
+      info->interfaceNames = NULL;
+  }
+
+  info->interfaceCount = interfaceCount;
+  info->isInterface = false;
+  info->program = NULL;
+  info->fields = NULL;
+  info->fieldsCount = 0;
+  info->allParentFieldsCount = 0;
+  info->next = NULL;
+  info->body = classBody;
+  info->fileName = strdup(fileName);
+  info->typeId = typeId;
+  info->vtable = NULL;
+
+  return info;
+}
+
+ClassProgram* createClassProgram() {
+  ClassProgram* program = (ClassProgram*)malloc(sizeof(ClassProgram));
+  if (!program) return NULL;
+  program->classes = NULL;
+  return program;
+}
+
+void addClassInfo(ClassProgram* program, ClassInfo* classInfo) {
+  if (!program || !classInfo) return;
+
+  ClassInfo *existing = findClassWithName(program->classes, classInfo->name);
+
+  if (existing != NULL) {
+    char buffer[1024];
+    snprintf(buffer, sizeof(buffer),
+      "Class declaration error. Class %s is exists\n", 
+      existing->name);
+    ProgramErrorInfo* error = createProgramErrorInfo(buffer);
+    addProgramError(existing->program, error);
+  }
+  classInfo->next = program->classes;
+  program->classes = classInfo;
+}
+
+//DO NOT FREE BODY
+void freeClassInfo(ClassInfo* info) {
+  if (!info) return;
+
+  free(info->name);
+  free(info->parentName);
+
+  for (int i = 0; i < info->interfaceCount; i++) {
+      free(info->interfaceNames[i]);
+  }
+  free(info->interfaceNames);
+
+  if (info->program) {
+      freeProgram(info->program);
+  }
+
+  if (info->vtable) {
+    freeVtable(info->vtable);
+  }
+
+  freeField(info->fields);
+  free(info->fileName);
+
+  free(info);
+}
+
+void freeClassProgram(ClassProgram* program) {
+  if (!program) return;
+
+  ClassInfo* current = program->classes;
+  while (current) {
+      ClassInfo* next = current->next;
+      freeClassInfo(current);
+      current = next;
+  }
+
+  free(program);
+}
+
+
+ClassVtable *createVtable() {
+  ClassVtable *vtable = malloc(sizeof(ClassVtable));
+  vtable->head = NULL;
+  vtable->tail = NULL;
+  vtable->currentOffset = 0;
+  return vtable;
+}
+
+void addVtableEntry(ClassVtable *vtable, const char *functionName, const char *className, bool isBuiltin) {
+  ClassVtableEntry *newEntry = malloc(sizeof(*newEntry));
+  newEntry->functionName = strdup(functionName);
+  newEntry->className = strdup(className);
+  newEntry->offset       = vtable->currentOffset;
+  newEntry->next         = NULL;
+  newEntry->prev         = NULL;
+  newEntry->isBuiltin = isBuiltin;
+
+  if (vtable->head == NULL) {
+      vtable->head = vtable->tail = newEntry;
+  } else {
+      vtable->tail->next = newEntry;
+      newEntry->prev     = vtable->tail;
+      vtable->tail       = newEntry;
+  }
+}
+
+void prepareOffset(ClassVtable *vtable, size_t *outCount) {
+  size_t count = 0;
+  ClassVtableEntry *cur = vtable->head;
+  while (cur) {
+      count++;
+      cur = cur->next;
+  }
+
+  ClassVtableEntry **array = malloc(count * sizeof(ClassVtableEntry *));
+
+  cur = vtable->head;
+  for (size_t i = 0; i < count; ++i) {
+      cur->offset = i * 8;
+      cur = cur->next;
+  }
+
+  *outCount = count;
+  free(array);
+}
+
+void freeVtable(ClassVtable *vtable) {
+  ClassVtableEntry *current = vtable->head;
+  while (current) {
+      ClassVtableEntry *next = current->next;
+      free(current->functionName);
+      free(current->className);
+      free(current);
+      current = next;
+  }
+  free(vtable);
+}
+void printTypeInfo(TypeInfo* type) {
+    while (type) {
+        printf("Type: %s", type->typeName);
+        if (type->isArray)
+            printf(" (array, dim=%u)", type->arrayDim);
+        if (type->isVarargs)
+            printf(" (varargs)");
+        printf("\n");
+        type = type->next;
+    }
+}
+
+void printFieldInfo(FieldInfo* field) {
+    while (field) {
+        printf("  Field: %s\n", field->name);
+        if (field->type) {
+            printf("    ");
+            printTypeInfo(field->type);
+        }
+        printf("    Line: %u, Pos: %u, Offset: %ld\n", field->line, field->pos, field->offset);
+        field = field->next;
+    }
+}
+
+void printFunctionEntry(FunctionEntry* fn) {
+    while (fn) {
+        printf("  Function: %s (File: %s)\n", fn->functionName, fn->fileName);
+        if (fn->returnType) {
+            printf("    Return type: ");
+            printTypeInfo(fn->returnType);
+        }
+        printf("    Arguments count: %u, IsVarargs: %s, IsBuiltin: %s, IsStatic: %s, IsPrivate: %s\n",
+               fn->argumentsCount,
+               fn->isVarargs ? "true" : "false",
+               fn->isBuiltin ? "true" : "false",
+               fn->isStatic ? "true" : "false",
+               fn->isPrivate ? "true" : "false");
+        fn = fn->next;
+    }
+}
+
+void printProgramErrors(ProgramErrorInfo* error) {
+    if (!error) return;
+    printf("Errors:\n");
+    while (error) {
+        printf("  - %s\n", error->message);
+        error = error->next;
+    }
+}
+
+void printProgramWarnings(ProgramWarningInfo* warning) {
+    if (!warning) return;
+    printf("Warnings:\n");
+    while (warning) {
+        printf("  - %s\n", warning->message);
+        warning = warning->next;
+    }
+}
+
+void printProgramInfo(Program* program) {
+    if (!program) return;
+
+    printf("Functions:\n");
+    FunctionInfo *func = program->functions;
+    while (func != NULL) {
+      printFunctionInfo(func);
+      func = func->next;
+    }
+
+    printProgramErrors(program->errors);
+    printProgramWarnings(program->warnings);
+}
+
+void printClassInfo(ClassInfo* cls) {
+    printf("====================================================\n");
+    printf("Class: %s\n", cls->name);
+    printf("TypeID: %lu\n", cls->typeId);
+    printf("Parent: %s\n", cls->parentName ? cls->parentName : "None");
+    printf("Is Interface: %s\n", cls->isInterface ? "Yes" : "No");
+
+    if (cls->interfaceCount > 0 && cls->interfaceNames) {
+        printf("Implements:\n");
+        for (int i = 0; i < cls->interfaceCount; i++) {
+            printf("  - %s\n", cls->interfaceNames[i]);
+        }
+    }
+
+    if (cls->fields) {
+        printf("Fields:\n");
+        printFieldInfo(cls->fields);
+    }
+
+    if (cls->program) {
+        printf("Program Info:\n");
+        printProgramInfo(cls->program);
+    }
+}
+
+void printAllClassesInfo(ClassInfo* head) {
+    ClassInfo* current = head;
+    while (current) {
+        printClassInfo(current);
+        current = current->next;
+    }
+}
+
+
 void printFunctionInfo(FunctionInfo *funcInfo) {
-  printf("File: %s\n", funcInfo->fileName);
-  printf("Function: %s\n", funcInfo->functionName);
-  printf("Builtin: %b\n", funcInfo->isBuiltin);
-  printf("Return type: %s", funcInfo->returnType->typeName);
+  printf("  File: %s\n", funcInfo->fileName);
+  printf("  Function: %s\n", funcInfo->functionName);
+  printf("  Constructor: %s\n", funcInfo->isConstructor ? "Yes" : "No");;
+  printf("  Builtin: %s\n", funcInfo->isBuiltin ? "Yes" : "No");
+  printf("  Static: %s\n", funcInfo->isStatic ? "Yes" : "No");
+  printf("  Private: %s\n", funcInfo->isPrivate ? "Yes" : "No");
+  printf("  Varargs: %s\n", funcInfo->isVarargs ? "Yes" : "No");
+  printf("  Return type: %s", funcInfo->returnType->typeName);
   if (funcInfo->returnType->custom)
     printf(", custom type");
   if (funcInfo->returnType->isArray)
     printf(", array with dim %d", funcInfo->returnType->arrayDim);
   printf("\n");
-  printf("Arguments:\n");
+  printf("  Arguments:\n");
   ArgumentInfo *arg = funcInfo->arguments;
   while (arg != NULL) {
-    printf("  %s %s, varargs: %b", arg->type->typeName, arg->name, arg->isVarargs);
+    printf("    %s %s, varargs: %s", arg->type->typeName, arg->name, arg->isVarargs ? "Yes" : "No");
     if (arg->type->custom)
       printf(", custom type");
     if (arg->type->isArray)
@@ -1197,4 +2050,23 @@ void traverseProgramAndBuildCallGraph(Program *program, CallGraph *cg, bool debu
 
     if (debug)
       printf("\nEnd of Program Traversal.\n");
+}
+
+void printEntriesReversed(const ClassVtableEntry *e) {
+  if (!e) return;
+  printEntriesReversed(e->prev);
+  printf("Function: %-20s | Class: %-20s | Offset: %ld\n", e->functionName, e->className, e->offset);
+}
+
+void printVtable(const ClassVtable *vtable) {
+  if (!vtable) {
+      printf("Vtable is NULL\n");
+      return;
+  }
+
+  const ClassVtableEntry *entry = vtable->tail;
+
+  printf("=== Class Vtable ===\n");
+  printEntriesReversed(entry);
+  printf("====================\n");
 }

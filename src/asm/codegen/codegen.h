@@ -13,12 +13,22 @@
 #define REG_R5 "R5"
 #define REG_R6 "R6"
 #define REG_R7 "R7"
+#define REG_N0 "N0"
+#define REG_N1 "N1"
+#define REG_N2 "N2"
+#define REG_N3 "N3"
+#define REG_N4 "N4"
+#define REG_N5 "N5"
+#define REG_N6 "N6"
+#define REG_N7 "N7"
 
 #define REG_IP "IP"
 #define REG_AR "AR"
 #define REG_RT "RT"
 #define REG_SP "SP"
 #define REG_BP "BP"
+#define REG_THIS "THIS"
+#define REG_IID "IID"
 
 #define REG_BR1 "BR1"
 #define REG_BR2 "BR2"
@@ -52,6 +62,7 @@
 #define plain3(buffer, command, arg1, arg2, arg3) ({stringbuffer_append_string(buffer, "  "); stringbuffer_append_string(buffer, command); stringbuffer_append_string(buffer, " "); stringbuffer_append_string(buffer, arg1); stringbuffer_append_string(buffer, ", "); stringbuffer_append_string(buffer, arg2); stringbuffer_append_string(buffer, ", "); stringbuffer_append_string(buffer, arg3); stringbuffer_append_string(buffer, "\n");})
 #define size1(buffer, command, size, arg1) ({stringbuffer_append_string(buffer, "  "); stringbuffer_append_string(buffer, command); stringbuffer_append_string(buffer, " "); stringbuffer_append_string(buffer, size); stringbuffer_append_string(buffer, " "); stringbuffer_append_string(buffer, arg1); stringbuffer_append_string(buffer, "\n");})
 #define size2(buffer, command, size, arg1, arg2) ({stringbuffer_append_string(buffer, "  "); stringbuffer_append_string(buffer, command); stringbuffer_append_string(buffer, " "); stringbuffer_append_string(buffer, size); stringbuffer_append_string(buffer, " "); stringbuffer_append_string(buffer, arg1); stringbuffer_append_string(buffer, ", "); stringbuffer_append_string(buffer, arg2); stringbuffer_append_string(buffer, "\n");})
+#define size3(buffer, command, size, arg1, arg2, arg3) ({stringbuffer_append_string(buffer, "  "); stringbuffer_append_string(buffer, command); stringbuffer_append_string(buffer, " "); stringbuffer_append_string(buffer, size); stringbuffer_append_string(buffer, " "); stringbuffer_append_string(buffer, arg1); stringbuffer_append_string(buffer, ", "); stringbuffer_append_string(buffer, arg2); stringbuffer_append_string(buffer, ", "); stringbuffer_append_string(buffer, arg3); stringbuffer_append_string(buffer, "\n");})
 #define sizeOffset3(buffer, command, size, arg1, arg2, arg3) ({stringbuffer_append_string(buffer, "  "); stringbuffer_append_string(buffer, command); stringbuffer_append_string(buffer, " "); stringbuffer_append_string(buffer, size); stringbuffer_append_string(buffer, " "); stringbuffer_append_string(buffer, arg1); stringbuffer_append_string(buffer, ", ["); stringbuffer_append_string(buffer, arg2); stringbuffer_append_string(buffer, ", "); stringbuffer_append_string(buffer, arg3); stringbuffer_append_string(buffer, "]"); stringbuffer_append_string(buffer, "\n");})
 #define label0(buffer, label) ({stringbuffer_append_string(buffer, label); stringbuffer_append_string(buffer, ":\n");})
 #define label1(buffer, label) ({stringbuffer_append_string(buffer, "."); stringbuffer_append_string(buffer, label); stringbuffer_append_string(buffer, ":\n");})
@@ -69,11 +80,15 @@
 
 #define commandST(buffer, size, reg1, reg2) ({size2(buffer, "ST", size, reg1, reg2);})
 #define commandSToffset(buffer, size, reg1, reg2, offset) ({sizeOffset3(buffer, "ST", size, reg1, reg2, offset);})
+#define commandSTF(buffer, size, from, objectPtr, offsetValue) ({size3(buffer, "STF", size, from, objectPtr, offsetValue);})
 #define commandLD(buffer, size, reg1, reg2) ({size2(buffer, "LD", size, reg1, reg2);})
 #define commandLDoffset(buffer, size, reg1, reg2, offset) ({sizeOffset3(buffer, "LD", size, reg1, reg2, offset);})
 #define commandLDCoffset(buffer, size, reg1, reg2, offset) ({sizeOffset3(buffer, "LDC", size, reg1, reg2, offset);})
 #define commandLDI32(buffer, reg1, value32) ({plain2(buffer, "LDI32", reg1, value32);})
 #define commandLDC64(buffer, reg1, constAddr) ({plain2(buffer, "LDC64", reg1, constAddr);})
+#define commandLDF(buffer, size, to, objectPtr, offsetValue) ({size3(buffer, "LDF", size, to, objectPtr, offsetValue);})
+
+#define commandFA(buffer, to, objectPtr, offsetValue) ({plain3(buffer, "FA", to, objectPtr, offsetValue);})
 
 #define commandPUSH(buffer, reg1) ({plain1(buffer, "PUSH", reg1);})
 #define commandPOP(buffer, reg1) ({plain1(buffer, "POP", reg1);})
@@ -118,11 +133,15 @@
 #define commandCALL(buffer, label) ({plain1(buffer, "CALL", label);})
 #define commandENTER(buffer, size) ({plain1(buffer, "ENTER", size);})
 #define commandLEAVE(buffer, size) ({plain1(buffer, "LEAVE", size);})
+#define commandMCALL(buffer, objectPtr, offsetValue) ({plain2(buffer, "MCALL", objectPtr, offsetValue);})
+#define commandICALL(buffer, objectPtr, offsetValue) ({plain2(buffer, "ICALL", objectPtr, offsetValue);})
+
+#define commandNEW(buffer, classInfoPtr, fieldsCount) ({plain2(buffer, "NEW", classInfoPtr, fieldsCount);})
 
 void calcMaxRegs(OperationTreeNode *root, uint8_t *maxRegs);
 
 void prepareRegsAndTemps(OperationTreeNode *root, bool debug);
 
-void generateASMForOT(FunctionEntry *entry, OperationTreeNode *root, struct StringBuffer *buffer);
+void generateASMForOT(ClassInfo *classInfo, ClassInfo *classes, FunctionEntry *entry, OperationTreeNode *root, struct StringBuffer *buffer);
 
-void generateASMForFunction(struct StringBuffer *buffer, FunctionInfo *func, FunctionEntry *funcE, bool main, bool debug);
+void generateASMForFunction(ClassInfo *classInfo, ClassInfo *classes, struct StringBuffer *buffer, FunctionInfo *func, FunctionEntry *funcE, bool main, bool debug);

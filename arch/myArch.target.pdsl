@@ -10,6 +10,14 @@ architecture myArch {
         storage R5_S[64];
         storage R6_S[64];
         storage R7_S[64];
+        storage N0_S[64];
+        storage N1_S[64];
+        storage N2_S[64];
+        storage N3_S[64];
+        storage N4_S[64];
+        storage N5_S[64];
+        storage N6_S[64];
+        storage N7_S[64];
 
         /*-----64 bit-----*/
         view R0 = R0_S;
@@ -19,7 +27,15 @@ architecture myArch {
         view R4 = R4_S;
         view R5 = R5_S;
         view R6 = R6_S;
-        view R7 = R7_S;        
+        view R7 = R7_S;   
+        view N0 = N0_S;
+        view N1 = N1_S;
+        view N2 = N2_S;
+        view N3 = N3_S;
+        view N4 = N4_S;
+        view N5 = N5_S;
+        view N6 = N6_S;
+        view N7 = N7_S;       
 
         /*------------------INSTRUCTION AND ADDRESS POINTERS-------------------------*/
         storage IP_S [32];
@@ -35,11 +51,15 @@ architecture myArch {
         storage BR1_S [64];
         storage BR2_S [64];
         storage RT_S [64];
+        storage IID_S [64];
+        storage THIS_S [64];
         view SP = SP_S;
         view BP = BP_S;
         view BR1 = BR1_S;
         view BR2 = BR2_S;
         view RT = RT_S;
+        view IID = IID_S;
+        view THIS = THIS_S;
 
         /*------------------IO REGISTERS-------------------------*/
         storage IN_S [8];
@@ -48,11 +68,12 @@ architecture myArch {
         view OUT = OUT_S;        
 
         /*------------------FLAGS REGISTER-------------------------*/
-        storage FLAGS_S [4];
+        storage FLAGS_S [5];
         view N = FLAGS_S[0];
         view Z = FLAGS_S[1];
         view V = FLAGS_S[2];
         view C = FLAGS_S[3];
+        view E = FLAGS_S[4];
 
 
     memory:
@@ -96,7 +117,17 @@ architecture myArch {
             RT = 001110,
             BR1 = 001111,
             BR2 = 010000,
-            ALR = 010001
+            ALR = 010001,
+            IID = 010010,
+            THIS = 010011,
+            N0 = 010100,
+            N1 = 010100,
+            N2 = 010101,
+            N3 = 010110,
+            N4 = 010111,
+            N5 = 011000,
+            N6 = 011001,
+            N7 = 011010
 	    };
 
         encode size sequence = alternatives {
@@ -848,6 +879,113 @@ architecture myArch {
         IP = IP + 8;
     };
 
+    instruction m-call = {0011 0011, 11, reg as objectPtr, 000000, 00 0000 0000, off32 as offsetValue} {
+        SP = SP - 8;
+        dataM:8[SP] = IP + 8;
+
+        let classInfoPtr = dataM:8[objectPtr + 0];
+        let vtablePtr = constantsM:8[classInfoPtr + 16];
+        let mAddr = constantsM:8[vtablePtr + offsetValue];
+
+        IP = mAddr;        
+    };
+
+    instruction f-load = {0011 0100, sequence size, reg as to, reg as objectPtr, 00 0000 0000, off32 as offsetValue} {
+        let addr = 8 + objectPtr + offsetValue;
+        addr = addr & 0x00000000ffffffff;
+        when sz8 then {
+            let res = dataM:8[addr];
+            to = res & 0x00000000000000ff;
+        } else when sz16 then {
+            let res = dataM:8[addr];
+            to = res & 0x000000000000ffff;
+        } else when sz32 then {
+            let res = dataM:8[addr];
+            to = res & 0x00000000ffffffff;
+        } else when sz64 then {
+            let res = dataM:8[addr];
+            to = res & 0xffffffffffffffff;
+        }
+        IP = IP + 8;
+    };
+
+    instruction i-call = {0011 0101, 11, reg as objectPtr, 000000, 00 0000 0000, off32 as offsetValue} {
+        SP = SP - 8;
+        dataM:8[SP] = IP + 8;
+
+        let classInfoPtr = dataM:8[objectPtr + 0];
+        let interfaceCount = constantsM:8[classInfoPtr + 24];
+
+        let i = 0; 
+        let tmp = 0;
+        let save = 0;
+        while i != interfaceCount do {
+            tmp = constantsM:8[classInfoPtr + 32 + (8*i)];
+
+            if (tmp == IID) then {
+                save = i;
+            }
+
+            i = i + 1;
+        }
+
+        let interfaceImpl = constantsM:8[classInfoPtr + 32 + (interfaceCount * 8) + (save * 8)];
+
+        let mAddr = constantsM:8[interfaceImpl + offsetValue];
+
+        IP = mAddr;        
+    };
+
+    instruction check_cast = {0011 0111, 11, reg as to, reg as from, 00 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
+        let ok = 0;
+
+        let classToInfoPtr = dataM:8[to + 0];
+        let typeIdTo = constantsM:8[classToInfoPtr + 0];
+
+        let classFromInfoPtr = dataM:8[to + 0];
+        let typeIdFrom = constantsM:8[classFromInfoPtr + 0];
+
+        if (typeIdFrom == typeIdTo) then {
+            ok = 1;
+        }
+
+        if (ok == 0) then {
+            let superPtrTo = constantsM:8[classToInfoPtr + 8];
+            let superPtrFrom = constantsM:8[classFromInfoPtr + 8];
+        
+            
+        }
+        IP = IP + 8;
+    };
+
+    instruction new = {0011 1000, 11, reg as classInfoPtr, 000000, 00 0000 0000, imm32 as fieldsCount} {
+        let size = 8 + fieldsCount * 8;
+        dataM:8[ALR] = classInfoPtr;
+        ALR = ALR + size;
+        IP = IP + 8;
+    };
+
+    instruction f-store = {0011 1001, sequence size, reg as from, reg as objectPtr, 00 0000 0000, off32 as offsetValue} {
+        let addr = 8 + objectPtr + offsetValue;
+        addr = addr & 0x00000000ffffffff;
+        when sz8 then {
+            dataM:8[addr] = from & 0x00000000000000ff;
+        } else when sz16 then {
+            dataM:8[addr] = from & 0x000000000000ffff;
+        } else when sz32 then {
+            dataM:8[addr] = from & 0x00000000ffffffff;
+        } else when sz64 then {
+            dataM:8[addr] = from & 0xffffffffffffffff;
+        }
+        IP = IP + 8;
+    };
+
+    instruction f-address = {0011 1010, 11, reg as to, reg as objectPtr, 00 0000 0000, off32 as offsetValue} {
+        let addr = 8 + objectPtr + offsetValue;
+        to = addr & 0x00000000ffffffff;
+        IP = IP + 8;
+    };
+
     instruction hlt = {1111 1111 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000} {
 	};
 
@@ -888,7 +1026,11 @@ architecture myArch {
                     for store-off(from, ptr, offsetValue) "b {1}, [{2}, {3}]" when sz8,
                     for store-off(from, ptr, offsetValue) "w {1}, [{2}, {3}]" when sz16,
                     for store-off(from, ptr, offsetValue) "d {1}, [{2}, {3}]" when sz32,
-                    for store-off(from, ptr, offsetValue) "q {1}, [{2}, {3}]" when sz64;     
+                    for store-off(from, ptr, offsetValue) "q {1}, [{2}, {3}]" when sz64;  
+        mnemonic STF for f-store(from, objectPtr, offsetValue) "b {1}, {2}, {3}" when sz8,
+                     for f-store(from, objectPtr, offsetValue) "w {1}, {2}, {3}" when sz16,
+                     for f-store(from, objectPtr, offsetValue) "d {1}, {2}, {3}" when sz32,
+                     for f-store(from, objectPtr, offsetValue) "q {1}, {2}, {3}" when sz64;  
         mnemonic LD for load(to, ptr) "b {1}, {2}" when sz8,
                     for load(to, ptr) "w {1}, {2}" when sz16,
                     for load(to, ptr) "d {1}, {2}" when sz32,
@@ -902,7 +1044,13 @@ architecture myArch {
                      for load-c-off(to, ptr, offsetValue) "d {1}, [{2}, {3}]" when sz32,
                      for load-c-off(to, ptr, offsetValue) "q {1}, [{2}, {3}]" when sz64; 
         mnemonic LDI32 for load-imm32(to, value) plain2;  
-        mnemonic LDC64 for load-const(to, ptr) plain2;  
+        mnemonic LDC64 for load-const(to, ptr) plain2;
+        mnemonic LDF for f-load(to, objectPtr, offsetValue) "b {1}, {2}, {3}" when sz8,
+                     for f-load(to, objectPtr, offsetValue) "w {1}, {2}, {3}" when sz16,
+                     for f-load(to, objectPtr, offsetValue) "d {1}, {2}, {3}" when sz32,
+                     for f-load(to, objectPtr, offsetValue) "q {1}, {2}, {3}" when sz64;
+
+        mnemonic FA for f-address(to, objectPtr, offsetValue) plain3;
 
         mnemonic PUSH for push(from) plain1;     
         mnemonic POP for pop(to) plain1; 
@@ -968,4 +1116,8 @@ architecture myArch {
         mnemonic CALL for call(value) plain1;
         mnemonic ENTER for enter(value) plain1;
         mnemonic LEAVE for leave(value) plain1;
+        mnemonic MCALL for m-call(objectPtr, offsetValue) plain2;
+        mnemonic ICALL for i-call(objectPtr, offsetValue) plain2;
+
+        mnemonic NEW for new(classInfoPtr, fieldsCount) plain2;
 } 

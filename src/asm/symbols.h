@@ -25,7 +25,7 @@ typedef struct ConstVar {
     } value;
 } ConstVar;
 
-void scanOperationTreeForVars(FunctionEntry *entry, OperationTreeNode *root);
+void scanOperationTreeForVars(ClassInfo *classInfo, FunctionEntry *entry, OperationTreeNode *root);
 
 LocalVar *createLocalVar(const char *name, const char *typeName, uint8_t size, bool custom, bool isArray, uint32_t arrayDim, uint32_t index);
 
